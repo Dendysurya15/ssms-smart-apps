@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,14 +15,24 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/pupuk', function () {
-    return view('dashboard');
-});
 
-Route::get('/vm', function () {
+Route::get('/', [App\Http\Controllers\HomeController::class, 'index_login'])->name('login');
+Route::get('/register', [App\Http\Controllers\HomeController::class, 'index_registration'])->name('register');
+// Auth::routes();
+
+Route::post('/auth_login', [App\Http\Controllers\HomeController::class, 'auth_login'])->name('auth_login');
+Route::post('/auth_registration', [App\Http\Controllers\HomeController::class, 'auth_registration'])->name('auth_registration');
+// Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('logout', [HomeController::class, 'logout'])->name('logout');
+
+
+Route::get('dashboard_taksasi', [DashboardController::class, 'ds_taksasi'])->name('dash_est');
+Route::get('dashboard_taksasi_afdeling', [DashboardController::class, 'ds_taksasi_afdeling'])->name('dash_afd');
+
+Route::get('/dashboard_vehicle_management', function () {
     return view('vehicle-management');
 });
 
-Route::get('/field-inspection', function () {
+Route::get('/dashboard_field_inspection', function () {
     return view('field-inspection');
 });

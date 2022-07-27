@@ -73,7 +73,7 @@
                     <a class="nav-link" data-widget="pushmenu" href="#" role="hover"><i class="fas fa-bars"></i></a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
-                    <a class="nav-link">Selamat datang !</a>
+                    <a class="nav-link">Selamat datang {{ Auth::user()->name}} !</a>
                     <!-- Right Side Of Navbar -->
                 </li>
             </ul>
@@ -98,30 +98,30 @@
 
                         <!-- TABEL -->
                         <li class="nav-item">
-                            <a href="{{ asset('/pupuk') }}" class="nav-link">
+                            <a href="{{ asset('/dashboard_taksasi') }}" class="nav-link">
                                 <i class="nav-icon fa fa-seedling"></i>
                                 <p>
-                                    Manuring Inspection
+                                    Estate
                                 </p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{ asset('/field-inspection') }}" class="nav-link">
-                                <i class="nav-icon fa fa-book"></i>
+                            <a href="{{ asset('/dashboard_taksasi_afdeling') }}" class="nav-link">
+                                <i class="nav-icon fa fa-seedling"></i>
                                 <p>
-                                    Field Inspection
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ asset('/vm') }}" class="nav-link">
-                                <i class="nav-icon fa fa-car"></i>
-                                <p>
-                                    Vehicle Management
+                                    Afdeling
                                 </p>
                             </a>
                         </li>
 
+                        <li class="nav-item fixed-bottom mb-3" heig style="position: absolute;">
+                            <a href="{{ asset('/logout') }}" class="nav-link ">
+                                <i class="nav-icon fa fa-sign-out-alt"></i>
+                                <p>
+                                    Logout
+                                </p>
+                            </a>
+                        </li>
 
 
                     </ul>
