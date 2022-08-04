@@ -25,10 +25,10 @@ Route::post('/auth_registration', [App\Http\Controllers\HomeController::class, '
 // Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('logout', [HomeController::class, 'logout'])->name('logout');
 
-
 Route::get('dashboard_taksasi', [DashboardController::class, 'ds_taksasi'])->name('dash_est');
 Route::get('dashboard_taksasi_afdeling', [DashboardController::class, 'ds_taksasi_afdeling'])->name('dash_afd');
-
+Route::post('getEstate', [DashboardController::class, 'getEstate'])->name('getEstate');
+Route::post('getLoadRegional', [DashboardController::class, 'getDataRegional'])->name('getLoadRegional');
 Route::get('/dashboard_vehicle_management', function () {
     return view('vehicle-management');
 });

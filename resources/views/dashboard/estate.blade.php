@@ -16,7 +16,6 @@
         }
     }
 </style>
-
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
@@ -31,6 +30,7 @@
                 </form>
             </div>
             <br>
+            <h1 class="outputString"></h1>
             <div class="row">
 
                 <div class="col-md-12">
@@ -40,40 +40,33 @@
                             <div class=" card-title">
                                 <i class="fas fa-chart-line pr-2"></i> Taksasi Estate
                             </div>
+
+                            {{-- <div class="float-right ml-2" style="width: 200px">
+                                <div class="list-inline">
+                                    <select id="estate" name="estate" class="form-control dynamic">
+                                        <option selected disabled>Pilih Estate</option>
+                                    </select>
+                                </div>
+                            </div> --}}
                             <div class="float-right">
                                 <div class="list-inline">
-                                    <select name="lokasi" class="form-control">
-                                        {{-- @foreach($wl_loc as $loc) --}}
-                                        <option value="">Regional I</option>
-                                        <option value="">Regional II</option>
-                                        <option value="">Regional III</option>
+                                    {{ csrf_field() }}
+                                    <select id="tak_est_reg" class="form-control" data-dependent='estate'>
 
-                                        {{-- @endforeach --}}
+                                        @foreach($reg as $key => $value)
+                                        <option value="{{$key}}" {{ $key==0 ? 'selected' : '' }}>{{$value}}</option>
+                                        @endforeach
                                     </select>
                                 </div>
                             </div>
-
                         </div>
                         <div class="card-body">
                             <div class="row">
-
                                 <div class="col-12">
-
                                     <div id="taksasiestate" style="height: 300px">
                                     </div>
-
                                 </div>
-
-                                {{-- <div class="col-6">
-
-                                    <div id="filterpupukreg1">
-                                    </div>
-
-                                </div> --}}
-
                             </div>
-
-
                         </div><!-- /.card-body -->
                     </div><!-- Curah Hujan -->
 
@@ -92,13 +85,10 @@
                             </div>
                             <div class="float-right">
                                 <div class="list-inline">
-                                    <select name="lokasi" class="form-control">
-                                        {{-- @foreach($wl_loc as $loc) --}}
-                                        <option value="">Regional I</option>
-                                        <option value="">Regional II</option>
-                                        <option value="">Regional III</option>
-
-                                        {{-- @endforeach --}}
+                                    <select id="kab_pem_est" class="form-control">
+                                        @foreach($reg as $key => $value)
+                                        <option value="{{$key}}" {{ $key==0 ? 'selected' : '' }}>{{$value}}</option>
+                                        @endforeach
                                     </select>
                                 </div>
                             </div>
@@ -158,17 +148,111 @@
 <script>
     google.charts.load('current', {'packages':['corechart']});
     google.charts.setOnLoadCallback(drawtaksasiestate);
-      google.charts.setOnLoadCallback(drawkebutuhanestate);
-      
+    google.charts.setOnLoadCallback(drawkebutuhanestate);
+    $(document).ready(function(){
+    
+        getDataTakEst($('#tak_est_reg'))
+        getDataKebutuhanEst($('#kab_pem_est'))
+    });
 
-      function drawtaksasiestate() {
-        var tak_est = new google.visualization.DataTable();
+    $('#tak_est_reg').change(function(){
+    if($(this).val() != '')
+    {
+        getDataTakEst($('#tak_est_reg'))
+    }
+    });
+
+    $('#kab_pem_est').change(function(){
+    if($(this).val() != '')
+    {
+        getDataKebutuhanEst($('#kab_pem_est'))
+    }
+    });
+
+    function getDataTakEst(reg){
+    var value = reg.val();
+    var dependent = reg.data('dependent');
+    var _token = $('input[name="_token"]').val();
+    const params = new URLSearchParams(window.location.search)
+    var paramArr = [];
+    for (const param of  params) {
+        paramArr = param
+    }
+
+    if(paramArr.length > 0){
+        date = paramArr[1]
+    }else{
+        date = new Date().toISOString().slice(0, 10)
+    }
+
+    $.ajax({
+    url:"{{ route('getLoadRegional') }}",
+    method:"POST",
+    data:{ id_reg:value, _token:_token, tgl:date, tak:1},
+    success:function(result)
+    {
+        //split estate dan value taksasi
+        sliceResult = result.slice(1, -1);
+        const arrSlice = sliceResult.split(",");
+        const arrResult = []
+        for (let index = 0; index < arrSlice.length; index++) {
+            const splitted = arrSlice[index].split(":")
+            var estate = splitted[0].slice(1, -1);
+            var valEst = splitted[1]
+            arrResult.push([estate,valEst])
+        }
+
+        drawtaksasiestate(arrResult)
+    }
+    })
+    }
+
+    function getDataKebutuhanEst(reg){
+    var value = reg.val();
+    var dependent = reg.data('dependent');
+    var _token = $('input[name="_token"]').val();
+    const params = new URLSearchParams(window.location.search)
+    var paramArr = [];
+    for (const param of  params) {
+        paramArr = param
+    }
+
+    if(paramArr.length > 0){
+        date = paramArr[1]
+    }else{
+        date = new Date().toISOString().slice(0, 10)
+    }
+
+    $.ajax({
+    url:"{{ route('getLoadRegional') }}",
+    method:"POST",
+    data:{ id_reg:value, _token:_token, tgl:date, tak:0},
+    success:function(result)
+    {
+        //split estate dan value taksasi
+        sliceResult = result.slice(1, -1);
+        const arrSlice = sliceResult.split(",");
+        const arrResult = []
+        for (let index = 0; index < arrSlice.length; index++) {
+            const splitted = arrSlice[index].split(":")
+            var estate = splitted[0].slice(1, -1);
+            var valEst = splitted[1]
+            arrResult.push([estate,valEst])
+        }
+        drawkebutuhanestate(arrResult)
+    }
+    })
+    }
+
+    function drawtaksasiestate(chart_data) {
+      
+    var tak_est = new google.visualization.DataTable();
     tak_est.addColumn('string', 'Estate');
     tak_est.addColumn('number', 'Taksasi Estate');
-    // tak_est.addColumn({type: 'string', role: 'style'});
-    tak_est.addRows([
-      <?php echo $est['data_taksasi_est']; ?>
-    ]);
+
+    for(i = 0; i < chart_data.length; i++){
+        tak_est.addRow([chart_data[i][0], parseFloat(chart_data[i][1])]);
+    }
 
         var options = {
         chartArea: {},
@@ -187,14 +271,15 @@
 
    
 
-    function drawkebutuhanestate() {
+    function drawkebutuhanestate(chart_data) {
+        console.log(chart_data)
         var keb_pemanen_est = new google.visualization.DataTable();
     keb_pemanen_est.addColumn('string', 'Estate');
     keb_pemanen_est.addColumn('number', 'Kebutuhan Pemanen Estate');
     // keb_pemanen_est.addColumn({type: 'string', role: 'style'});
-    keb_pemanen_est.addRows([
-      <?php echo $est['data_kebutuhan_pemanen_est']; ?>
-    ]);
+    for(i = 0; i < chart_data.length; i++){
+        keb_pemanen_est.addRow([chart_data[i][0], parseFloat(chart_data[i][1])]);
+    }
 
         var options = {
         chartArea: {},

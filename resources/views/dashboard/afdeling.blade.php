@@ -41,24 +41,26 @@
                             <div class=" card-title">
                                 <i class="fas fa-chart-line pr-2"></i> Taksasi Afdeling
                             </div>
-                            <div class="float-right">
+
+                            <div class="float-right ml-2">
                                 <div class="list-inline">
                                     <select name="lokasi" class="form-control">
-                                        {{-- @foreach($wl_loc as $loc) --}}
-                                        <option value="">KNE</option>
-                                        <option value="">RGE</option>
-                                        <option value="">BKE</option>
-                                        <option value="">SGE</option>
-                                        <option value="">KDE</option>
-                                        <option value="">RDE</option>
-                                        <option value="">SLE</option>
-                                        <option value="">SYE</option>
-                                        <option value="">UPE</option>
-                                        {{-- @endforeach --}}
+                                        <option selected disabled>Pilih regional</option>
+                                        @foreach($reg as $key => $value)
+                                        <option value="{{$key}}">{{$value}}</option>
+                                        @endforeach
                                     </select>
                                 </div>
                             </div>
-
+                            <div class="float-right">
+                                <div class="list-inline">
+                                    <select name="reg" class="form-control">
+                                        @foreach($reg as $key => $value)
+                                        <option value="{{$key}}">{{$value}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                         <div class="card-body">
                             <div class="row">

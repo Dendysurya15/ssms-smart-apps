@@ -2,22 +2,51 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Afdeling;
+use App\Models\Estate;
+use App\Models\Regional;
+use App\Models\Wilayah;
 use Carbon\Carbon;
 use DateInterval;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 
 class DashboardController extends Controller
 {
     //
     public function ds_taksasi(Request $request)
     {
+        // $reg_all = Regional::all()->pluck('nama');
+        // $reg = Estate::with("afdeling")->find(3)->afdeling;
+        // $reg_all = json_decode($reg_all);
+
+        $pil_reg = $request->has('id_reg') ? $request->get('id_reg') : 0;
+
+        $reg_all = Regional::all()->pluck('nama');
+        $reg_all = json_decode($reg_all);
+
+        $reg = Regional::with("wilayah")->get();
+        $reg_arr = array();
+
+        foreach ($reg as $key => $value) {
+            foreach ($value->wilayah as $key2 => $data) {
+                $reg_arr[$key][$data->nama] =  Wilayah::with("estate")->find($data->id)->estate->pluck('nama', 'est');
+            }
+        }
+
+        $est_wil_reg = array();
+        foreach ($reg_arr as $key => $value) {
+            foreach ($value as $key2 => $data) {
+                foreach ($data as $key3 => $datas) {
+                    $est_wil_reg[$key][$key3] = $datas;
+                }
+            }
+        }
 
         $est_array = array();
         $log_tak_est = '';
         $log_keb_pemanen_est = '';
-        $log_tak_afd = '';
-        $log_keb_pemanen_afd = '';
         $est = '';
         $dateToday = Carbon::now()->format('Y-m-d');
         $tglData = $request->has('tgl') ? $request->input('tgl') : $defaultHari = $dateToday;
@@ -33,23 +62,23 @@ class DashboardController extends Controller
             '#001E3C', '#AB221D', '#5CAF50', '#7CAF50', '#8CAF50', '#AB221D', '#AB221D',
             '#AB221D', '#AB221D', '#AB221D', '#AB221D', '#AB221D', '#AB221D', '#AB221D', '#282C34'
         );
-        $estate_regional_1 = array(
-            'KDE' => 'Kondang',
-            'BKE' => 'Batu Kotam',
-            'SGE' => 'Selangkun',
-            'RGE' => 'Rungun',
-            'RDE' => 'Rangda',
-            'PLE' => 'Pulau',
-            'NBE' => 'Natai Baru',
-            'SLE' => 'Sulung',
-            'KNE' => 'Kenambui',
-            'SYE' => 'Suayap',
-            'UPY' => 'Umpang',
-            'BGE' => 'Bengaris',
-            'LDE' => 'LADA',
-            'SRE' => 'Sungai Rangit',
-            'SKE' => 'Simpang Kadipi',
-        );
+        // $estate_regional_1 = array(
+        //     'KDE' => 'Kondang',
+        //     'BKE' => 'Batu Kotam',
+        //     'SGE' => 'Selangkun',
+        //     'RGE' => 'Rungun',
+        //     'RDE' => 'Rangda',
+        //     'PLE' => 'Pulau',
+        //     'NBE' => 'Natai Baru',
+        //     'SLE' => 'Sulung',
+        //     'KNE' => 'Kenambui',
+        //     'SYE' => 'Suayap',
+        //     'UPY' => 'Umpang',
+        //     'BGE' => 'Bengaris',
+        //     'LDE' => 'LADA',
+        //     'SRE' => 'Sungai Rangit',
+        //     'SKE' => 'Simpang Kadipi',
+        // );
 
         $afdeling = array('OA', 'OB', 'OC', 'OD', 'OF', 'OA');
 
@@ -58,29 +87,31 @@ class DashboardController extends Controller
             ->whereBetween('taksasi.waktu_upload', [$hariIni, $besok])
             ->orderBy('taksasi.afdeling', 'asc')
             ->get();
-        // dd($query);
 
-        $sum_tak_est = 0;
-        $sum_keb_pemanen_est = 0;
-        // dd($query);
+
+
+
+        // dd($est_wil_reg[$pil_reg]);d
 
         if ($query->first() != null) {
             $query = json_decode($query);
-            foreach ($estate_regional_1 as $key => $value) {
+            $inc = 0;
+
+            // DD($query[1]->taksasi);
+            foreach ($est_wil_reg[$pil_reg] as $key => $value) {
+                $sum_tak_est = 0;
+                $sum_keb_pemanen_est = 0;
                 foreach ($query as $data) {
                     if ($data->lokasi_kerja == $value) {
                         $sum_tak_est += $data->taksasi;
                         $sum_keb_pemanen_est += $data->pemanen;
-                    } else {
-                        $sum_tak_est = 0;
-                        $sum_keb_pemanen_est = 0;
                     }
                 }
                 $est_array[$key]['est'] = $key;
                 $est_array[$key]['taksasi'] = $sum_tak_est;
                 $est_array[$key]['kebutuhan_pemanen'] = $sum_keb_pemanen_est;
+                $inc++;
             }
-
 
             foreach ($est_array as $key => $value) {
                 $est        = $value['est'];
@@ -98,22 +129,53 @@ class DashboardController extends Controller
             'data_kebutuhan_pemanen_est'      => $log_keb_pemanen_est,
         ];
 
-
-
-        $estate_regional_2 = array('Pedongatan', 'Nangakiu', 'Sepondam', 'Merambang', 'Batu Tunggal', 'Nanua', 'Malata', 'Sungai Bulik', 'Sumber Cahaya');
-        $estate_regional_3 = array('Kanamit', 'Badirih', 'Behaur', 'Maliku', 'Pangkoh', 'Basarang', 'Gedabung', 'Betawi');
-
         return view('dashboard.estate', [
-            'estate_1' => $estate_regional_1,
             'est' => $est,
-
+            'reg' => $reg_all,
         ]);
     }
 
 
     public function ds_taksasi_afdeling(Request $request)
     {
+        $pil_est = $request;
 
+        $reg_all = Regional::all()->pluck('nama');
+        // $reg = Estate::with("afdeling")->find(3)->afdeling;
+        $reg_all = json_decode($reg_all);
+        // dd($reg[0]);
+        $wil_reg = array();
+        $wil_reg1 = null;
+
+
+        // $reg
+        // // dd($wil_reg1);
+        $reg = Regional::with("wilayah")->get();
+        // dd($reg[0]->wilayah);
+        $reg_arr = array();
+        // dd($reg);
+
+        foreach ($reg as $key => $value) {
+            foreach ($value->wilayah as $key2 => $data) {
+                $reg_arr[$key][$data->nama] =  Wilayah::with("estate")->find($data->id)->estate->pluck('nama', 'est');
+            }
+        }
+
+        $est_wil_reg = array();
+        foreach ($reg_arr as $key => $value) {
+            foreach ($value as $key2 => $data) {
+                foreach ($data as $key3 => $datas) {
+                    $est_wil_reg[$key][$key3] = $datas;
+                }
+            }
+        }
+        // dd($est_wil_reg[0]);
+        // dd($wil_reg);
+        // $est_reg1[] =
+
+        //estate default id 2 yaitu RDE 
+        $afd_req = 2;
+        $list_afd_est = Estate::with("afdeling")->find($afd_req)->afdeling->pluck('nama');
         $afd_array = array();
         $log_tak_est = '';
         $log_keb_pemanen_est = '';
@@ -163,26 +225,28 @@ class DashboardController extends Controller
 
         $sum_tak_est = 0;
         $sum_keb_pemanen_est = 0;
-        // dd($query);
-
-        $list_afd_array = array();
+        $list_afd_est = json_decode($list_afd_est);
         if ($query->first() != null) {
             $query = json_decode($query);
             foreach ($estate_regional_1 as $key => $value) {
                 foreach ($query as $data) {
-                    if (!in_array($data->afdeling, $list_afd_array)) {
+                    // dd($data->afdeling);
+                    if (!in_array($data->afdeling, $list_afd_est)) {
                         array_push($list_afd_array, $data->afdeling);
                     }
                 }
             }
 
-            foreach ($list_afd_array as $key => $value) {
+            foreach ($list_afd_est as $key => $value) {
                 $sum_tak_afd = 0;
                 $sum_keb_pemanen_afd = 0;
                 foreach ($query as $key2 => $data) {
                     if ($data->afdeling == $value) {
                         $sum_tak_afd += $data->taksasi;
                         $sum_keb_pemanen_afd += $data->pemanen;
+                    } else {
+                        $sum_tak_afd = 0;
+                        $sum_keb_pemanen_afd = 0;
                     }
                 }
                 $afd_array[$key]['afd'] = $value;
@@ -202,6 +266,7 @@ class DashboardController extends Controller
             }
         }
 
+        // dd($list_afd_est);
         $afd = [
             'data_taksasi_afd'      => $log_tak_afd,
             'data_kebutuhan_pemanen_afd'      => $log_keb_pemanen_afd,
@@ -214,6 +279,146 @@ class DashboardController extends Controller
         return view('dashboard.afdeling', [
             'estate_1' => $estate_regional_1,
             'afd' => $afd,
+
         ]);
+    }
+
+    public function getEstate(Request $request)
+    {
+        // $estates = Estate::with("afdeling")->find(3)->afdeling->pluck('nama');
+        $id_reg = $request->get('id_reg');
+        $pil_est = $request;
+
+        $reg_all = Regional::all()->pluck('nama', 'id');
+        $reg_all = json_decode($reg_all);
+
+
+
+        $reg = Regional::with("wilayah")->get();
+        $reg_arr = array();
+
+        foreach ($reg as $key => $value) {
+            foreach ($value->wilayah as $key2 => $data) {
+                $reg_arr[$key][$data->nama] =  Wilayah::with("estate")->find($data->id)->estate->pluck('nama', 'est');
+            }
+        }
+
+        $est_wil_reg = array();
+        foreach ($reg_arr as $key => $value) {
+            foreach ($value as $key2 => $data) {
+                foreach ($data as $key3 => $datas) {
+                    $est_wil_reg[$key][$key3] = $datas;
+                }
+            }
+        }
+
+        // foreach ($est_wil_reg[$id_reg] as $key => $val) {
+        //     echo "option value=''>$val</option>";
+        // }
+        $output = '';
+        foreach ($est_wil_reg[$id_reg] as $key => $val) {
+            $output .= '<option value="">' . $val . '</option>';
+        }
+        echo $output;
+    }
+
+    public function getDataRegional(Request $request)
+    {
+        $pil_reg = $request->get('id_reg');
+        $takReq = $request->get('tak');
+
+        $reg_all = Regional::all()->pluck('nama');
+        $reg_all = json_decode($reg_all);
+
+        $reg = Regional::with("wilayah")->get();
+        $reg_arr = array();
+
+        foreach ($reg as $key => $value) {
+            foreach ($value->wilayah as $key2 => $data) {
+                $reg_arr[$key][$data->nama] =  Wilayah::with("estate")->find($data->id)->estate->pluck('nama', 'est');
+            }
+        }
+
+        $est_wil_reg = array();
+        foreach ($reg_arr as $key => $value) {
+            foreach ($value as $key2 => $data) {
+                foreach ($data as $key3 => $datas) {
+                    $est_wil_reg[$key][$key3] = $datas;
+                }
+            }
+        }
+
+        // dd($request->get('tgl'));
+        // dd($request->has('tgl'));
+        $est_array = array();
+        $keb_pem_array = array();
+        $log_tak_est = '';
+        $log_keb_pemanen_est = '';
+        $est = '';
+        $dateToday = Carbon::now()->format('Y-m-d');
+        $tglData = $request->get('tgl');
+
+        $hariIni = $tglData . ' 00:00:00';
+
+        $newConvert = new Carbon($hariIni);
+
+        // dd($hariIni);
+        $besok = $newConvert->addDays();
+        $besok = ($besok->format('Y-m-d')) . ' 00:00:00';
+
+        $afdeling = array('OA', 'OB', 'OC', 'OD', 'OF', 'OA');
+
+        $query = DB::connection('mysql2')->table('taksasi')
+            ->select('taksasi.*')
+            ->whereBetween('taksasi.waktu_upload', [$hariIni, $besok])
+            ->orderBy('taksasi.afdeling', 'asc')
+            ->get();
+
+        if ($query->first() != null) {
+            $query = json_decode($query);
+            $inc = 0;
+            foreach ($est_wil_reg[$pil_reg] as $key => $value) {
+                $sum_tak_est = 0;
+                $sum_keb_pemanen_est = 0;
+                foreach ($query as $data) {
+                    if ($data->lokasi_kerja == $value) {
+                        $sum_tak_est += $data->taksasi;
+                        $sum_keb_pemanen_est += $data->pemanen;
+                    }
+                }
+
+                $est_array[$key] = $sum_tak_est;
+                $keb_pem_array[$key] = $sum_keb_pemanen_est;
+                $inc++;
+            }
+
+            // foreach ($est_array as $key => $value) {
+            //     // dd($key);
+            //     // $est        = $value['est'];
+            //     $log_tak_est .=
+            //         "[{v:'" . $key . "'}, {v:" . $value['taksasi'] . ", f:'" .  number_format($value['taksasi'], 0, ".", ".")  . " Kg'},                             
+            //     ],";
+            //     $log_keb_pemanen_est .=
+            //         "[{v:'" . $key . "'}, {v:" . $value['kebutuhan_pemanen'] . ", f:'" .  $value['kebutuhan_pemanen']  . " Orang'},                             
+            //     ],";
+            // }
+        }
+
+        // $est = [
+        //     'data_taksasi_est'      => $log_tak_est,
+        //     'data_kebutuhan_pemanen_est'      => $log_keb_pemanen_est,
+        // ];
+        // dd($log_tak_est);
+        // dd($est_array);
+        // dd($keb_pem_array);
+        // dd(json_encode($est_array));
+        // dd($est);
+
+        if ($takReq == 1) {
+            echo json_encode($est_array);
+        } else {
+            echo json_encode($keb_pem_array);
+        }
+        exit;
     }
 }
