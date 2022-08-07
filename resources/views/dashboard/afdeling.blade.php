@@ -39,27 +39,27 @@
                     <div class="card">
                         <div class="card-header" style="background-color: #013C5E;color:white">
                             <div class=" card-title">
-                                <i class="fas fa-chart-line pr-2"></i> Taksasi Afdeling
+                                <i class="fas fa-chart-line pr-2"></i> Taksasi Afdeling <span id="selectTakEst"></span>
                             </div>
 
                             <div class="float-right ml-2">
                                 <div class="list-inline">
-                                    <select name="lokasi" class="form-control">
-                                        <option selected disabled>Pilih regional</option>
-                                        @foreach($reg as $key => $value)
-                                        <option value="{{$key}}">{{$value}}</option>
-                                        @endforeach
+                                    <select id="tak_est" class="form-control" style="width:180px">
+                                        <option selected disabled>Pilih Estate</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="float-right">
                                 <div class="list-inline">
-                                    <select name="reg" class="form-control">
+                                    {{csrf_field()}}
+                                    <select id="tak_reg" class="form-control" style="width:180px">
+                                        <option selected disabled>Pilih Regional</option>
                                         @foreach($reg as $key => $value)
-                                        <option value="{{$key}}">{{$value}}</option>
+                                        <option value="{{$key}}" {{ $key==0 ? 'selected' : '' }}>{{$value}}</option>
                                         @endforeach
                                     </select>
                                 </div>
+
                             </div>
                         </div>
                         <div class="card-body">
@@ -77,8 +77,8 @@
 
                             </div>
 
-                        </div><!-- /.card-body -->
-                    </div><!-- Curah Hujan -->
+                        </div>
+                    </div>
 
 
                 </div>
@@ -96,25 +96,28 @@
                     <div class="card">
                         <div class="card-header" style="background-color: #013C5E;color:white">
                             <div class=" card-title">
-                                <i class="fas fa-chart-line pr-2"></i> Kebutuhan Pemanen Afdeling
+                                <i class="fas fa-chart-line pr-2"></i> Kebutuhan Pemanen Afdeling <span
+                                    id="selectKebEst"></span>
                             </div>
 
-                            <div class="float-right">
+                            <div class="float-right ml-2">
                                 <div class="list-inline">
-                                    <select name="lokasi" class="form-control">
-                                        {{-- @foreach($wl_loc as $loc) --}}
-                                        <option value="">KNE</option>
-                                        <option value="">RGE</option>
-                                        <option value="">BKE</option>
-                                        <option value="">SGE</option>
-                                        <option value="">KDE</option>
-                                        <option value="">RDE</option>
-                                        <option value="">SLE</option>
-                                        <option value="">SYE</option>
-                                        <option value="">UPE</option>
-                                        {{-- @endforeach --}}
+                                    <select id="keb_est" class="form-control" style="width:180px">
+                                        <option selected disabled>Pilih Estate</option>
                                     </select>
                                 </div>
+                            </div>
+                            <div class="float-right">
+                                <div class="list-inline">
+                                    {{csrf_field()}}
+                                    <select id="keb_reg" class="form-control" style="width:180px">
+                                        <option selected disabled>Pilih Regional</option>
+                                        @foreach($reg as $key => $value)
+                                        <option value="{{$key}}" {{ $key==0 ? 'selected' : '' }}>{{$value}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
                             </div>
                         </div>
                         <div class="card-body">
@@ -143,7 +146,6 @@
 </div>
 @include('layout.footer')
 
-{{-- <script src="{{ asset('lottie/93121-no-data-preview.json') }}" type="text/javascript"></script> --}}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.9.4/lottie.min.js"
     integrity="sha512-ilxj730331yM7NbrJAICVJcRmPFErDqQhXJcn+PLbkXdE031JJbcK87Wt4VbAK+YY6/67L+N8p7KdzGoaRjsTg=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -164,18 +166,205 @@
 
 <script>
     google.charts.load('current', {'packages':['corechart']});
-      google.charts.setOnLoadCallback(drawtaksasiafdeling);
-      google.charts.setOnLoadCallback(drawkepemanenafdeling);
-      
+    google.charts.setOnLoadCallback(drawtaksasiafdeling);
+    google.charts.setOnLoadCallback(drawkepemanenafdeling);
 
-      function drawtaksasiafdeling() {
-        var tak_afd = new google.visualization.DataTable();
+    $(document).ready(function(){
+        
+        //set default regional 1
+        var defaultReg = 0;
+        $("#tak_reg").val(defaultReg);
+        var _token = $('input[name="_token"]').val();
+
+        $.ajax({
+        url:"{{ route('getNameEstate') }}",
+        method:"POST",
+        data:{ id_reg:defaultReg, _token:_token,},
+        success:function(result)
+        {
+            $('#tak_est').html(result)
+            $('#keb_est').html(result)
+            $('#tak_est').val("RDE")
+            $('#keb_est').val("RDE")
+            getDataTakAfd(0, 'RDE')
+            getDataKebAfd(0, 'RDE')
+        }
+        })
+
+    
+        
+    });
+
+    $('#tak_reg').change(function(){
+    if($(this).val() != '')
+    {
+    var value = $(this).val();
+    var _token = $('input[name="_token"]').val();
+
+    $.ajax({
+    url:"{{ route('getNameEstate') }}",
+    method:"POST",
+    data:{ id_reg:value, _token:_token,},
+    success:function(result)
+    {
+        $('#tak_est').html(result)
+        var select = document.getElementById('tak_est');
+        var firstIndexList = select.options[select.selectedIndex].value;
+        $('#tak_est').val(firstIndexList)
+        getDataTakAfd(0, firstIndexList)
+    }
+    })
+    }
+    });  
+
+    $('#keb_reg').change(function(){
+    if($(this).val() != '')
+    {
+    var value = $(this).val();
+    var _token = $('input[name="_token"]').val();
+
+    $.ajax({
+    url:"{{ route('getNameEstate') }}",
+    method:"POST",
+    data:{ id_reg:value, _token:_token,},
+    success:function(result)
+    {
+        $('#keb_est').html(result)
+        var select = document.getElementById('keb_est');
+        var firstIndexList = select.options[select.selectedIndex].value;
+        $('#keb_est').val(firstIndexList)
+        getDataKebAfd(0, firstIndexList)
+    }
+    })
+    }
+    });  
+    
+    $('#tak_est').change(function(){
+        valRegTak = document.getElementById("tak_reg").value
+        getDataTakAfd(valRegTak, $('#tak_est'))
+        
+    });
+
+    $('#keb_est').change(function(){
+        valRegKeb = document.getElementById("keb_reg").value
+        getDataKebAfd(valRegKeb, $('#keb_est'))
+    });
+
+    function getDataTakAfd(reg, est){
+    var status = 0 // ketika ada klik id yang di fetch
+    var value = ''
+    try {
+        value = est.val();      
+    }
+    catch(err) {
+        var status = 1 // ketika tidak ada klik dan nilai RDE
+    } 
+
+    if(status == 1){
+        value = est
+    }
+
+    document.querySelector(
+              '#selectTakEst').textContent = value;
+    var valReg = reg;
+
+    var _token = $('input[name="_token"]').val();
+    const params = new URLSearchParams(window.location.search)
+    var paramArr = [];
+    for (const param of  params) {
+        paramArr = param
+    }
+
+    if(paramArr.length > 0){
+        date = paramArr[1]
+    }else{
+        date = new Date().toISOString().slice(0, 10)
+    }
+
+    $.ajax({
+    url:"{{ route('getDataAfdeling') }}",
+    method:"POST",
+    data:{ id_reg:valReg,id_est:value, _token:_token, tgl:date, tak:1},
+    success:function(result)
+    {
+        //split estate dan value taksasi
+        sliceResult = result.slice(1, -1);
+        const arrSlice = sliceResult.split(",");
+        const arrResult = []
+        for (let index = 0; index < arrSlice.length; index++) {
+            const splitted = arrSlice[index].split(":")
+            var estate = splitted[0].slice(1, -1);
+            var valEst = splitted[1]
+            arrResult.push([estate,valEst])
+        }
+
+        
+        drawtaksasiafdeling(arrResult)
+    }
+    })
+    }
+
+    function getDataKebAfd(reg, est){
+        var status = 0 // ketika ada klik id yang di fetch
+    var value = ''
+    try {
+        value = est.val();      
+    }
+    catch(err) {
+        var status = 1 // ketika tidak ada klik dan nilai RDE
+    } 
+
+    if(status == 1){
+        value = est
+    }
+    
+    document.querySelector(
+              '#selectKebEst').textContent = value;
+    var valReg = reg;
+    var _token = $('input[name="_token"]').val();
+    const params = new URLSearchParams(window.location.search)
+    var paramArr = [];
+    for (const param of  params) {
+        paramArr = param
+    }
+
+    if(paramArr.length > 0){
+        date = paramArr[1]
+    }else{
+        date = new Date().toISOString().slice(0, 10)
+    }
+
+    $.ajax({
+    url:"{{ route('getDataAfdeling') }}",
+    method:"POST",
+    data:{  id_reg:valReg,id_est:value,_token:_token, tgl:date, tak:0},
+    success:function(result)
+    {
+        //split estate dan value taksasi
+        sliceResult = result.slice(1, -1);
+        const arrSlice = sliceResult.split(",");
+        const arrResult = []
+        for (let index = 0; index < arrSlice.length; index++) {
+            const splitted = arrSlice[index].split(":")
+            var estate = splitted[0].slice(1, -1);
+            var valEst = splitted[1]
+            arrResult.push([estate,valEst])
+        }
+
+        drawkepemanenafdeling(arrResult)
+    }
+    })
+    }
+
+    function drawtaksasiafdeling(chart_data) {
+
+    var tak_afd = new google.visualization.DataTable();
     tak_afd.addColumn('string', 'Estate');
     tak_afd.addColumn('number', 'Taksasi Afdeling');
     // tak_afd.addColumn({type: 'string', role: 'style'});
-    tak_afd.addRows([
-      <?php echo $afd['data_taksasi_afd']; ?>
-    ]);
+    for(i = 0; i < chart_data.length; i++){
+        tak_afd.addRow([chart_data[i][0], parseFloat(chart_data[i][1])]);
+    }
 
         var options = {
         chartArea: {},
@@ -193,14 +382,14 @@
       }
 
 
-      function drawkepemanenafdeling() {
-        var pemanen_afd = new google.visualization.DataTable();
+    function drawkepemanenafdeling(chart_data) {
+    var pemanen_afd = new google.visualization.DataTable();
     pemanen_afd.addColumn('string', 'Estate');
     pemanen_afd.addColumn('number', 'Kebutuhan Pemanen Afdeling');
     // pemanen_afd.addColumn({type: 'string', role: 'style'});
-    pemanen_afd.addRows([
-      <?php echo $afd['data_kebutuhan_pemanen_afd']; ?>
-    ]);
+    for(i = 0; i < chart_data.length; i++){
+        pemanen_afd.addRow([chart_data[i][0], parseFloat(chart_data[i][1])]);
+    }
 
         var options = {
         chartArea: {},

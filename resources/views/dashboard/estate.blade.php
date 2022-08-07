@@ -105,12 +105,7 @@
 
                                 </div>
 
-                                {{-- <div class="col-6">
 
-                                    <div id="filterpupukreg1">
-                                    </div>
-
-                                </div> --}}
 
                             </div>
 
@@ -150,9 +145,12 @@
     google.charts.setOnLoadCallback(drawtaksasiestate);
     google.charts.setOnLoadCallback(drawkebutuhanestate);
     $(document).ready(function(){
-    
         getDataTakEst($('#tak_est_reg'))
-        getDataKebutuhanEst($('#kab_pem_est'))
+        var defaultReg = 0;
+        $("#tak_est_reg").val(defaultReg);
+        $("#kab_pem_est").val(defaultReg);
+        getDataTakEst(0)
+        getDataKebutuhanEst(0)
     });
 
     $('#tak_est_reg').change(function(){
@@ -170,8 +168,18 @@
     });
 
     function getDataTakEst(reg){
-    var value = reg.val();
-    var dependent = reg.data('dependent');
+     var status = 0 // ketika ada klik id yang di fetch
+    var value = ''
+    try {
+        value = reg.val();      
+    }
+    catch(err) {
+        var status = 1 // ketika tidak ada klik dan nilai RDE
+    } 
+
+    if(status == 1){
+        value = reg
+    }
     var _token = $('input[name="_token"]').val();
     const params = new URLSearchParams(window.location.search)
     var paramArr = [];
@@ -208,8 +216,18 @@
     }
 
     function getDataKebutuhanEst(reg){
-    var value = reg.val();
-    var dependent = reg.data('dependent');
+    var status = 0 // ketika ada klik id yang di fetch
+    var value = ''
+    try {
+        value = reg.val();      
+    }
+    catch(err) {
+        var status = 1 // ketika tidak ada klik dan nilai RDE
+    } 
+
+    if(status == 1){
+        value = reg
+    }
     var _token = $('input[name="_token"]').val();
     const params = new URLSearchParams(window.location.search)
     var paramArr = [];
