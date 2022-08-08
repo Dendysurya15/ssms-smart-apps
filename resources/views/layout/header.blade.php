@@ -73,8 +73,7 @@
                     <a class="nav-link" data-widget="pushmenu" href="#" role="hover"><i class="fas fa-bars"></i></a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
-                    <a class="nav-link">Selamat datang {{ Auth::user()->name}} !</a>
-                    <!-- Right Side Of Navbar -->
+                    <a class="nav-link">Selamat datang {{ Auth::user()->nama_lengkap }} !</a>
                 </li>
             </ul>
 
@@ -101,7 +100,7 @@
                             <a href="{{ asset('/dashboard_taksasi') }}" class="nav-link">
                                 <i class="nav-icon fa fa-seedling"></i>
                                 <p>
-                                    Estate
+                                    Taksasi Estate
                                 </p>
                             </a>
                         </li>
@@ -109,7 +108,23 @@
                             <a href="{{ asset('/dashboard_taksasi_afdeling') }}" class="nav-link">
                                 <i class="nav-icon fa fa-seedling"></i>
                                 <p>
-                                    Afdeling
+                                    Taksasi Afdeling
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ asset('/field-inspection') }}" class="nav-link">
+                                <i class="nav-icon fa fa-book"></i>
+                                <p>
+                                    Field Inspection
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ asset('/vm') }}" class="nav-link">
+                                <i class="nav-icon fa fa-car"></i>
+                                <p>
+                                    Vehicle Management
                                 </p>
                             </a>
                         </li>

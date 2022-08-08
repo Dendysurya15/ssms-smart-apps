@@ -19,25 +19,25 @@ class HomeController extends Controller
 
     public function auth_login(Request $request)
     {
+
         $request->validate([
             'email' => 'required',
             'password' => 'required',
         ]);;
 
-        $credentials = $request->only('email', 'password');
+        $query = User::where('email', $request->email)
+            ->where('password', $request->password)
+            ->first();
 
-        // dd($credentials);
-        if (Auth::attempt($credentials)) {
+        if ($query) {
+            $user = User::find($query->user_id);
+            Auth::login($user);
             return redirect()->intended('/dashboard_taksasi')
                 ->withSuccess('Signed in');
+            //         ->withSuccess('Signed in');
         } else {
-            'tidak sukses bos';
+            return Redirect::back()->withErrors(['msg' => 'Username/password yang dimasukkan salah']);
         }
-
-        // dd($credentials);
-
-        // return redirect("login")->withSuccess('Login details are not valid');
-        return Redirect::back()->withErrors(['msg' => 'Username/password yang dimasukkan salah']);
     }
 
     public function index_registration()
