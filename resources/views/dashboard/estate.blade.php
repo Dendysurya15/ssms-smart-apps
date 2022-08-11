@@ -30,7 +30,6 @@
                 </form>
             </div>
             <br>
-            <h1 class="outputString"></h1>
             <div class="row">
 
                 <div class="col-md-12">
@@ -41,13 +40,6 @@
                                 <i class="fas fa-chart-line pr-2"></i> Taksasi Estate
                             </div>
 
-                            {{-- <div class="float-right ml-2" style="width: 200px">
-                                <div class="list-inline">
-                                    <select id="estate" name="estate" class="form-control dynamic">
-                                        <option selected disabled>Pilih Estate</option>
-                                    </select>
-                                </div>
-                            </div> --}}
                             <div class="float-right">
                                 <div class="list-inline">
                                     {{ csrf_field() }}
@@ -67,8 +59,38 @@
                                     </div>
                                 </div>
                             </div>
-                        </div><!-- /.card-body -->
-                    </div><!-- Curah Hujan -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+
+                    <div class="card">
+                        <div class="card-header" style="background-color: #013C5E;color:white">
+                            <div class=" card-title">
+                                <i class="fas fa-chart-line pr-2"></i> Taksasi Estate dalam 15 hari terakhir ()
+                            </div>
+
+                            <div class="float-right">
+                                <div class="list-inline">
+                                    {{ csrf_field() }}
+                                    <select id="halfMonth" class="form-control">
+                                        @foreach($reg as $key => $value)
+                                        <option value="{{$key}}" {{ $key==0 ? 'selected' : '' }}>{{$value}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div id="takHalfMonth" style="height: 300px">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
 
                 </div>
@@ -144,8 +166,10 @@
     google.charts.load('current', {'packages':['corechart']});
     google.charts.setOnLoadCallback(drawtaksasiestate);
     google.charts.setOnLoadCallback(drawkebutuhanestate);
+    google.charts.setOnLoadCallback(drawtakest15days);
+
     $(document).ready(function(){
-        getDataTakEst($('#tak_est_reg'))
+        // getDataTakEst($('#tak_est_reg'))
         var defaultReg = 0;
         $("#tak_est_reg").val(defaultReg);
         $("#kab_pem_est").val(defaultReg);
@@ -164,6 +188,13 @@
     if($(this).val() != '')
     {
         getDataKebutuhanEst($('#kab_pem_est'))
+    }
+    });
+
+    $('#halfMonth').change(function(){
+    if($(this).val() != '')
+    {
+        getDataTakEst15days($('#halfMonth'))
     }
     });
 
@@ -262,6 +293,72 @@
     })
     }
 
+    function getDataTakEst15days(reg){
+    var status = 0 // ketika ada klik id yang di fetch
+    var value = ''
+    try {
+        value = reg.val();      
+    }
+    catch(err) {
+        var status = 1 // ketika tidak ada klik dan nilai RDE
+    } 
+
+    if(status == 1){
+        value = reg
+    }
+
+    var _token = $('input[name="_token"]').val();
+    const params = new URLSearchParams(window.location.search)
+    var paramArr = [];
+    for (const param of  params) {
+        paramArr = param
+    }
+
+    if(paramArr.length > 0){
+        date = paramArr[1]
+    }else{
+        date = new Date().toISOString().slice(0, 10)
+    }
+
+
+    // console.log(value)
+    $.ajax({
+    url:"{{ route('getDataTakEst15Days') }}",
+    method:"POST",
+    data:{ id_reg:value, _token:_token, tgl:date, tak:0},
+    success:function(result)
+    {
+        $('#halfMonth').html(result)
+        // console.log(result)
+    }
+    })
+    }
+
+    function drawtakest15days(chart_data) {
+      
+      var tak_est = new google.visualization.DataTable();
+      tak_est.addColumn('string', 'Estate');
+      tak_est.addColumn('number', 'Taksasi Estate');
+  
+      for(i = 0; i < chart_data.length; i++){
+          tak_est.addRow([chart_data[i][0], parseFloat(chart_data[i][1])]);
+      }
+  
+          var options = {
+          chartArea: {},
+          theme: 'material',
+          // colors:[ ,'#FF9800','#4CAF50',  '#4CAF50','#4CAF50' ,'#4CAF50' ],
+          // hAxis: {title: 'Priority', titleTextStyle: {color: 'black',fontSize:'15',fontName:'"Arial"'}},
+          //   title: 'Company Performance',
+            curveType: 'function',
+            legend: { position: 'none' }
+          };
+  
+          var chart = new google.visualization.ColumnChart(document.getElementById('takHalfMonth'));
+  
+          chart.draw(tak_est, options);
+        }
+
     function drawtaksasiestate(chart_data) {
       
     var tak_est = new google.visualization.DataTable();
@@ -290,7 +387,7 @@
    
 
     function drawkebutuhanestate(chart_data) {
-        console.log(chart_data)
+        // console.log(chart_data)
         var keb_pemanen_est = new google.visualization.DataTable();
     keb_pemanen_est.addColumn('string', 'Estate');
     keb_pemanen_est.addColumn('number', 'Kebutuhan Pemanen Estate');

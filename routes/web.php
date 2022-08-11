@@ -25,15 +25,19 @@ Route::post('/auth_registration', [App\Http\Controllers\HomeController::class, '
 // Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('logout', [HomeController::class, 'logout'])->name('logout');
 
-Route::get('dashboard_taksasi', [DashboardController::class, 'ds_taksasi'])->name('dash_est');
-Route::get('dashboard_taksasi_afdeling', [DashboardController::class, 'ds_taksasi_afdeling'])->name('dash_afd');
-Route::post('getNameEstate', [DashboardController::class, 'getNameEstate'])->name('getNameEstate');
-Route::post('getDataAfdeling', [DashboardController::class, 'getDataAfd'])->name('getDataAfdeling');
-Route::post('getLoadRegional', [DashboardController::class, 'getDataRegional'])->name('getLoadRegional');
+Route::group(['middleware' => 'auth'], function () {
+    Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
+    Route::get('dashboard_taksasi', [DashboardController::class, 'ds_taksasi'])->name('dash_est');
+    Route::get('dashboard_taksasi_afdeling', [DashboardController::class, 'ds_taksasi_afdeling'])->name('dash_afd');
+    Route::post('getDataTakEst15Days', [DashboardController::class, 'getTakEst15Days'])->name('getDataTakEst15Days');
+    Route::post('getNameEstate', [DashboardController::class, 'getNameEstate'])->name('getNameEstate');
+    Route::post('getDataAfdeling', [DashboardController::class, 'getDataAfd'])->name('getDataAfdeling');
+    Route::post('getLoadRegional', [DashboardController::class, 'getDataRegional'])->name('getLoadRegional');
+});
+
 Route::get('/dashboard_vehicle_management', function () {
     return view('vehicle-management');
 });
-
 Route::get('/dashboard_field_inspection', function () {
     return view('field-inspection');
 });

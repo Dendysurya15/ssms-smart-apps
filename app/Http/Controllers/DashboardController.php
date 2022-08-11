@@ -8,18 +8,19 @@ use App\Models\Regional;
 use App\Models\Wilayah;
 use Carbon\Carbon;
 use DateInterval;
+use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
 class DashboardController extends Controller
 {
-    //
-    public function ds_taksasi(Request $request)
+    public function dashboard(Request $request)
     {
-        // $reg_all = Regional::all()->pluck('nama');
-        // $reg = Estate::with("afdeling")->find(3)->afdeling;
-        // $reg_all = json_decode($reg_all);
+        // $dateToday = new DateTime();
+        $dateToday =  Carbon::now()->format('d M Y');
+        $getDate = Carbon::parse($dateToday)->locale('id');
+        $getDate->settings(['formatFunction' => 'translatedFormat']);
 
         $pil_reg = $request->has('id_reg') ? $request->get('id_reg') : 0;
 
@@ -51,34 +52,19 @@ class DashboardController extends Controller
         $dateToday = Carbon::now()->format('Y-m-d');
         $tglData = $request->has('tgl') ? $request->input('tgl') : $defaultHari = $dateToday;
 
-        $hariIni = $tglData . ' 00:00:00';
+        $hariIni =  '2022-07-27 00:00:00';
 
+        // dd($hariIni);
         $newConvert = new Carbon($hariIni);
 
         $besok = $newConvert->addDays();
-        $besok = ($besok->format('Y-m-d')) . ' 00:00:00';
+        $besok =  '2022-07-28 00:00:00';
 
+        // dd($)
         $color_chart = array(
             '#001E3C', '#AB221D', '#5CAF50', '#7CAF50', '#8CAF50', '#AB221D', '#AB221D',
             '#AB221D', '#AB221D', '#AB221D', '#AB221D', '#AB221D', '#AB221D', '#AB221D', '#282C34'
         );
-        // $estate_regional_1 = array(
-        //     'KDE' => 'Kondang',
-        //     'BKE' => 'Batu Kotam',
-        //     'SGE' => 'Selangkun',
-        //     'RGE' => 'Rungun',
-        //     'RDE' => 'Rangda',
-        //     'PLE' => 'Pulau',
-        //     'NBE' => 'Natai Baru',
-        //     'SLE' => 'Sulung',
-        //     'KNE' => 'Kenambui',
-        //     'SYE' => 'Suayap',
-        //     'UPY' => 'Umpang',
-        //     'BGE' => 'Bengaris',
-        //     'LDE' => 'LADA',
-        //     'SRE' => 'Sungai Rangit',
-        //     'SKE' => 'Simpang Kadipi',
-        // );
 
         $afdeling = array('OA', 'OB', 'OC', 'OD', 'OF', 'OA');
 
@@ -87,11 +73,6 @@ class DashboardController extends Controller
             ->whereBetween('taksasi.waktu_upload', [$hariIni, $besok])
             ->orderBy('taksasi.afdeling', 'asc')
             ->get();
-
-
-
-
-        // dd($est_wil_reg[$pil_reg]);d
 
         if ($query->first() != null) {
             $query = json_decode($query);
@@ -108,29 +89,96 @@ class DashboardController extends Controller
                     }
                 }
                 $est_array[$key]['est'] = $key;
-                $est_array[$key]['taksasi'] = $sum_tak_est;
+                $est_array[$key]['estate'] = $value;
+                $est_array[$key]['taksasi'] = number_format($sum_tak_est, 0, ".", ".");
                 $est_array[$key]['kebutuhan_pemanen'] = $sum_keb_pemanen_est;
                 $inc++;
             }
+        }
 
-            foreach ($est_array as $key => $value) {
-                $est        = $value['est'];
-                $log_tak_est .=
-                    "[{v:'" . $est . "'}, {v:" . $value['taksasi'] . ", f:'" .  number_format($value['taksasi'], 0, ".", ".")  . " Kg'},                             
-            ],";
-                $log_keb_pemanen_est .=
-                    "[{v:'" . $est . "'}, {v:" . $value['kebutuhan_pemanen'] . ", f:'" .  $value['kebutuhan_pemanen']  . " Orang'},                             
-        ],";
+        $pil_est = $request->has('id_reg') ? $request->get('id_reg') : 3;
+
+        $reg_all = Regional::all()->pluck('nama');
+        $reg_all = json_decode($reg_all);
+
+        $reg = Regional::with("wilayah")->get();
+        $reg_arr = array();
+        foreach ($reg as $key => $value) {
+            foreach ($value->wilayah as $key2 => $data) {
+                $reg_arr[$key][$data->nama] =  Wilayah::with("estate")->find($data->id)->estate->pluck('nama', 'est');
             }
         }
 
-        $est = [
-            'data_taksasi_est'      => $log_tak_est,
-            'data_kebutuhan_pemanen_est'      => $log_keb_pemanen_est,
-        ];
+        $est_wil_reg = array();
+        foreach ($reg_arr as $key => $value) {
+            foreach ($value as $key2 => $data) {
+                foreach ($data as $key3 => $datas) {
+                    $est_wil_reg[$key][$key3] = $datas;
+                }
+            }
+        }
+
+        // dd(Estate::with('afdeling')->find(3));
+        // dd($est_wil_reg[$pil_reg]);
+
+        // $id_est = Estate::where('est', $pil_est)->first()->id;
+        $queryEst = Estate::with("afdeling")->find($pil_est);
+
+        $list_afd_est = $queryEst->afdeling->pluck('nama');
+
+        // dd($list_afd_est);
+        $afd_array = array();
+        $keb_pem_array = array();
+
+
+
+        $query = DB::connection('mysql2')->table('taksasi')
+            ->select('taksasi.*')
+            ->whereBetween('taksasi.waktu_upload', [$hariIni, $besok])
+            ->where('lokasi_kerja', $queryEst->nama)
+            ->orderBy('taksasi.afdeling', 'asc')
+            ->get();
+
+
+        foreach ($list_afd_est as $key => $value) {
+            $afd_array[$key]['afd'] = $value;
+            $afd_array[$key]['taksasi'] = 0;
+            $afd_array[$key]['kebutuhan_pemanen'] = 0;
+        }
+
+        // dd($afd_array);
+        $list_afd_est = json_decode($list_afd_est);
+        if ($query->first() != null) {
+            $query = json_decode($query);
+            foreach ($list_afd_est as $key => $value) {
+                $sum_tak_afd = 0;
+                $sum_keb_pemanen_afd = 0;
+                foreach ($query as $key2 => $data) {
+                    if ($data->afdeling == $value) {
+                        $sum_tak_afd += $data->taksasi;
+                        $sum_keb_pemanen_afd += $data->pemanen;
+                    }
+                }
+                $afd_array[$key]['afd'] = $value;
+                $afd_array[$key]['taksasi'] = number_format($sum_tak_afd, 0, ".", ".");;
+                $afd_array[$key]['kebutuhan_pemanen'] = $sum_keb_pemanen_afd;
+            }
+        }
+
+        return view('homepage', [
+            'date' => $getDate->format('l, j F Y'),
+            'hour' =>  Carbon::now()->format('H:i:s'),
+            'dataEstate' => $est_array ? $est_array['RDE'] : '', // default RDE 
+            'dateAfdeling' => $afd_array,
+        ]);
+    }
+
+    public function ds_taksasi()
+    {
+        $reg_all = Regional::all()->pluck('nama');
+        $reg_all = json_decode($reg_all);
 
         return view('dashboard.estate', [
-            'est' => $est,
             'reg' => $reg_all,
         ]);
     }
@@ -138,22 +186,45 @@ class DashboardController extends Controller
 
     public function ds_taksasi_afdeling(Request $request)
     {
-        $pil_est = $request;
 
         $reg_all = Regional::all()->pluck('nama');
-        // $reg = Estate::with("afdeling")->find(3)->afdeling;
         $reg_all = json_decode($reg_all);
-        // dd($reg[0]);
-        $wil_reg = array();
-        $wil_reg1 = null;
+
+        return view('dashboard.afdeling', [
+            'reg' => $reg_all,
+        ]);
+    }
+
+    public function getTakEst15Days(Request $request)
+    {
+        $pil_reg = $request->get('id_reg');
+        $tglData = $request->get('tgl');
+        // $to = !is_null($logMingguan) ?  $logMingguan->timestamp : Carbon::now()->format('Y-m-d');
+        // dd($to);
+        $formatted = new DateTime($tglData);
+
+        // dd($formatted);
+        $formatted = $formatted->format('Y-m-d');
+
+        $to = $formatted . ' 23:59:59';
+
+        $convert = new DateTime($to);
+
+        $to = $convert->format('Y-m-d H:i:s');
+
+        $dateParse = Carbon::parse($to)->subDays(14);
+        $dateParse = $dateParse->format('Y-m-d');
+
+        $dateParse = $dateParse . ' 00:00:00';
+        $pastWeek = new DateTime($dateParse);
+        $pastWeek = $pastWeek->format('Y-m-d H:i:s');
 
 
-        // $reg
-        // // dd($wil_reg1);
+        $reg_all = Regional::all()->pluck('nama');
+        $reg_all = json_decode($reg_all);
+
         $reg = Regional::with("wilayah")->get();
-        // dd($reg[0]->wilayah);
         $reg_arr = array();
-        // dd($reg);
 
         foreach ($reg as $key => $value) {
             foreach ($value->wilayah as $key2 => $data) {
@@ -169,98 +240,61 @@ class DashboardController extends Controller
                 }
             }
         }
-        // dd($est_wil_reg);
-        // dd($wil_reg);
-        // dd($reg_arr);
-        // $est_reg1[] =
-
-        //estate default id 3 yaitu RDE 
-        $afd_req = 3;
-        $queryEst = Estate::with("afdeling")->find($afd_req);
-        $list_afd_est = $queryEst->afdeling->pluck('nama');
-
-        // dd($test);
-        $afd_array = array();
-        $log_tak_est = '';
-        $log_keb_pemanen_est = '';
-        $log_tak_afd = '';
-        $log_keb_pemanen_afd = '';
-        $afd = '';
-        $dateToday = Carbon::now()->format('Y-m-d');
-        $tglData = $request->has('tgl') ? $request->input('tgl') : $defaultHari = $dateToday;
-
-        $hariIni = $tglData . ' 00:00:00';
-
-        $newConvert = new Carbon($hariIni);
-
-        $besok = $newConvert->addDays();
-        $besok = ($besok->format('Y-m-d')) . ' 00:00:00';
-
-        $color_chart = array(
-            '#001E3C', '#AB221D', '#5CAF50', '#7CAF50', '#8CAF50', '#AB221D', '#AB221D',
-            '#AB221D', '#AB221D', '#AB221D', '#AB221D', '#AB221D', '#AB221D', '#AB221D', '#282C34'
-        );
 
         $query = DB::connection('mysql2')->table('taksasi')
             ->select('taksasi.*')
-            ->whereBetween('taksasi.waktu_upload', [$hariIni, $besok])
-            ->where('lokasi_kerja', $queryEst->nama)
+            ->whereBetween('taksasi.waktu_upload', [$pastWeek, $to])
             ->orderBy('taksasi.afdeling', 'asc')
             ->get();
 
-        $sum_tak_est = 0;
-        $sum_keb_pemanen_est = 0;
-        $list_afd_est = json_decode($list_afd_est);
-
-        if ($query->first() != null) {
-            $query = json_decode($query);
-            // dd($list_afd_array);
-            foreach ($list_afd_est as $key => $value) {
-                $sum_tak_afd = 0;
-                $sum_keb_pemanen_afd = 0;
-                // dd($value);
-                foreach ($query as $key2 => $data) {
-                    if ($data->afdeling == $value) {
-                        $sum_tak_afd += $data->taksasi;
-                        $sum_keb_pemanen_afd += $data->pemanen;
-                    } else {
-                        $sum_tak_afd = 0;
-                        $sum_keb_pemanen_afd = 0;
-                    }
+        foreach ($query as $key => $value) {
+            foreach ($est_wil_reg[$pil_reg] as $key => $data) {
+                if ($value->lokasi_kerja == $data) {
                 }
-                $afd_array[$key]['afd'] = $value;
-                $afd_array[$key]['taksasi'] = $sum_tak_afd;
-                $afd_array[$key]['taksasi'] = $sum_tak_afd;
-                $afd_array[$key]['kebutuhan_pemanen'] = $sum_keb_pemanen_afd;
-            }
-
-            // dd($afd_array);
-            foreach ($afd_array as $key => $value) {
-                $afd        = $value['afd'];
-                $log_tak_afd .=
-                    "[{v:'" . $afd . "'}, {v:" . $value['taksasi'] . ", f:'" .  number_format($value['taksasi'], 0, ".", ".")  . " Kg'},                             
-            ],";
-                $log_keb_pemanen_afd .=
-                    "[{v:'" . $afd . "'}, {v:" . $value['kebutuhan_pemanen'] . ", f:'" .  $value['kebutuhan_pemanen']  . " Orang'},                             
-        ],";
             }
         }
 
-        // dd($list_afd_est);
-        $afd = [
-            'data_taksasi_afd'      => $log_tak_afd,
-            'data_kebutuhan_pemanen_afd'      => $log_keb_pemanen_afd,
-        ];
+        $data_per_hari = array();
+        for ($i = 0; $i < 15; $i++) {
+            $hari = Carbon::parse($pastWeek)->addDays($i);
+            $convertHari = $hari->format('Y-m-d');
+            $hari = Carbon::parse($hari)->locale('id');
+            $hari->settings(['formatFunction' => 'translatedFormat']);
+            $tgl = $hari->format('j F');
+            $hari = $hari->format('l, j F');
 
+            $data_per_hari[$i]['hari'] = $tgl;
+            $data_per_hari[$i]['tanggal'] = $hari;
 
-        $estate_regional_2 = array('Pedongatan', 'Nangakiu', 'Sepondam', 'Merambang', 'Batu Tunggal', 'Nanua', 'Malata', 'Sungai Bulik', 'Sumber Cahaya');
-        $estate_regional_3 = array('Kanamit', 'Badirih', 'Behaur', 'Maliku', 'Pangkoh', 'Basarang', 'Gedabung', 'Betawi');
+            $data_per_hari[$i]['taksasi'] = 0;
+            $data_per_hari[$i]['kebutuhan_pemanen'] = 0;
+            // dd($pil_reg);
+            if ($query->first() != null) {
+                foreach ($est_wil_reg[$pil_reg] as $key => $value) {
+                    $sum_tak_est = 0;
+                    $sum_keb_pemanen_est = 0;
+                    $jumlah_record = 0;
+                    foreach ($query as $data) {
+                        $waktu_upload = new DateTime($data->waktu_upload);
+                        $waktu_upload = $waktu_upload->format('Y-m-d');
 
-        return view('dashboard.afdeling', [
-            // 'estate_1' => $estate_regional_1,
-            'afd' => $afd,
-            'reg' => $reg_all,
-        ]);
+                        if ($value == $data->lokasi_kerja) {
+                            $sum_tak_est += $data->taksasi;
+                            $sum_keb_pemanen_est += $data->pemanen;
+                            $jumlah_record++;
+                        }
+                    }
+                    $data_per_hari[$i]['countRecord'] = $jumlah_record;
+                    $data_per_hari[$i]['taksasi'] = $sum_tak_est;
+                    $data_per_hari[$i]['taksasi'] = $sum_tak_est;
+                    $data_per_hari[$i]['kebutuhan_pemanen'] = $sum_keb_pemanen_est;
+                }
+            }
+        }
+
+        dd($data_per_hari);
+        echo json_encode($data_per_hari);
+        exit();
     }
 
     public function getNameEstate(Request $request)

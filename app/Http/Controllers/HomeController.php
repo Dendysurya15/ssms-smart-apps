@@ -32,7 +32,7 @@ class HomeController extends Controller
         if ($query) {
             $user = User::find($query->user_id);
             Auth::login($user);
-            return redirect()->intended('/dashboard_taksasi')
+            return redirect()->intended('/dashboard')
                 ->withSuccess('Signed in');
             //         ->withSuccess('Signed in');
         } else {
