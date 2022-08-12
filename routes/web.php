@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PupukController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -33,6 +34,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('getNameEstate', [DashboardController::class, 'getNameEstate'])->name('getNameEstate');
     Route::post('getDataAfdeling', [DashboardController::class, 'getDataAfd'])->name('getDataAfdeling');
     Route::post('getLoadRegional', [DashboardController::class, 'getDataRegional'])->name('getLoadRegional');
+    Route::resource('pupuk', PupukController::class);
 });
 
 Route::get('/dashboard_vehicle_management', function () {
