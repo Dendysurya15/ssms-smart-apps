@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Pupuk;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Yajra\Datatables\Datatables;
 
 class PupukController extends Controller
@@ -49,9 +50,14 @@ class PupukController extends Controller
         $request->validate([
             'nama' => 'required',
         ]);
-        Pupuk::create($request->all());
+        $newData = Pupuk::create($request->all());
 
-        return redirect()->route('pupuk.index')->with('succes', 'Data Berhasil di Input');
+        $response = Http::asForm()->post('http://localhost/pupukVersion.php', [
+            'id_pupuk' => $newData->id,
+            'update' => 0,
+        ]);
+
+        return redirect()->route('pupuk.index')->with('success', 'Pupuk Berhasil di Input');
     }
 
     /**
@@ -92,7 +98,13 @@ class PupukController extends Controller
 
         $pupuk->update($request->all());
 
-        return redirect()->route('pupuk.index')->with('success', 'Siswa Berhasil di Update');
+        // dd($pupuk);
+        $response = Http::asForm()->post('http://localhost/pupukVersion.php', [
+            'id_pupuk' => $pupuk->id,
+            'update' => 1,
+        ]);
+
+        return redirect()->route('pupuk.index')->with('success', 'Pupuk Berhasil di Update');
     }
 
     /**
@@ -103,7 +115,16 @@ class PupukController extends Controller
      */
     public function destroy(Pupuk $pupuk)
     {
+
+        $response = Http::asForm()->post('http://localhost/pupukVersion.php', [
+            'id_pupuk' => $pupuk->id,
+            'update' => 2,
+        ]);
+
         $pupuk->delete();
+
+
+
         return redirect()->route('pupuk.index')->with('succes', 'Pupuk ' . $pupuk->nama . ' Berhasil di Hapus');
     }
 }

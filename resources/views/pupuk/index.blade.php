@@ -12,7 +12,7 @@
     </div>
 </div>
 
-@if ($message = Session::get('succes'))
+@if ($message = Session::get('success'))
 <div class="alert alert-success">
     <p>{{ $message }}</p>
 </div>
@@ -23,10 +23,11 @@
     <tr>
         <th width="20px" class="text-center">No</th>
         <th width="280px" class="text-center">Nama Pupuk</th>
+        <th width="280px" class="text-center">Action</th>
     </tr>
     @foreach ($data as $pupuk)
     <tr>
-        <td>{{ $pupuk->id }}</td>
+        <td class="text-center">{{ $loop->iteration }}</td>
         <td>{{ $pupuk->nama }}</td>
         <td class="text-center">
             <form action="{{ route('pupuk.destroy',$pupuk->id) }}" method="POST">

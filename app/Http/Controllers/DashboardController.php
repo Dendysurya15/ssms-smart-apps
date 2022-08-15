@@ -247,13 +247,6 @@ class DashboardController extends Controller
             ->orderBy('taksasi.afdeling', 'asc')
             ->get();
 
-        foreach ($query as $key => $value) {
-            foreach ($est_wil_reg[$pil_reg] as $key => $data) {
-                if ($value->lokasi_kerja == $data) {
-                }
-            }
-        }
-
         $data_per_hari = array();
         for ($i = 0; $i < 15; $i++) {
             $hari = Carbon::parse($pastWeek)->addDays($i);
@@ -268,28 +261,27 @@ class DashboardController extends Controller
 
             $data_per_hari[$i]['taksasi'] = 0;
             $data_per_hari[$i]['kebutuhan_pemanen'] = 0;
-            // dd($pil_reg);
-            if ($query->first() != null) {
-                foreach ($est_wil_reg[$pil_reg] as $key => $value) {
-                    $sum_tak_est = 0;
-                    $sum_keb_pemanen_est = 0;
-                    $jumlah_record = 0;
-                    foreach ($query as $data) {
-                        $waktu_upload = new DateTime($data->waktu_upload);
-                        $waktu_upload = $waktu_upload->format('Y-m-d');
 
-                        if ($value == $data->lokasi_kerja) {
-                            $sum_tak_est += $data->taksasi;
-                            $sum_keb_pemanen_est += $data->pemanen;
-                            $jumlah_record++;
-                        }
-                    }
-                    $data_per_hari[$i]['countRecord'] = $jumlah_record;
-                    $data_per_hari[$i]['taksasi'] = $sum_tak_est;
-                    $data_per_hari[$i]['taksasi'] = $sum_tak_est;
-                    $data_per_hari[$i]['kebutuhan_pemanen'] = $sum_keb_pemanen_est;
+            // if ($query->first() != null) {
+            // foreach ($est_wil_reg[$pil_reg] as $key => $value) {
+
+            foreach ($query as $data) {
+                $sum_tak_est = 0;
+                $sum_keb_pemanen_est = 0;
+                $jumlah_record = 0;
+                $waktu_upload = new DateTime($data->waktu_upload);
+                $waktu_upload = $waktu_upload->format('Y-m-d');
+                if ($convertHari == $waktu_upload) {
+                    $sum_tak_est += $data->taksasi;
+                    $sum_keb_pemanen_est += $data->pemanen;
+                    $jumlah_record++;
                 }
             }
+            $data_per_hari[$i]['countRecord'] = $jumlah_record;
+            $data_per_hari[$i]['taksasi'] = $sum_tak_est;
+            $data_per_hari[$i]['kebutuhan_pemanen'] = $sum_keb_pemanen_est;
+            // }
+            // }
         }
 
         dd($data_per_hari);
