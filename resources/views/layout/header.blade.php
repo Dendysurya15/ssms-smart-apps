@@ -98,7 +98,7 @@
                         <!-- TABEL -->
                         <li class="nav-item">
                             <a href="{{ asset('/dashboard_taksasi') }}" class="nav-link">
-                                <i class="nav-icon fa fa-seedling"></i>
+                                <i class="nav-icon fa fa-file"></i>
                                 <p>
                                     Taksasi Estate
                                 </p>
@@ -106,9 +106,17 @@
                         </li>
                         <li class="nav-item">
                             <a href="{{ asset('/dashboard_taksasi_afdeling') }}" class="nav-link">
-                                <i class="nav-icon fa fa-seedling"></i>
+                                <i class="nav-icon fa fa-file"></i>
                                 <p>
                                     Taksasi Afdeling
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ asset('/dashboard_pemupukan') }}" class="nav-link">
+                                <i class="nav-icon fa fa-seedling"></i>
+                                <p>
+                                    Dashboard Pemupukan
                                 </p>
                             </a>
                         </li>

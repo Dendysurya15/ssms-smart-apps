@@ -67,7 +67,7 @@
 
                                 <div class="col-12">
 
-                                    <div id="taksasiafdeling" style="height: 250px" {{--
+                                    <div id="taksasiafdeling" style="height: 300px" {{--
                                         style="width: 100%; height: 300px;" --}}>
                                     </div>
 
@@ -125,7 +125,7 @@
 
                                 <div class="col-12">
 
-                                    <div id="pemanenafdeling" style="height: 400px" {{--
+                                    <div id="pemanenafdeling" style="height: 300px" {{--
                                         style="width: 100%; height: 300px;" --}}>
                                     </div>
 
@@ -361,17 +361,36 @@
     var tak_afd = new google.visualization.DataTable();
     tak_afd.addColumn('string', 'Estate');
     tak_afd.addColumn('number', 'Taksasi Afdeling');
+    tak_afd.addColumn({type:'string', role:'annotation'});
     // tak_afd.addColumn({type: 'string', role: 'style'});
     for(i = 0; i < chart_data.length; i++){
-        tak_afd.addRow([chart_data[i][0], parseFloat(chart_data[i][1])]);
+        tak_afd.addRow([chart_data[i][0], parseFloat(chart_data[i][1]),  parseFloat(chart_data[i][1]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") +' Kg']);
     }
 
+    // var view = new google.visualization.DataView(tak_afd);
+    //   view.setColumns([0, 1,
+    //                    { calc: "stringify",
+    //                      sourceColumn: 1,
+    //                      type: "string",
+    //                      role: "annotation" },
+    //                 ]);
         var options = {
-        chartArea: {},
+        chartArea: {
+        },
         theme: 'material',
-        // colors:[ ,'#FF9800','#4CAF50',  '#4CAF50','#4CAF50' ,'#4CAF50' ],
+        colors:['#4CAF50' ],
+//         hAxis: {
+//     textStyle:{color: '#FFFFFF'}
+// },
         // hAxis: {title: 'Priority', titleTextStyle: {color: 'black',fontSize:'15',fontName:'"Arial"'}},
         //   title: 'Company Performance',
+        annotations: {
+     textStyle: {
+         color: 'black',
+         fontSize: 13,
+     },
+     alwaysOutside: true
+},
           curveType: 'function',
           legend: { position: 'none' }
         };
@@ -387,19 +406,31 @@
     pemanen_afd.addColumn('string', 'Estate');
     pemanen_afd.addColumn('number', 'Kebutuhan Pemanen Afdeling');
     // pemanen_afd.addColumn({type: 'string', role: 'style'});
+    pemanen_afd.addColumn({type:'string', role:'annotation'});
     for(i = 0; i < chart_data.length; i++){
-        pemanen_afd.addRow([chart_data[i][0], parseFloat(chart_data[i][1])]);
+        pemanen_afd.addRow([chart_data[i][0], parseFloat(chart_data[i][1]), parseFloat(chart_data[i][1]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") +' Orang']);
     }
 
-        var options = {
-        chartArea: {},
+    var options = {
+        chartArea: {
+        },
         theme: 'material',
-        // colors:[ ,'#FF9800','#4CAF50',  '#4CAF50','#4CAF50' ,'#4CAF50' ],
+        colors:['#4CAF50' ],
+//         hAxis: {
+//     textStyle:{color: '#FFFFFF'}
+// },
         // hAxis: {title: 'Priority', titleTextStyle: {color: 'black',fontSize:'15',fontName:'"Arial"'}},
         //   title: 'Company Performance',
+        annotations: {
+     textStyle: {
+         color: 'black',
+         fontSize: 13,
+     },
+     alwaysOutside: true
+},
           curveType: 'function',
           legend: { position: 'none' }
-        };
+        }
 
         var chart = new google.visualization.ColumnChart(document.getElementById('pemanenafdeling'));
 

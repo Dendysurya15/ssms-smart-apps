@@ -54,7 +54,7 @@ class PupukController extends Controller
 
         $response = Http::asForm()->post('http://localhost/pupukVersion.php', [
             'id_pupuk' => $newData->id,
-            'update' => 0,
+            'update' => 1,
         ]);
 
         return redirect()->route('pupuk.index')->with('success', 'Pupuk Berhasil di Input');
@@ -100,7 +100,6 @@ class PupukController extends Controller
 
         // dd($pupuk);
         $response = Http::asForm()->post('http://localhost/pupukVersion.php', [
-            'id_pupuk' => $pupuk->id,
             'update' => 1,
         ]);
 
@@ -117,13 +116,10 @@ class PupukController extends Controller
     {
 
         $response = Http::asForm()->post('http://localhost/pupukVersion.php', [
-            'id_pupuk' => $pupuk->id,
-            'update' => 2,
+            'update' => 1,
         ]);
 
         $pupuk->delete();
-
-
 
         return redirect()->route('pupuk.index')->with('succes', 'Pupuk ' . $pupuk->nama . ' Berhasil di Hapus');
     }

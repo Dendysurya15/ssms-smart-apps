@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Tutorial CRUD Laravel 8 untuk Pemula</title>
+    <title>Database Pupuk</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="//cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
     <script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>

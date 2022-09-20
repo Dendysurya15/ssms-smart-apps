@@ -52,15 +52,14 @@ class DashboardController extends Controller
         $dateToday = Carbon::now()->format('Y-m-d');
         $tglData = $request->has('tgl') ? $request->input('tgl') : $defaultHari = $dateToday;
 
-        $hariIni =  '2022-07-27 00:00:00';
+        $hariIni =  $tglData . ' 00:00:00';
 
         // dd($hariIni);
         $newConvert = new Carbon($hariIni);
 
         $besok = $newConvert->addDays();
-        $besok =  '2022-07-28 00:00:00';
+        $besok = $besok->format('Y-m-d') . ' 00:00:00';
 
-        // dd($)
         $color_chart = array(
             '#001E3C', '#AB221D', '#5CAF50', '#7CAF50', '#8CAF50', '#AB221D', '#AB221D',
             '#AB221D', '#AB221D', '#AB221D', '#AB221D', '#AB221D', '#AB221D', '#AB221D', '#282C34'
@@ -78,12 +77,11 @@ class DashboardController extends Controller
             $query = json_decode($query);
             $inc = 0;
 
-            // DD($query[1]->taksasi);
             foreach ($est_wil_reg[$pil_reg] as $key => $value) {
                 $sum_tak_est = 0;
                 $sum_keb_pemanen_est = 0;
                 foreach ($query as $data) {
-                    if ($data->lokasi_kerja == $value) {
+                    if ($data->lokasi_kerja == $key) {
                         $sum_tak_est += $data->taksasi;
                         $sum_keb_pemanen_est += $data->pemanen;
                     }
@@ -178,7 +176,7 @@ class DashboardController extends Controller
         $reg_all = Regional::all()->pluck('nama');
         $reg_all = json_decode($reg_all);
 
-        return view('dashboard.estate', [
+        return view('taksasi.estate', [
             'reg' => $reg_all,
         ]);
     }
@@ -190,7 +188,7 @@ class DashboardController extends Controller
         $reg_all = Regional::all()->pluck('nama');
         $reg_all = json_decode($reg_all);
 
-        return view('dashboard.afdeling', [
+        return view('taksasi.afdeling', [
             'reg' => $reg_all,
         ]);
     }
@@ -262,26 +260,23 @@ class DashboardController extends Controller
             $data_per_hari[$i]['taksasi'] = 0;
             $data_per_hari[$i]['kebutuhan_pemanen'] = 0;
 
-            // if ($query->first() != null) {
-            // foreach ($est_wil_reg[$pil_reg] as $key => $value) {
-
-            foreach ($query as $data) {
+            foreach ($est_wil_reg[$pil_reg] as $key => $value) {
                 $sum_tak_est = 0;
                 $sum_keb_pemanen_est = 0;
                 $jumlah_record = 0;
-                $waktu_upload = new DateTime($data->waktu_upload);
-                $waktu_upload = $waktu_upload->format('Y-m-d');
-                if ($convertHari == $waktu_upload) {
-                    $sum_tak_est += $data->taksasi;
-                    $sum_keb_pemanen_est += $data->pemanen;
-                    $jumlah_record++;
+                foreach ($query as $data) {
+                    $waktu_upload = new DateTime($data->waktu_upload);
+                    $waktu_upload = $waktu_upload->format('Y-m-d');
+                    if ($convertHari == $waktu_upload) {
+                        $sum_tak_est += $data->taksasi;
+                        $sum_keb_pemanen_est += $data->pemanen;
+                        $jumlah_record++;
+                    }
                 }
+                $data_per_hari[$i]['countRecord'] = $jumlah_record;
+                $data_per_hari[$i]['taksasi'] = $sum_tak_est;
+                $data_per_hari[$i]['kebutuhan_pemanen'] = $sum_keb_pemanen_est;
             }
-            $data_per_hari[$i]['countRecord'] = $jumlah_record;
-            $data_per_hari[$i]['taksasi'] = $sum_tak_est;
-            $data_per_hari[$i]['kebutuhan_pemanen'] = $sum_keb_pemanen_est;
-            // }
-            // }
         }
 
         dd($data_per_hari);
@@ -381,7 +376,7 @@ class DashboardController extends Controller
                 $sum_tak_est = 0;
                 $sum_keb_pemanen_est = 0;
                 foreach ($query as $data) {
-                    if ($data->lokasi_kerja == $value) {
+                    if ($data->lokasi_kerja == $key) {
                         $sum_tak_est += $data->taksasi;
                         $sum_keb_pemanen_est += $data->pemanen;
                     }
@@ -432,7 +427,6 @@ class DashboardController extends Controller
 
         $list_afd_est = $queryEst->afdeling->pluck('nama');
 
-        // dd($list_afd_est);
         $afd_array = array();
         $keb_pem_array = array();
         $dateToday = Carbon::now()->format('Y-m-d');
@@ -453,7 +447,7 @@ class DashboardController extends Controller
         $query = DB::connection('mysql2')->table('taksasi')
             ->select('taksasi.*')
             ->whereBetween('taksasi.waktu_upload', [$hariIni, $besok])
-            ->where('lokasi_kerja', $queryEst->nama)
+            ->where('lokasi_kerja', $queryEst->est)
             ->orderBy('taksasi.afdeling', 'asc')
             ->get();
 
@@ -469,7 +463,7 @@ class DashboardController extends Controller
                         $sum_keb_pemanen_afd += $data->pemanen;
                     }
                 }
-                $afd_array[$value] = $sum_tak_afd;
+                $afd_array[$value] = round($sum_tak_afd, 2);
                 $keb_pem_array[$value] = $sum_keb_pemanen_afd;
             }
         }
@@ -483,5 +477,23 @@ class DashboardController extends Controller
             echo json_encode($keb_pem_array);
         }
         exit;
+    }
+
+    public function ds_pemupukan()
+    {
+        $query = DB::connection('mysql2')->table('monitoring_pemupukan')
+            ->select('monitoring_pemupukan.*', 'pupuk.nama as nama_pupuk')
+            ->join('pupuk', 'monitoring_pemupukan.jenis_pupuk_id', '=', 'pupuk.id')
+            ->orderBy('monitoring_pemupukan.waktu_upload', 'DESC')
+            ->get();
+
+        // dd($query);
+        foreach ($query as $item) {
+            $hari = Carbon::parse($item->waktu_upload)->locale('id');
+            $hari->settings(['formatFunction' => 'translatedFormat']);
+            $item->tanggal = $hari->format('j F Y');
+            $item->tanggal = $hari->format('j F Y');
+        }
+        return view('mon_pemupukan.dashboard', ['collection' => $query]);
     }
 }
