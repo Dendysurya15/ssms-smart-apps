@@ -10,7 +10,24 @@
     <title> DASHBOARD</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="shortcut icon" type="image/x-icon" href="{{ asset('img/CBI-logo.png') }}">
-    <link rel="stylesheet" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}">
+
+    {{--
+    <link href="{{ asset('fontawesome6/css/fontawesome.css') }}"> --}}
+
+
+
+
+    <link href="{{asset('fontawesome6/css/all.css')}}" rel="stylesheet">
+    {{-- <script src="https://kit.fontawesome.com/3d2c665316.js" crossorigin="anonymous"></script> --}}
+
+
+    {{--
+    <link href="{{ asset('fontawesome6/css/solid.css') }}" rel="stylesheet"> --}}
+
+
+    {{--
+    <link href="{{ asset('fontawesome6/css/solid.css') }}" rel="stylesheet"> --}}
+
     <link rel="stylesheet" href="{{ asset('css/ionicons.min.css') }}">
     <link rel="stylesheet" href="{{ asset('plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
@@ -65,6 +82,8 @@
 
 </head>
 
+
+
 <body class="hold-transition sidebar-mini sidebar-collapse layout-fixed layout-navbar-fixed">
     <div class="wrapper">
         <nav class="main-header navbar navbar-expand navbar-white navbar-light">
@@ -90,6 +109,7 @@
                 <span class="brand-text font-weight-light">Dashboard</span>
             </a>
             <div class="sidebar">
+
                 <nav class="" style="height: 100%">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
                         data-accordion="false" style="height: 100%">
@@ -97,8 +117,9 @@
 
                         <!-- TABEL -->
                         <li class="nav-item">
+                            <!-- uses solid style -->
                             <a href="{{ asset('/dashboard_taksasi') }}" class="nav-link">
-                                <i class="nav-icon fa fa-file"></i>
+                                <i class="nav-icon fa-solid fa-file"></i>
                                 <p>
                                     Taksasi Estate
                                 </p>
@@ -113,13 +134,21 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="{{ asset('/history_taksasi') }}" class="nav-link">
+                                <i class="nav-icon fa-solid fa-clock-rotate-left"></i>
+                                <p>
+                                    History Taksasi
+                                </p>
+                            </a>
+                        </li>
+                        {{-- <li class="nav-item">
                             <a href="{{ asset('/dashboard_pemupukan') }}" class="nav-link">
                                 <i class="nav-icon fa fa-seedling"></i>
                                 <p>
                                     Dashboard Pemupukan
                                 </p>
                             </a>
-                        </li>
+                        </li> --}}
                         {{-- <li class="nav-item">
                             <a href="{{ asset('/field-inspection') }}" class="nav-link">
                                 <i class="nav-icon fa fa-book"></i>

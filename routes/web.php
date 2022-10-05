@@ -30,11 +30,14 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
     Route::get('dashboard_taksasi', [DashboardController::class, 'ds_taksasi'])->name('dash_est');
     Route::get('dashboard_taksasi_afdeling', [DashboardController::class, 'ds_taksasi_afdeling'])->name('dash_afd');
+    Route::get('history_taksasi', [DashboardController::class, 'history_taksasi'])->name('hish_tak');
+    Route::get('tak_history', [DashboardController::class, 'history_taksasi'])->name('tak_history');
     Route::post('getDataTakEst15Days', [DashboardController::class, 'getTakEst15Days'])->name('getDataTakEst15Days');
     Route::post('getNameEstate', [DashboardController::class, 'getNameEstate'])->name('getNameEstate');
     Route::post('getDataAfdeling', [DashboardController::class, 'getDataAfd'])->name('getDataAfdeling');
     Route::post('getLoadRegional', [DashboardController::class, 'getDataRegional'])->name('getLoadRegional');
     Route::get('dashboard_pemupukan', [DashboardController::class, 'ds_pemupukan'])->name('dash_pemupukan');
+    Route::get('/data', [DashboardController::class, 'ds_pemupukan'])->name('data');
     Route::resource('pupuk', PupukController::class);
 });
 

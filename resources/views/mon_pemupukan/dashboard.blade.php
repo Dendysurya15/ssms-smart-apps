@@ -31,58 +31,53 @@
                         <th rowspan="3">Divisi</th>
                         <th rowspan="3">Luas (Ha)</th>
                         <th rowspan="3">Jumlah Pokok</th>
-                        <th rowspan="3">Jenis Pupuk</th>
-                        <th colspan="4">Rekomendasi</th>
-                        <th colspan="4">Aplikasi</th>
-                        <th colspan="2">Achievement</th>
-                        <th rowspan="3">Varian</th>
-                        <th rowspan="3">Annual Achievement (%)</th>
-                        <th rowspan="3">Kg/pokok</th>
+                        <th>Jenis Pupuk</th>
+                        <th>Tanggal</th>
+                        <th>Estate</th>
+                        <th>Divisi</th>
+                        <th>Luas (Ha)</th>
+                        <th>Jumlah Pokok</th>
+                        <th>Jenis Pupuk</th>
+                        <th>Rekomendasi</th>
+                        <th>Aplikasi</th>
+                        <th>Achievement</th>
+                        <th>Varian</th>
+                        <th>Annual Achievement (%)</th>
+                        <th>Kg/pokok</th>
                     </tr>
                     <tr>
-                        <th colspan="2">SM1</th>
-                        <th colspan="2">SM2</th>
-                        <th colspan="2">SM1</th>
-                        <th colspan="2">SM2</th>
-                        <th rowspan="2">SM1</th>
-                        <th rowspan="2">SM2</th>
+                        <th>Jenis Pupuk</th>
+                        <th>Tanggal</th>
+                        <th>Estate</th>
+                        <th>Divisi</th>
+                        <th>Luas (Ha)</th>
+                        <th>Jumlah Pokok</th>
+                        <th>Jenis Pupuk</th>
+                        <th>Rekomendasi</th>
+                        <th>Aplikasi</th>
+                        <th>Achievement</th>
+                        <th>Varian</th>
+                        <th>Annual Achievement (%)</th>
+                        <th>Kg/pokok</th>
                     </tr>
                     <tr>
-                        <th>bi</th>
-                        <th>sbi</th>
-                        <th>bi</th>
-                        <th>sbi</th>
-                        <th>bi</th>
-                        <th>sbi</th>
-                        <th>bi</th>
-                        <th>sbi</th>
-                    </tr>
 
+                        <th>Jenis Pupuk</th>
+                        <th>Tanggal</th>
+                        <th>Estate</th>
+                        <th>Divisi</th>
+                        <th>Luas (Ha)</th>
+                        <th>Jumlah Pokok</th>
+                        <th>Jenis Pupuk</th>
+                        <th>Rekomendasi</th>
+                        <th>Aplikasi</th>
+                        <th>Achievement</th>
+                        <th>Varian</th>
+                        <th>Annual Achievement (%)</th>
+                        <th>Kg/pokok</th>
+                    </tr>
                 </thead>
                 <tbody>
-                    @foreach ($collection as $item)
-                    <tr>
-                        <td>{{$item->tanggal}}</td>
-                        <td>{{$item->estate}}</td>
-                        <td>{{$item->afdeling}}</td>
-                        <td></td>
-                        <td>{{$item->jumlah_pokok}}</td>
-                        <td>{{$item->nama_pupuk}}</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                    </tr>
-                    @endforeach
                 </tbody>
             </table>
 
@@ -117,16 +112,35 @@
 
 
 <script>
-    $(document).ready(function() {
-        var table = $('#example').DataTable( {
-        scrollY:        "400px",
-        scrollX:        true,
-        scrollCollapse: true,
-        paging:         true,
-        fixedColumns:   {
-            left: 2,
-        }
-    } );
-    
-} );
+    $(function() {
+        $('#example').DataTable({
+            "scrollX": true,
+            "searching": true,
+            "pageLength": 10,
+            processing: true,
+            serverSide: true,
+            ajax: "{{ route('data') }}",
+            columns: [
+            { data: 'tanggal', name: 'tanggal' },
+            { data: 'estate', name: 'estate' },
+            { data: 'afdeling', name: 'afdeling' },
+            { data: 'estate', name: 'estate' },
+            { data: 'jumlah_pokok', name: 'jumlah_pokok' },
+            { data: 'nama_pupuk', name: 'nama_pupuk' },
+            { data: 'estate', name: 'estate' },
+            { data: 'estate', name: 'estate' },
+            { data: 'estate', name: 'estate' },
+            { data: 'estate', name: 'estate' },
+            { data: 'estate', name: 'estate' },
+            { data: 'estate', name: 'estate' },
+            { data: 'estate', name: 'estate' },
+            { data: 'estate', name: 'estate' },
+            { data: 'estate', name: 'estate' },
+            { data: 'estate', name: 'estate' },
+            { data: 'estate', name: 'estate' },
+            { data: 'estate', name: 'estate' },
+        ],
+        
+        });
+    });
 </script>

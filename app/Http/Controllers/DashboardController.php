@@ -12,6 +12,7 @@ use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use Yajra\DataTables\DataTables;
 
 class DashboardController extends Controller
 {
@@ -188,6 +189,7 @@ class DashboardController extends Controller
         $reg_all = Regional::all()->pluck('nama');
         $reg_all = json_decode($reg_all);
 
+        // dd($reg_all);
         return view('taksasi.afdeling', [
             'reg' => $reg_all,
         ]);
@@ -319,6 +321,39 @@ class DashboardController extends Controller
         echo $output;
     }
 
+    public function history_taksasi(Request $request)
+    {
+
+        if ($request->ajax()) {
+            $query = DB::connection('mysql2')->table('taksasi')
+                ->select('taksasi.*')
+                ->orderBy('taksasi.waktu_upload', 'desc')
+                ->get();
+
+            $inc = 0;
+            foreach ($query as $key => $value) {
+                $path_arr = explode(';', $value->br_kanan);
+                $value->jumlah_path = count($path_arr);
+                $value->tanggal_upload = Carbon::parse($value->waktu_upload)->format('d M Y');
+                $value->ritase = ceil($value->taksasi / 6500);
+                $value->akp_round = round($value->akp, 2);
+                $value->tak_round = number_format($value->taksasi, 2, ",", ".");
+                $inc++;
+            }
+            // dd($query);
+
+            $query = json_decode($query, true);
+            return DataTables::of($query)
+                ->addIndexColumn()
+                ->addColumn('action', function ($model) {
+                    return '<a href="" class=""><i class="nav-icon fa-solid fa-circle-info" style="color:#1E6E42"></i>    </a>';
+                })
+                ->make(true);
+        }
+
+        return view('taksasi.history');
+    }
+
     public function getDataRegional(Request $request)
     {
         $pil_reg = $request->get('id_reg');
@@ -434,6 +469,7 @@ class DashboardController extends Controller
 
         $hariIni = $tglData . ' 00:00:00';
 
+        dd($hariIni);
         $newConvert = new Carbon($hariIni);
 
         $besok = $newConvert->addDays();
@@ -479,21 +515,28 @@ class DashboardController extends Controller
         exit;
     }
 
-    public function ds_pemupukan()
+    public function ds_pemupukan(Request $request)
     {
-        $query = DB::connection('mysql2')->table('monitoring_pemupukan')
-            ->select('monitoring_pemupukan.*', 'pupuk.nama as nama_pupuk')
-            ->join('pupuk', 'monitoring_pemupukan.jenis_pupuk_id', '=', 'pupuk.id')
-            ->orderBy('monitoring_pemupukan.waktu_upload', 'DESC')
-            ->get();
 
-        // dd($query);
-        foreach ($query as $item) {
-            $hari = Carbon::parse($item->waktu_upload)->locale('id');
-            $hari->settings(['formatFunction' => 'translatedFormat']);
-            $item->tanggal = $hari->format('j F Y');
-            $item->tanggal = $hari->format('j F Y');
+        if ($request->ajax()) {
+            $query = DB::connection('mysql2')->table('monitoring_pemupukan')
+                ->select('monitoring_pemupukan.*', 'pupuk.nama as nama_pupuk')
+                ->join('pupuk', 'monitoring_pemupukan.jenis_pupuk_id', '=', 'pupuk.id')
+                ->orderBy('monitoring_pemupukan.waktu_upload', 'DESC')
+                ->get();
+
+            // dd($query);
+            foreach ($query as $item) {
+                $hari = Carbon::parse($item->waktu_upload)->locale('id');
+                $hari->settings(['formatFunction' => 'translatedFormat']);
+                $item->tanggal = $hari->format('j F Y');
+                $item->tanggal = $hari->format('j F Y');
+            }
+
+            $query = json_decode($query, true);
+            return DataTables::of($query)->make(true);
         }
-        return view('mon_pemupukan.dashboard', ['collection' => $query]);
+
+        return view('mon_pemupukan.dashboard');
     }
 }
