@@ -17,4 +17,9 @@ class Afdeling extends Model
     {
         return $this->belongsTo(Estate::class);
     }
+
+    public function blok()
+    {
+        return $this->hasMany(Blok::class, 'afdeling');
+    }
 }

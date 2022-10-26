@@ -45,6 +45,7 @@
 
         <div class="container-fluid pb-4">
 
+
             <div class="container-fluid pl-3 pr-3">
                 <div class="row">
                     <div class="col-12 col-lg mb-1 dashboard_div">
@@ -56,11 +57,22 @@
                         </p>
 
                     </div>
+
+                    <div class="col-12 col-lg-3 pb-3">
+                        Pilih Tanggal
+                        <form class="" action="{{ route('dashboard') }}" method="get">
+                            <input class="form-control" type="date" name="tgl" onchange="this.form.submit()">
+                        </form>
+                    </div>
                 </div>
+
+
                 <div class="row">
+
                     <div class="pt-3 pb-3 font-italic col-12 col-lg mr-2 selectCard"
                         style="color:#013C5E;background-color:white;border-radius:5px;  display: table;width: 100%;">
                         <a href="{{ asset('/dashboard_taksasi') }}">
+
                             <div class="pl-3 pr-3 font-weight-bold">
                                 {{-- <span class="font-weight-bold">Update data taksasi terakhir</span>
                                 <hr> --}}
@@ -71,16 +83,16 @@
                             <div style="display: table-cell;vertical-align: middle;">
 
                                 <span class="pl-3 " style="color: #6C7C8B">
-                                    Taksasi @if ($dataEstate != '')
-                                    {{$dataEstate['estate']}}
-                                    @else
+                                    {{-- Taksasi @if ($dataEstate != '')
+                                    {{$dataEstate['est']}}
+                                    @else --}}
                                     Rangda
-                                    @endif Estate
+                                    {{-- @endif Estate --}}
                                 </span>
                                 <br>
                                 <span class="pl-3" style="font-size: 40px;font-weight:500">
-                                    @if ($dataEstate != '')
-                                    {{$dataEstate['taksasi']}}
+                                    @if ($estTak != '')
+                                    {{$estTak}}
                                     @else
                                     0
                                     @endif
@@ -96,8 +108,8 @@
                                 </span>
                                 <br>
                                 <span class="pl-3" style="font-size: 40px;font-weight:500">
-                                    @if ($dataEstate != '')
-                                    {{$dataEstate['kebutuhan_pemanen']}}
+                                    @if ($estPemanen != '')
+                                    {{$estPemanen}}
                                     @else
                                     0
                                     @endif
@@ -116,11 +128,11 @@
                                 Persebaran taksasi
                                 afdeling
                                 <span class="font-weight-bold">
-                                    @if ($dataEstate != '')
-                                    {{$dataEstate['estate']}}
-                                    @else
+                                    {{-- @if ($dataEstate != '')
+                                    {{$dataEstate['est']}}
+                                    @else --}}
                                     Rangda
-                                    @endif
+                                    {{-- @endif --}}
                                 </span>
 
                             </div>
