@@ -1004,7 +1004,7 @@ class DashboardController extends Controller
             return DataTables::of($arrView)
                 ->editColumn('afdeling', function ($model) {
                     $newFormatDate = Carbon::parse($model['tanggal']);
-                    return '<a href="' . route('detail_pemupukan', ['tanggal' => \Carbon\Carbon::parse($model['tanggal'])->format('d-m-Y')]) . '">  ' . $model['afdeling'] . '    </a>';
+                    return '<a href="' . route('detail_pemupukan', ['est' => $model['estate'], 'afd' => $model['afdeling'], 'tanggal' => $newFormatDate->format('d-m-Y')]) . '">  ' . $model['afdeling'] . '    </a>';
                 })
                 ->rawColumns(['afdeling'])
                 ->editColumn('biSm1Rekom', function ($model) {
@@ -1091,118 +1091,204 @@ class DashboardController extends Controller
 
     public function detail_pemupukan(Request $request)
     {
-        $estate_input = request()->route('estate');
-        $afdeling = request()->route('afdeling');
+        $estate_input = request()->route('est');
+        $afdeling_input = request()->route('afd');
         $tanggal = request()->route('tanggal');
 
+        // dd($estate_input);
         $newDate = Carbon::parse($tanggal);
+
         $newDate = $newDate->format('Y-m-d');
 
         //menentukan plot estate
-        $queryEstate = DB::connection('mysql2')->table('estate_plot')
+        $queryData = DB::connection('mysql2')->table('monitoring_pemupukan')
+            ->select('monitoring_pemupukan.*', 'pupuk.nama as nama_pupuk')
+            ->join('pupuk', 'monitoring_pemupukan.jenis_pupuk_id', '=', 'pupuk.id')
+            ->whereDate('monitoring_pemupukan.waktu_upload', $newDate)
+            ->where('monitoring_pemupukan.estate', $estate_input)
+            ->where('monitoring_pemupukan.afdeling', $afdeling_input)
+            ->orderBy('monitoring_pemupukan.waktu_upload', 'DESC')
+            ->get();
+
+        $line_pemupukan = array();
+        $plot = '';
+        foreach ($queryData as $item) {
+            $hari = Carbon::parse($item->waktu_upload)->locale('id');
+            $hari->settings(['formatFunction' => 'translatedFormat']);
+            $item->tanggal = $hari->format('j F Y');
+
+            //terpupuk
+            $sub = substr($item->dipupuk, 1, -1);
+            $formatted = explode(", ", $sub);
+            $countDipupuk = 0;
+            foreach ($formatted as $key => $value) {
+                if ($value == 1) {
+                    $countDipupuk++;
+                }
+            }
+
+            //jenis pupuk
+            $sub = substr($item->jenis_pupuk, 1, -1);
+            $formatted = explode(", ", $sub);
+            $countJenisPupuk = 0;
+            foreach ($formatted as $key => $value) {
+                if ($value == 1) {
+                    $countJenisPupuk++;
+                }
+            }
+
+            //lokasi pupuk
+            $sub = substr($item->lokasi_pupuk, 1, -1);
+            $formatted = explode(", ", $sub);
+            $countLokasiPupuk = 0;
+            foreach ($formatted as $key => $value) {
+                if ($value == 1) {
+                    $countLokasiPupuk++;
+                }
+            }
+
+            //sebaran pupuk
+            $sub = substr($item->sebar_pupuk, 1, -1);
+            $formatted = explode(", ", $sub);
+            $countSebarPupuk = 0;
+            foreach ($formatted as $key => $value) {
+                if ($value == 1) {
+                    $countSebarPupuk++;
+                }
+            }
+
+            $item->terpupuk = $countDipupuk;
+            $item->tersebar = $countSebarPupuk;
+            $item->terlokasi = $countLokasiPupuk;
+            $item->kesesuaian_jenis = $countJenisPupuk;
+
+            $plot = '[' . $item->lon_awal . ',' . $item->lat_awal . '],[' . $item->lon_akhir . ',' . $item->lat_akhir . ']';
+            $line_pemupukan['plot'][] = rtrim($plot, ',');
+        }
+
+        $plotEstate = DB::connection('mysql2')->table('estate_plot')
             ->select('*')
             ->join('estate', 'estate_plot.est', '=', 'estate.est')
-            ->where('estate.est', 'RDE')
+            ->where('estate.est', $estate_input)
             ->get();
 
         $estate_plot = array();
         $plot = '';
         $estate = '';
-        foreach ($queryEstate as $key2 => $val) {
+
+        foreach ($plotEstate as $key2 => $val) {
             $plot .= '[' . $val->lon . ',' . $val->lat . '],';
             $estate = $val->nama;
         }
         $estate_plot['est'] = $estate . ' Estate';
         $estate_plot['plot'] =  rtrim($plot, ',');
 
-        if ($request->ajax()) {
+        $plotEstateJson = json_encode($plotEstate);
 
-            $query = DB::connection('mysql2')->table('monitoring_pemupukan')
-                ->select('monitoring_pemupukan.*', 'pupuk.nama as nama_pupuk')
-                ->join('pupuk', 'monitoring_pemupukan.jenis_pupuk_id', '=', 'pupuk.id')
-                ->where('monitoring_pemupukan.estate', $estate_input)
-                ->where('monitoring_pemupukan.afdeling', $afdeling)
-                ->where(DB::raw("(DATE_FORMAT(monitoring_pemupukan.waktu_upload,'%Y-%m-%d'))"), "=", $newDate)
-                ->orderBy('monitoring_pemupukan.waktu_upload', 'DESC')
-                ->get();
 
-            $line_pemupukan = array();
-            $plot = '';
-            foreach ($query as $item) {
-                $hari = Carbon::parse($item->waktu_upload)->locale('id');
-                $hari->settings(['formatFunction' => 'translatedFormat']);
-                $item->tanggal = $hari->format('j F Y');
+        $queryData = json_decode($queryData, true);
 
-                //terpupuk
-                $sub = substr($item->dipupuk, 1, -1);
-                $formatted = explode(", ", $sub);
-                $countDipupuk = 0;
-                foreach ($formatted as $key => $value) {
-                    if ($value == 1) {
-                        $countDipupuk++;
-                    }
-                }
-
-                //jenis pupuk
-                $sub = substr($item->jenis_pupuk, 1, -1);
-                $formatted = explode(", ", $sub);
-                $countJenisPupuk = 0;
-                foreach ($formatted as $key => $value) {
-                    if ($value == 1) {
-                        $countJenisPupuk++;
-                    }
-                }
-
-                //lokasi pupuk
-                $sub = substr($item->lokasi_pupuk, 1, -1);
-                $formatted = explode(", ", $sub);
-                $countLokasiPupuk = 0;
-                foreach ($formatted as $key => $value) {
-                    if ($value == 1) {
-                        $countLokasiPupuk++;
-                    }
-                }
-
-                //sebaran pupuk
-                $sub = substr($item->sebar_pupuk, 1, -1);
-                $formatted = explode(", ", $sub);
-                $countSebarPupuk = 0;
-                foreach ($formatted as $key => $value) {
-                    if ($value == 1) {
-                        $countSebarPupuk++;
-                    }
-                }
-
-                $item->terpupuk = $countDipupuk;
-                $item->tersebar = $countSebarPupuk;
-                $item->terlokasi = $countLokasiPupuk;
-                $item->kesesuaian_jenis = $countJenisPupuk;
-
-                $plot = '[' . $item->lon_awal . ',' . $item->lat_awal . '],[' . $item->lon_akhir . ',' . $item->lat_akhir . ']';
-                $line_pemupukan['plot'][] = rtrim($plot, ',');
-            }
-
-            $query = json_decode($query, true);
-
-            return DataTables::of($query)
-                ->editColumn('terpupuk', function ($model) {
-                    return $model['terpupuk'] . ' / ' . $model['jumlah_pokok'];
-                })
-                ->editColumn('kesesuaian_jenis', function ($model) {
-                    return $model['kesesuaian_jenis'] . ' / ' . $model['jumlah_pokok'];
-                })
-                ->editColumn('terlokasi', function ($model) {
-                    return $model['terlokasi'] . ' / ' . $model['jumlah_pokok'];
-                })
-                ->editColumn('tersebar', function ($model) {
-                    return $model['tersebar'] . ' / ' . $model['jumlah_pokok'];
-                })
-                ->addColumn('action', function ($model) {
-                    return '<a href="" class="" >  <i class="nav-icon fa fa-eye" style="color:#1E6E42"></i>    </a>';
-                })
-                ->make(true);
+        $list_blok = array();
+        foreach ($queryData as $key => $value) {
+            $list_blok[$estate_input][] = $value['blok'];
         }
 
-        return view('mon_pemupukan.detail', ['est' => $estate, 'afd' => $afdeling]);
+        $blokPerEstate = array();
+        $estateQuery = Estate::with("afdeling")->where('est', $estate_input)->get();
+        foreach ($estateQuery as $key => $value) {
+            $i = 0;
+            foreach ($value->afdeling as $key2 => $data) {
+                $blokPerEstate[$estate_input][$data->nama] =  Afdeling::with("blok")->find($data->id)->blok->pluck('nama', 'id');
+                $i++;
+            }
+        }
+
+        $result_list_blok = array();
+        foreach ($list_blok as $key => $value) {
+            foreach ($value as $key2 => $data) {
+                if (strlen($data) == 5) {
+                    $result_list_blok[$key][$data] = substr($data, 0, -2);
+                }
+                if (strlen($data) == 6) {
+                    $sliced = substr_replace($data, '', 1, 1);
+                    $result_list_blok[$key][$data] = substr($sliced, 0, -2);
+                }
+            }
+        }
+
+
+        if (preg_match("/^[a-z]+$/", 'G12a'))
+
+            print "Yes\n";
+        else
+            print "No\n";
+
+        $result_list_all_blok = array();
+        foreach ($blokPerEstate as $key2 => $value) {
+            foreach ($value as $key3 => $afd) {
+                foreach ($afd as $key4 => $data) {
+                    if (strlen($data) == 4) {
+                        // if (preg_match("/^[a-zA-Z]+$/", $data)) {
+                        $result_list_all_blok[$key2][] = $data;
+                        // } else {
+                        //     $result_list_all_blok[$key2][] = substr_replace($data, '', 1, 1);
+                        // }
+                    } else {
+                        $result_list_all_blok[$key2][] = $data;
+                    }
+                }
+            }
+        }
+
+        dd($result_list_all_blok);
+
+        // //bandingkan list blok query dan list all blok dan get hanya blok yang cocok
+        $result_blok = array();
+        if (array_key_exists($estate_input, $result_list_all_blok)) {
+            $query = array_unique($result_list_all_blok[$estate_input]);
+            $result_blok[$estate_input] = array_intersect($result_list_blok[$estate_input], $query);
+        }
+
+        dd($result_blok);
+
+        // // //get lat lang dan key $result_blok atau semua list_blok
+
+        $blokLatLn = array();
+
+        foreach ($result_blok as $key => $value) {
+            $inc = 0;
+            foreach ($value as $key2 => $data) {
+                $newData = substr_replace($data, '0', 1, 0);
+                $query = '';
+                $query = DB::connection('mysql2')->table('blok')
+                    ->select('blok.*')
+                    ->where('blok.nama', $newData)
+                    ->get();
+
+                $latln = '';
+                foreach ($query as $key3 => $val) {
+
+                    $latln .= '[' . $val->lon . ',' . $val->lat . '],';
+                }
+
+                $estate = DB::connection('mysql2')->table('estate')
+                    ->select('estate.*')
+                    ->where('estate.est', $estate_input)
+                    ->first();
+
+                $nama_estate = $estate->nama;
+
+                $blokLatLn[$inc]['blok'] = $key2;
+                $blokLatLn[$inc]['estate'] = $nama_estate;
+                $blokLatLn[$inc]['latln'] = rtrim($latln, ',');
+                $inc++;
+            }
+        }
+
+
+        dd($blokLatLn);
+
+
+        return view('mon_pemupukan.detail', ['plotEstateJson' => $plotEstateJson, 'queryData' => $queryData, 'est' => $estate_input, 'afd' => $afdeling_input]);
     }
 }

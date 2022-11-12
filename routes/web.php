@@ -44,7 +44,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('getDataAfdeling', [DashboardController::class, 'getDataAfd'])->name('getDataAfdeling');
     Route::post('getLoadRegional', [DashboardController::class, 'getDataRegional'])->name('getLoadRegional');
     Route::get('dashboard_pemupukan', [DashboardController::class, 'ds_pemupukan'])->name('dash_pemupukan');
-    Route::get('{tanggal}/detail_pemupukan', [DashboardController::class, 'detail_pemupukan'])->name('detail_pemupukan');
+    Route::get('detail_pemupukan/{est}/{afd}/{tanggal}', [DashboardController::class, 'detail_pemupukan'])->name('detail_pemupukan');
     Route::get('/data', [DashboardController::class, 'ds_pemupukan'])->name('data');
     Route::resource('pupuk', PupukController::class);
 });

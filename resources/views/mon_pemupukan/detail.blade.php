@@ -29,24 +29,19 @@
             <a href="{{ route('dash_pemupukan') }}"> <i class="nav-icon fa-solid fa-arrow-left "></i> Kembali</a>
             <div class="card mt-3">
                 <div class="card-body">
-                    <h3>Detail Pemupukan {{$est}} - {{$afd}}</h3>
+                    <h3 class="mb-3">Detail Pemupukan {{$est}} - {{$afd}}</h3>
 
-                    <table id="example" class="table table-bordered" cellspacing="0" width="100%">
-                        <thead class="text-center">
+                    <table id="example" class="display" style="width:100%">
+                        <thead>
                             <tr>
                                 <th rowspan="2">Tanggal</th>
                                 <th rowspan="2">Blok</th>
                                 <th rowspan="2">Jenis Pupuk</th>
                                 <th rowspan="2">Jumlah Pokok</th>
-                                <th colspan="4">Monitoring Pemupukan</th>
-                                {{-- <th rowspan="2">Foto</th> --}}
+                                <th colspan="4" class="text-center">Monitoring Pemupukan</th>
                                 <th rowspan="2">Aksi</th>
                             </tr>
                             <tr>
-                                {{-- <th>Tanggal</th> --}}
-                                {{-- <th>Blok</th> --}}
-                                {{-- <th>Jenis Pupuk</th> --}}
-                                {{-- <th>Jumlah Pokok</th> --}}
                                 <th>Terpupuk / Pkk</th>
                                 <th>Jenis pupuk / Pkk</th>
                                 <th>Lokasi pupuk / Pkk</th>
@@ -56,14 +51,23 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @foreach ($queryAfdeling as $item)
+                            <tr>
+                                <td>{{$item->tanggal}}</td>
+                                <td>{{$item->blok}}</td>
+                                <td>{{$item->nama_pupuk}}</td>
+                                <td>{{$item->jumlah_pokok}}</td>
+                                <td>{{$item->terpupuk}}</td>
+                                <td>{{$item->kesesuaian_jenis}}</td>
+                                <td>{{$item->terlokasi}}</td>
+                                <td>{{$item->tersebar}}</td>
+                                <td>-</td>
+                            </tr>
+                            @endforeach
                         </tbody>
                     </table>
-
-
                 </div>
             </div>
-
-
         </div>
     </section>
 
@@ -92,27 +96,9 @@
 
 
 <script>
-    $(function() {
-        $('#example').DataTable({
-            "scrollX": true,
-            "searching": true,
-            "pageLength": 10,
-            processing: true,
-            serverSide: true,
-            ajax: "{{ route('detail_pemupukan',  ['estate' => $est, 'afdeling' => $afd]) }}",
-            columns: [
-            { data: 'tanggal', name: 'tanggal', orderable : false },
-            { data: 'blok', name: 'blok' },
-            { data: 'nama_pupuk', name: 'nama_pupuk' },
-            { data: 'jumlah_pokok', name: 'jumlah_pokok' },
-            { data: 'terpupuk', name: 'terpupuk' },
-            { data: 'kesesuaian_jenis', name: 'kesesuaian_jenis' },
-            { data: 'terlokasi', name: 'terlokasi' },
-            { data: 'tersebar', name: 'tersebar' },
-            // { data: 'foto', name: 'foto' },
-            { data: 'action', name: 'action' },
-        ],
-        
-        });
+    $(document).ready(function () {
+        $('#example').DataTable();
     });
+
+    
 </script>
