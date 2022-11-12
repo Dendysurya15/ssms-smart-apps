@@ -15,7 +15,8 @@
     <link href="{{ asset('fontawesome6/css/fontawesome.css') }}"> --}}
 
 
-
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css"
+        integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
 
     <link href="{{asset('fontawesome6/css/all.css')}}" rel="stylesheet">
     {{-- <script src="https://kit.fontawesome.com/3d2c665316.js" crossorigin="anonymous"></script> --}}

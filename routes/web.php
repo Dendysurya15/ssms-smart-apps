@@ -34,10 +34,17 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('tak_history', [DashboardController::class, 'history_taksasi'])->name('tak_history');
     Route::post('getDataTakEst15Days', [DashboardController::class, 'getTakEst15Days'])->name('getDataTakEst15Days');
     Route::post('getNameEstate', [DashboardController::class, 'getNameEstate'])->name('getNameEstate');
+    Route::post('plotEstate', [DashboardController::class, 'plotEstate'])->name('plotEstate');
+    Route::post('plotBlok', [DashboardController::class, 'plotBlok'])->name('plotBlok');
+    Route::post('plotLineTaksasi', [DashboardController::class, 'plotLineTaksasi'])->name('plotLineTaksasi');
+    Route::post('plotMarkerMan', [DashboardController::class, 'plotMarkerMan'])->name('plotMarkerMan');
+    Route::post('getDataTable', [DashboardController::class, 'getDataTable'])->name('getDataTable');
+    Route::post('getListEstate', [DashboardController::class, 'getListEstate'])->name('getListEstate');
+    Route::get('tableCoba', [DashboardController::class, 'tableCoba'])->name('tableCoba');
     Route::post('getDataAfdeling', [DashboardController::class, 'getDataAfd'])->name('getDataAfdeling');
     Route::post('getLoadRegional', [DashboardController::class, 'getDataRegional'])->name('getLoadRegional');
     Route::get('dashboard_pemupukan', [DashboardController::class, 'ds_pemupukan'])->name('dash_pemupukan');
-    Route::get('{estate}/{afdeling}/detail_pemupukan', [DashboardController::class, 'detail_pemupukan'])->name('detail_pemupukan');
+    Route::get('{tanggal}/detail_pemupukan', [DashboardController::class, 'detail_pemupukan'])->name('detail_pemupukan');
     Route::get('/data', [DashboardController::class, 'ds_pemupukan'])->name('data');
     Route::resource('pupuk', PupukController::class);
 });

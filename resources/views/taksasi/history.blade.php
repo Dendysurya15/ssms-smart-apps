@@ -10,6 +10,11 @@
         border: 2px solid cyan
     }
 
+    .man-marker {
+        /* color: white; */
+        filter: invert(35%) sepia(63%) saturate(5614%) hue-rotate(2deg) brightness(102%) contrast(107%);
+    }
+
     .leaflet-tooltip-left.myCSSClass::before {
         border-left-color: cyan;
     }
@@ -19,9 +24,69 @@
     }
 
     .label-bidang {
+        font-size: 10pt;
+        color: white;
+        text-align: center;
+        opacity: 0.6;
+    }
+
+    .label-estate {
         font-size: 20pt;
         color: white;
         text-align: center;
+    }
+
+    .pagenumbers {
+
+        margin-top: 30px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .pagenumbers button {
+        width: 50px;
+        height: 50px;
+
+        appearance: none;
+        border-radius: 5px;
+        border: 1px solid white;
+        outline: none;
+        cursor: pointer;
+
+        background-color: white;
+
+        margin: 5px;
+        transition: 0.4s;
+
+        color: black;
+        font-size: 18px;
+        text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.2);
+        box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .pagenumbers button:hover {
+        background-color: #013c5e;
+        color: white
+    }
+
+    .pagenumbers button.active {
+        background-color: #013c5e;
+        color: white;
+        box-shadow: inset 0px 0px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .pagenumbers button.active:hover {
+        background-color: #353e44;
+        color: white;
+        box-shadow: inset 0px 0px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .table_wrapper {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
     }
 </style>
 <div class="content-wrapper">
@@ -30,48 +95,76 @@
     </section>
 
     <section class="content">
-        <div class="container-fluid ">
+        <div class="container-fluid " id="dataHistory">
+            <div class="row">
+                <div class="col-2">
+                    Pilih Tanggal
+                </div>
+                <div class="col-2">
+                    Pilih Estate
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-2">
+                    {{ csrf_field() }}
+                    <form class="" action="{{ route('hish_tak') }}" method="get">
+                        <input class="form-control" type="date" id="inputTanggal" name="tgl">
+                    </form>
+                </div>
+                <div class="col-2">
+                    <select id="nameEstate" class="form-control">
+
+                    </select>
+                </div>
+            </div>
+            <br>
             <h3>History Taksasi Panen</h3>
             <div class="container-fluid">
 
                 <div class="row">
-                    <div class="card">
+                    <div class="card" style="width: 100%">
                         <div class="card-body">
-                            <table id="yajra-table" style="margin: 0 auto;text-align:center"
-                                class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">No</th>
-                                        <th scope="col">TANGGAl</th>
-                                        <th scope="col">ESTATE</th>
-                                        <th scope="col">AFDELING</th>
-                                        <th scope="col">BLOK</th>
-                                        <th scope="col">AKP (%)</th>
-                                        <th scope="col">TAKSASI (KG)</th>
-                                        <th scope="col">RITASE</th>
-                                        <th scope="col">KEB.PEMANEN (ORG)</th>
-                                        <th scope="col">Luas(HA)</th>
-                                        <th scope="col">SPH (Pkk/HA)</th>
-                                        <th scope="col">BJR (Kg/Jjg)</th>
-                                        <th scope="col">SAMPEL PATH</th>
-                                        <th scope="col">JANJANG SAMPEL</th>
-                                        <th scope="col">POKOK SAMPEL</th>
-                                        <th scope="col">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
+                            <p id="textData"></p>
+                            <div class="table_wrapper">
+                                <table id="yajra-table" style="margin: 0 auto;text-align:center"
+                                    class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">No</th>
+                                            <th scope="col">TANGGAl</th>
+                                            <th scope="col">ESTATE</th>
+                                            <th scope="col">AFDELING</th>
+                                            <th scope="col">BLOK</th>
+                                            <th scope="col">AKP (%)</th>
+                                            <th scope="col">TAKSASI (KG)</th>
+                                            <th scope="col">RITASE</th>
+                                            <th scope="col">KEB.PEMANEN (ORG)</th>
+                                            <th scope="col">Luas(HA)</th>
+                                            <th scope="col">SPH (Pkk/HA)</th>
+                                            <th scope="col">BJR (Kg/Jjg)</th>
+                                            <th scope="col">SAMPEL PATH</th>
+                                            <th scope="col">JANJANG SAMPEL</th>
+                                            <th scope="col">POKOK SAMPEL</th>
+                                            <th scope="col">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="list" class="list">
+                                    </tbody>
+
+                                </table>
+                            </div>
+
+                            <div class="pagenumbers" id="pagination"></div>
                         </div>
                     </div>
                 </div>
 
+            </div>
 
-                <div id="map"></div>
-                <div id="map-canvas" style="width:700px;height:500px">
-                </div>
-
-            </div><!-- /.container-fluid -->
+            <br>
+            <h3>Tracking User Taksasi</h3>
+            <div id="map"></div>
+        </div>
     </section>
 
 </div>
@@ -99,6 +192,7 @@
 </script>
 
 <script>
+    date =  new Date().toISOString().slice(0, 10)
     var map = L.map('map').setView([-2.27462005615234, 111.61400604248], 13);
 
     //openstreetmap
@@ -134,239 +228,267 @@
 
     // var marker = L.marker([-2.27462005615234, 111.61400604248]).addTo(map);
 
-    var estate = <?php echo json_encode($data_per_estate); ?>;
-    var list_estate = <?php echo json_encode($list_estate); ?>;
-    var blok_per_estate = <?php echo json_encode($blok_per_estate); ?>;
-    
-    estate = Object.entries(estate);
-    blok_per_estate = Object.entries(blok_per_estate);
-    list_estate = Object.entries(list_estate);
-
-    
-        const arrlatawal = [];
-        const arrlngawal = [];
-        const arrlatakhir = [];
-        const arrlngakhir = [];
-
-         for (let i = 0; i < list_estate.length; i++) {
-            arrlatawal[i] = [];
-            arrlngawal[i] = [];
-            arrlatakhir[i] = [];
-            arrlngakhir[i] = [];
-             for (let j = 0; j < estate[i][1].length; j++) {
-
-                var checkLatAwal =  estate[i][1][j]['lat_awal'].includes(";")
-                var checkLonAwal =  estate[i][1][j]['lon_awal'].includes(";")
-                var checkLatAkhir =  estate[i][1][j]['lat_akhir'].includes(";")
-                var checkLonAkhir =  estate[i][1][j]['lon_akhir'].includes(";")
-                if(checkLatAwal == true){
-                    var splittedLatAwal = estate[i][1][j]['lat_awal'].split(';')
-                    for (const element of splittedLatAwal) { // You can use `let` instead of `const` if you like
-                        arrlatawal[i].push(element);
-                    }
-                }else{
-                    arrlatawal[i].push(estate[i][1][j]['lat_awal']);
-                }
-
-                if(checkLonAwal == true){
-                    var splittedLonAwal = estate[i][1][j]['lon_awal'].split(';')
-                    for (const element of splittedLonAwal) { // You can use `let` instead of `const` if you like
-                        arrlngawal[i].push(element);
-                    }
-                }else{
-                    arrlngawal[i].push(estate[i][1][j]['lon_awal']);
-                }
-
-                if(checkLatAkhir == true){
-                    var splittedLatAkhir = estate[i][1][j]['lat_akhir'].split(';')
-                    for (const element of splittedLatAkhir) { // You can use `let` instead of `const` if you like
-                        arrlatakhir[i].push(element);
-                    }
-                }else{
-                    arrlatakhir[i].push(estate[i][1][j]['lat_akhir']);
-                }
-
-                if(checkLonAkhir == true){
-                    var splittedLonAkhir = estate[i][1][j]['lon_akhir'].split(';')
-                    for (const element of splittedLonAkhir) { // You can use `let` instead of `const` if you like
-                        arrlngakhir[i].push(element);
-                    }
-                }else{
-                    arrlngakhir[i].push(estate[i][1][j]['lon_akhir']);
-                }
-            }
-        }
-
-        var arrPlot = [];
-        for (let i = 0; i < arrlatawal.length; i++) {
-            arrPlot[i] = []
-            for (let j = 0; j < arrlatawal[i].length; j++) {
-                arrPlot[i].push([[arrlatawal[i][j], arrlngawal[i][j]], [arrlatakhir[i][j], arrlngakhir[i][j]]])
-            }
-        }
-
-        // console.log(blok_per_estate);
-      var blokPlot = [];
-      for (let i = 0; i < blok_per_estate.length; i++) {
-            blokPlot[i] = []
-            for (let j = 0; j < blok_per_estate[i][1].length; j++) {
-                blokPlot[i].push(blok_per_estate[i][1][j]['latln'])
-            }
-        }
-
-        console.log(JSON.stringify(blokPlot));
-
-        
-        var latlngs = arrPlot[0]
-        var latlngs2 = arrPlot[1]
-    //     [
-    //          [[-2.27462005615234, 111.61400604248],
-    //  [-2.27551436424255, 111.614074707031]],
-    // [[-2.2754065990448, 111.613746643066],
-    //  [-2.27479457855225, 111.613998413086]],
-    //     ]
-    
-
-
-    var polyline = L.polyline(latlngs, {color: 'red'}).addTo(map);
-    var polyline = L.polyline(latlngs2, {color: 'blue'}).addTo(map);
-
-    // zoom the map to the polyline
-    map.fitBounds(polyline.getBounds());
+    // console.log(blokPlot)
 
     // create a red polygon from an array of LatLng points
-// var latlngs = [[-2.292762824, 111.6062017],[-2.295260481, 111.6062847],[-2.295077952, 111.5972971],[-2.295078019, 111.5968261],[-2.292020507, 111.5968385],[-2.292762824, 111.6062017]];
+    // var latlngs = [[-2.292762824, 111.6062017],[-2.295260481, 111.6062847],[-2.295077952, 111.5972971],[-2.295078019, 111.5968261],[-2.292020507, 111.5968385],[-2.292762824, 111.6062017]];
 
-// var polygon = L.polygon(latlngs, {color: 'red'}).addTo(map);
+    // var polygon = L.polygon(latlngs, {color: 'red'}).addTo(map);
 
-// // zoom the map to the polygon
-// map.fitBounds(polygon.getBounds());
+    // zoom the map to the polygon
+    // map.fitBounds(polygon.getBounds());
 
-$testCoba = ''
-var states =
-{
-  "type": "FeatureCollection",
-  "features": [
-    {
-      "type": "Feature",
-      "properties": {
-        "blok": "L019",
-      },
-      "geometry": {
-        "coordinates": [
-            [
-                [
-                    111.6062017,
-                    -2.292762824
-                ],
-                [
-                    111.6062847,
-                    -2.295260481
-                ],
-            [
-                111.5972971,
-                -2.295077952
-            ],
-            [
-                111.5968261,
-                -2.295078019
-            ],
-            [
-                111.5968385,
-                -2.292020507
-            ],
-            
-          ]
-        ],
-        "type": "Polygon"
-      }
-    }
-  ]
-}
 
-L.geoJSON(states, {
+var titleEstate = new Array();
+function drawEstatePlot(est,plot){
+var geoJsonEst = '{"type"'
+geoJsonEst += ":"
+geoJsonEst += '"FeatureCollection",'
+geoJsonEst += '"features"'
+geoJsonEst += ":"
+geoJsonEst += '['
+
+            geoJsonEst += '{"type"'
+            geoJsonEst += ":"
+            geoJsonEst += '"Feature",'
+            geoJsonEst += '"properties"'
+            geoJsonEst += ":"
+            geoJsonEst += '{"estate"'
+            geoJsonEst += ":"
+            geoJsonEst += '"' + est +'"},'
+            geoJsonEst += '"geometry"'
+            geoJsonEst += ":"
+            geoJsonEst += '{"coordinates"'
+            geoJsonEst += ":"
+            geoJsonEst += '[['
+            geoJsonEst += plot
+            geoJsonEst += ']],"type"'
+            geoJsonEst += ":"
+            geoJsonEst += '"Polygon"'
+            geoJsonEst += '}},'
+
+geoJsonEst = geoJsonEst.substring(0, geoJsonEst.length - 1);
+geoJsonEst += ']}'
+
+var estate = JSON.parse(geoJsonEst)
+
+L.geoJSON(estate, {
     onEachFeature: function(feature, layer){
-            var label = L.marker(layer.getBounds().getCenter(), {
+        layer.myTag = 'EstateMarker'
+        var label = L.marker(layer.getBounds().getCenter(), {
         icon: L.divIcon({
-            className: 'label-bidang',
-            html: feature.properties.blok,
+            className: 'label-estate',
+            html: feature.properties.estate,
             iconSize: [100, 20]
         })
         }).addTo(map);
-
+        titleEstate.push(label)
         layer.addTo(map);
     },
     style: function(feature) {
-        switch (feature.properties.party) {
-            case 'Republican': return {color: "#ff0000"};
-            case 'Democrat':   return {color: "#0000ff"};
+        switch (feature.properties.estate) {
+            case 'Sulung Estate': return {
+                color: "#FBAB71",
+            opacity: 1,
+            fillOpacity: 0.2,
+            
+        };
+            case 'Rangda Estate':   return {color: "#003B73",
+            opacity: 1,
+            fillOpacity: 0.4,
+          
+        };
         }
     }
 })
 .addTo(map);
-// function onEachFeature(feature, layer) {
-//     // does this feature have a property named popupContent?
-//     if (feature.properties && feature.properties.popupContent) {
-//         layer.bindPopup(feature.properties.popupContent);
-//     }
-// }
-// L.geoJSON(states, {
-//     style: function(feature) {
-//         switch (feature.properties.party) {
-//             case 'Republican': return {color: "#ff0000"};
-//             case 'Democrat':   return {color: "#0000ff"};
-//         }
-//     }
-// })
-// onEachFeature: function(feature, layer){
-//     var iconLabel = L.divIcon({
-//         className : 'label-bidang',
-//         html: '<b>' + feature.properties.blok + '</b>',
-//         iconSize:[100, 20]
-//     });
+}
 
-//     L.marker(layer.getBounds().getCenter(),{icon:iconLabel}).addTo(map);
+var titleBlok = new Array();
+function drawBlokPlot(blok){
+var getPlotStr = '{"type"'
+getPlotStr += ":"
+getPlotStr += '"FeatureCollection",'
+getPlotStr += '"features"'
+getPlotStr += ":"
+getPlotStr += '['
+for (let i = 0; i < blok.length; i++) {
+            getPlotStr += '{"type"'
+            getPlotStr += ":"
+            getPlotStr += '"Feature",'
+            getPlotStr += '"properties"'
+            getPlotStr += ":"
+            getPlotStr += '{"blok"'
+            getPlotStr += ":"
+            getPlotStr += '"'+ blok[i]['blok'] +'",'
+            getPlotStr += '"estate"'
+            getPlotStr += ":"
+            getPlotStr += '"'+ blok[i]['estate'] +'"'
+            getPlotStr += '},'
+            getPlotStr += '"geometry"'
+            getPlotStr += ":"
+            getPlotStr += '{"coordinates"'
+            getPlotStr += ":"
+            getPlotStr += '[['
+            getPlotStr += blok[i]['latln']
+            getPlotStr += ']],"type"'
+            getPlotStr += ":"
+            getPlotStr += '"Polygon"'
+            getPlotStr += '}},'
+        }
+getPlotStr = getPlotStr.substring(0, getPlotStr.length - 1);
+getPlotStr += ']}'
 
-//     layer.addTo(map)
-// }
-// .addTo(map);
+var blok = JSON.parse(getPlotStr)
 
-//   map.on('zoomstart', function () {
-//     var zoomLevel = map.getZoom();
-//     var tooltip = $('.leaflet-tooltip');
+L.geoJSON(blok, {
+    onEachFeature: function(feature, layer){
+        
+        layer.myTag = 'BlokMarker'
+        var label = L.marker(layer.getBounds().getCenter(), {
+        icon: L.divIcon({
+            className: 'label-bidang',
+            html: feature.properties.blok,
+            iconSize: [50, 10]
+        })
+        }).addTo(map);
 
-//     switch (zoomLevel) {
-//         case -2:
-//             tooltip.css('font-size', 7);
-//             break;
-//         case -1:
-//             tooltip.css('font-size', 10);
-//             break;
-//         case 0:
-//             tooltip.css('font-size', 12);
-//             break;
-//         case 1:
-//             tooltip.css('font-size', 14);
-//             break;
-//         case 2:
-//             tooltip.css('font-size', 16);
-//             break;
-//         case 3:
-//             tooltip.css('font-size', 18);
-//             break;
-//         default:
-//             tooltip.css('font-size', 14);
-//     }
+        titleBlok.push(label)
+        layer.addTo(map);
+    },
+    style: function(feature) {
+        switch (feature.properties.estate) {
+            case 'Sulung': return {color: "#FBAB71"};
+            case 'Rangda':   return {color: "#68BBE3"};
+        }
+    }
+})
+.addTo(map);
+}
+
+function drawLineTaksasi(line){
+var getLineStr = '{"type"'
+getLineStr += ":"
+getLineStr += '"FeatureCollection",'
+getLineStr += '"features"'
+getLineStr += ":"
+getLineStr += '['
+
+for (let i = 0; i < line.length; i++) {
+            getLineStr += '{"type"'
+            getLineStr += ":"
+            getLineStr += '"Feature",'
+            getLineStr += '"properties"'
+            getLineStr += ":"
+            getLineStr += '{},'
+            getLineStr += '"geometry"'
+            getLineStr += ":"
+            getLineStr += '{"coordinates"'
+            getLineStr += ":"
+            getLineStr += '['
+            getLineStr += line[i]
+            getLineStr += '],"type"'
+            getLineStr += ":"
+            getLineStr += '"LineString"'
+            getLineStr += '}},'
+        }
+getLineStr = getLineStr.substring(0, getLineStr.length - 1);
+getLineStr += ']}'
+
+var line = JSON.parse(getLineStr)
+
+L.geoJSON(line, {
+    onEachFeature: function(feature, layer){
+        layer.myTag = 'LineMarker'
+        layer.addTo(map);
+    },
+    style: function(feature) {
+        return {
+        weight: 2,
+        opacity: 1,
+        color: 'yellow',
+        fillOpacity: 0.7
+    };
+    }
+})
+.addTo(map);
+}
+
+var removeMarkers = function() {
+	map.eachLayer( function(layer) {
+
+	  if ( layer.myTag &&  layer.myTag === "EstateMarker") {
+		map.removeLayer(layer)
+    	  }
+      if(layer.myTag &&  layer.myTag === "BlokMarker"){
+        map.removeLayer(layer)
+      }
+      if(layer.myTag &&  layer.myTag === "LineMarker"){
+        map.removeLayer(layer)
+      }
+        });
+}
+
+    // var polyline = L.polyline(latlngs, {color: 'red'}).addTo(map);
+    // var polyline = L.polyline(latlngs2, {color: 'yellow'}).addTo(map);
+
+    // zoom the map to the polyline
+    // map.fitBounds(polyline.getBounds());
+    var layerMarkerMan = new Array();
+    function drawMarkerMan(line){
+    var greenIcon = L.icon({
+    iconUrl: "https://srs-ssms.com/man.svg",
+    // shadowUrl: 'https://srs-ssms.com/man.svg',
+    className: "man-marker",
+    iconSize:     [32,32], // size of the icon
+    shadowSize:   [32, 32], // size of the shadow
+    iconAnchor:   [16, 16], // point of the icon which will correspond to marker's location
+    shadowAnchor: [0, 0],  // the same for the shadow
+    popupAnchor:  [0, 0] // point from which the popup should open relative to the iconAnchor
+});
+    
+    for (let i = 0; i < line.length; i++) {
+                marker = L.marker(JSON.parse(line[i]), {icon: greenIcon}).addTo(map);
+                layerMarkerMan.push(marker)
+        }
+   }
+
+   function markerDelAgain() {
+for(i=0;i<titleBlok.length;i++) {
+    map.removeLayer(titleBlok[i]);
+    }  
+    for(i=0;i<titleEstate.length;i++) {
+    map.removeLayer(titleEstate[i]);
+    } 
+    for (let i = 0; i < layerMarkerMan.length; i++) {
+        map.removeLayer(layerMarkerMan[i]);
+    }
+}
+  
+//      var greenIcon = L.icon({
+//     iconUrl: "https://srs-ssms.com/man.svg",
+//     // shadowUrl: 'https://srs-ssms.com/man.svg',
+//     className: "man-marker",
+//     iconSize:     [32,32], // size of the icon
+//     shadowSize:   [32, 32], // size of the shadow
+//     iconAnchor:   [16, 16], // point of the icon which will correspond to marker's location
+//     shadowAnchor: [0, 0],  // the same for the shadow
+//     popupAnchor:  [0, 0] // point from which the popup should open relative to the iconAnchor
 // });
+    // for (let i = 0; i < arrlatawal.length; i++) {
+    //         for (let j = 0; j < arrlatawal[i].length; j++) {
+    //             stringPlot = '[' + arrlatawal[i][j] + ', '+ arrlngawal[i][j] +']'
+    //             L.marker(JSON.parse(stringPlot), {icon: greenIcon}).addTo(map);
+    //         }
+    //     }
+   
+  
 
     // Hybrid: s,h;
     // Satellite: s;
     // Streets: m;
     // Terrain: p;
 
-   
-
-   
     // console.log(myArray[0][1].length)
     // console.log(JSON.stringify(myArray));
     // var result = Object.entries(estate)
@@ -414,87 +536,311 @@ L.geoJSON(states, {
     //     poly_rute.setMap(map);
     // }
     // google.maps.event.addDomListener(window, 'load', initialize);
-    $(function() {
-        $('#yajra-table').DataTable({
-            "searching": true,
-            scrollX: true,
-            processing: true,
-            serverSide: true,
-            language: {
-                searchPlaceholder: "Ketik untuk mencari ..."
-            },
-            ajax: "{{ route('tak_history') }}",
-            columns: [{
-                    data: 'DT_RowIndex',
-                    name: 'DT_RowIndex'
-                },
-                {
-                    data: 'tanggal_upload',
-                    name: 'tanggal_upload'
-                },
-                {
-                    data: 'lokasi_kerja',
-                    name: 'lokasi_kerja'
-                },
-                {
-                    data: 'afdeling',
-                    name: 'afdeling'
-                },
-                {
-                    data: 'blok',
-                    name: 'blok'
-                },
-                {
-                    data: 'akp_round',
-                    name: 'akp_round'
-                },
-                {
-                    data: 'tak_round',
-                    name: 'tak_round'
-                },
-                {
-                    data: 'ritase',
-                    name: 'ritase'
-                },
-                {
-                    data: 'pemanen',
-                    name: 'pemanen'
-                },
-                {
-                    data: 'luas',
-                    name: 'luas'
-                },
-                {
-                    data: 'sph',
-                    name: 'sph'
-                },
-                {
-                    data: 'bjr',
-                    name: 'bjr'
-                },
-                {
-                    data: 'jumlah_path',
-                    name: 'jumlah_path'
-                },
-                {
-                    data: 'jumlah_janjang',
-                    name: 'jumlah_janjang'
-                },
-                {
-                    data: 'jumlah_pokok',
-                    name: 'jumlah_pokok'
-                },
-                {
-                    data: 'action',
-                    name: 'action'
-                },
-            ],
-        });
+    const pagination_element = document.getElementById('pagination')
+    var list_element = document.getElementById('list')
+    let current_page = 1;
+    let rows = 5;
+
+    function DisplayList(items, wrapper, rows_per_page, page){
+        wrapper.innerHTML = "";
+        page--;
+
+        let start = rows_per_page * page;
+        let end = start + rows_per_page;
+        let paginatedItems = items.slice(start, end);
+
+        let inc = 1;
+        for (let i = 0; i < paginatedItems.length; i++) {
+            let item = inc
+            let item2 = paginatedItems[i]['tanggal_formatted']
+            let item3 = paginatedItems[i]['lokasi_kerja']
+            let item4 = paginatedItems[i]['afdeling']
+            let item5 = paginatedItems[i]['blok']
+            let item6 = paginatedItems[i]['akp']
+            let item7 = paginatedItems[i]['taksasi']
+            let item8 = paginatedItems[i]['ritase']
+            let item9 = paginatedItems[i]['pemanen']
+            let item10 = paginatedItems[i]['luas']
+            let item11 = paginatedItems[i]['sph']
+            let item12 = paginatedItems[i]['bjr']
+            let item13 = paginatedItems[i]['jumlah_path']
+            let item14 = paginatedItems[i]['jumlah_janjang']
+            let item15 = paginatedItems[i]['jumlah_pokok']
+            let item16 = paginatedItems[i]['tanggal_formatted']
+
+            var tr = document.createElement('tr');
+            let item_element = document.createElement('td')
+            let item_element2 = document.createElement('td')
+            let item_element3 = document.createElement('td')
+            let item_element4 = document.createElement('td')
+            let item_element5 = document.createElement('td')
+            let item_element6 = document.createElement('td')
+            let item_element7 = document.createElement('td')
+            let item_element8 = document.createElement('td')
+            let item_element9 = document.createElement('td')
+            let item_element10 = document.createElement('td')
+            let item_element11 = document.createElement('td')
+            let item_element12 = document.createElement('td')
+            let item_element13 = document.createElement('td')
+            let item_element14 = document.createElement('td')
+            let item_element15 = document.createElement('td')
+            let item_element16 = document.createElement('td')
+
+            // item_element.classList.add('item')
+            item_element.innerText = item
+            item_element2.innerText = item2
+            item_element3.innerText = item3
+            item_element4.innerText = item4
+            item_element5.innerText = item5
+            item_element6.innerText = item6
+            item_element7.innerText = item7
+            item_element7.innerText = item7
+            item_element8.innerText = item8
+            item_element9.innerText = item9
+            item_element10.innerText = item10
+            item_element11.innerText = item11
+            item_element12.innerText = item12
+            item_element13.innerText = item13
+            item_element14.innerText = item14
+            item_element15.innerText = item15
+            item_element16.innerText = item16
+
+            tr.appendChild(item_element);
+            tr.appendChild(item_element2);
+            tr.appendChild(item_element3);
+            tr.appendChild(item_element4);
+            tr.appendChild(item_element5);
+            tr.appendChild(item_element6);
+            tr.appendChild(item_element7);
+            tr.appendChild(item_element8);
+            tr.appendChild(item_element9);
+            tr.appendChild(item_element10);
+            tr.appendChild(item_element11);
+            tr.appendChild(item_element12);
+            tr.appendChild(item_element13);
+            tr.appendChild(item_element14);
+            tr.appendChild(item_element15);
+            wrapper.appendChild(tr)
+            inc++
+        }
+    }
+
+    function SetupPagination(items, wrapper, rows_per_page){
+        wrapper.innerHTML = "";
+
+        let page_count = Math.ceil(items.length / rows_per_page);
+        for (let i = 1; i < page_count + 1; i++) {
+            let btn = PaginationButton(i, items);
+            wrapper.appendChild(btn);
+        }
+    }
+
+    function PaginationButton(page, items){
+        let button = document.createElement('button')
+        button.innerText = page;
+
+        if(current_page == page){
+            button.classList.add('active');
+        }
+
+        button.addEventListener('click', function(){
+                current_page = page;
+                DisplayList(items, list_element, rows, current_page)
+
+                let current_btn = document.querySelector('.pagenumbers button.active')
+                current_btn.classList.remove('active')
+
+                button.classList.add('active')
+            })
+        
+
+        return button;
+    }
+
+    $('#nameEstate').change(function(){
+        var est = $('#nameEstate').find('option:selected').text()
+        var id_est = $('#nameEstate').find('option:selected').val()
+        
+        date =  new Date().toISOString().slice(0, 10)
+
+        var dateInput = $('#inputTanggal').val()
+        if (dateInput) {
+            date = dateInput
+        }
+
+        removeMarkers();
+        markerDelAgain()
+        getPlotEstate(est, date)
+        getPlotBlok(est, date)
+        getlineTaksasi(est, date)
+        getMarkerMan(est, date)
+        getDataTable(est, date)
     });
-    $(document).ready(function() {
-        $('.dataTables_filter input[type="search"]').css({
-            'width': '350px',
-            'display': 'inline-block'
-        });
+
+    var dateInput = '';
+    $('#inputTanggal').change(function(){
+        dateInput = $('#inputTanggal').val()
+        $("#nameEstate").html('');
+        removeMarkers();
+        markerDelAgain()
+        getListEstate(dateInput)
     });
+
+
+    function getListEstate(date){
+        var _token = $('input[name="_token"]').val();
+        $.ajax({
+        url:"{{ route('getListEstate') }}",
+        method:"POST",
+        data:{ _token:_token, tgl:date},
+        success:function(result)
+        {
+            var dropdown = document.getElementById("nameEstate");
+            var list_estate =  JSON.parse(result)
+
+            if(list_estate.length != 0){
+                $('#nameEstate').prop("disabled", false); 
+                var arrList = new Array()
+                for (var i = 0; i < list_estate.length; ++i) {
+                 dropdown[dropdown.length] = new Option(list_estate[i], list_estate[i]);
+                 arrList.push(list_estate[i])
+                }
+                getPlotEstate(list_estate[0], date)
+                getPlotBlok(list_estate[0], date)
+                getlineTaksasi(list_estate[0], date)
+                getMarkerMan(list_estate[0], date)
+                
+                getDataTable(list_estate[0], date)
+            }else{
+                $("#nameEstate").attr("disabled", "disabled");
+                removeMarkers();
+                markerDelAgain();
+                document.getElementById("pagination").innerHTML="";
+                document.getElementById("list").innerHTML="";
+              
+            }
+        
+        }
+        })
+    }
+
+    $(document).ready(function(){
+        dateNow =  new Date().toISOString().slice(0, 10)
+
+        getListEstate(dateInput)
+        // $("#nameEstate").attr("disabled", "disabled");
+    });
+
+    function getDataTable(est, date) {
+
+    var _token = $('input[name="_token"]').val();
+
+    const params = new URLSearchParams(window.location.search)
+    var paramArr = [];
+    for (const param of  params) {
+        paramArr = param
+    }
+
+    $.ajax({
+    url:"{{ route('getDataTable') }}",
+    method:"POST",
+    data:{est:est,  _token:_token, tgl:date},
+    success:function(result)
+    {
+        data = JSON.parse(result)
+        DisplayList(data, list_element,rows, current_page )
+        SetupPagination(data, pagination_element, rows)
+    }
+    })
+    }
+
+    function getPlotEstate(est, date) {
+
+    var _token = $('input[name="_token"]').val();
+
+    const params = new URLSearchParams(window.location.search)
+    var paramArr = [];
+    for (const param of  params) {
+        paramArr = param
+    }
+
+    $.ajax({
+    url:"{{ route('plotEstate') }}",
+    method:"POST",
+    data:{est:est,  _token:_token, tgl:date},
+    success:function(result)
+    {
+        var estate = JSON.parse(result);
+        drawEstatePlot(estate['est'], estate['plot'])
+    }
+    })
+    }
+
+    function getPlotBlok(est, date){
+
+    var _token = $('input[name="_token"]').val();
+
+    const params = new URLSearchParams(window.location.search)
+    var paramArr = [];
+    for (const param of  params) {
+        paramArr = param
+    }
+
+    $.ajax({
+    url:"{{ route('plotBlok') }}",
+    method:"POST",
+    data:{ est:est,  _token:_token, tgl:date},
+    success:function(result)
+    {
+        var blok = JSON.parse(result);
+        drawBlokPlot(blok)
+    }
+    })
+    }
+
+    function getlineTaksasi(est, date) {
+    var _token = $('input[name="_token"]').val();
+
+    const params = new URLSearchParams(window.location.search)
+    var paramArr = [];
+    for (const param of  params) {
+        paramArr = param
+    }
+
+    $.ajax({
+    url:"{{ route('plotLineTaksasi') }}",
+    method:"POST",
+    data:{est:est,  _token:_token, tgl:date},
+    success:function(result)
+    {
+        var line = JSON.parse(result);
+        drawLineTaksasi(line)
+    }
+    })
+    }
+
+    function getMarkerMan(est, date) {
+
+    var _token = $('input[name="_token"]').val();
+
+    const params = new URLSearchParams(window.location.search)
+    var paramArr = [];
+    for (const param of  params) {
+        paramArr = param
+    }
+
+    $.ajax({
+    url:"{{ route('plotMarkerMan') }}",
+    method:"POST",
+    data:{est:est,  _token:_token, tgl:date},
+    success:function(result)
+    {
+        var marker = JSON.parse(result);
+        drawMarkerMan(marker)
+
+    }
+    })
+    }
+
+  
 </script>

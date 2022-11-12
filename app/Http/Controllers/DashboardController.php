@@ -317,7 +317,6 @@ class DashboardController extends Controller
             }
         }
 
-        dd($data_per_hari);
         echo json_encode($data_per_hari);
         exit();
     }
@@ -357,11 +356,348 @@ class DashboardController extends Controller
         echo $output;
     }
 
+    public function tableAndMaps(Request $request)
+    {
+        $id_est = $request->get('id_est');
+        $est = $request->get('est');
+        $tgl = $request->get('tgl');
+
+        $tgl = Carbon::parse($tgl);
+        $kemarin = $tgl->subDay()->format('Y-m-d') . ' 00:00:00';
+
+        $newConvert = new Carbon($kemarin);
+
+        $hariIni = $newConvert->addDays(2);
+
+        $hariIni = ($hariIni->format('Y-m-d')) . ' 00:00:00';
+
+        $queryData = DB::connection('mysql2')->table('taksasi')
+            ->select('taksasi.*')
+            ->whereBetween('taksasi.waktu_upload', [$kemarin, $hariIni])
+            ->where('lokasi_kerja', $est)
+            ->orderBy('taksasi.waktu_upload', 'desc')
+            ->get();
+
+
+        $queryData = json_decode($queryData, true);
+
+        $list_blok = array();
+        foreach ($queryData as $key => $value) {
+            $list_blok[$est][] = $value['blok'];
+        }
+
+        $blokPerEstate = array();
+        $estateQuery = Estate::with("afdeling")->where('est', $est)->get();
+        foreach ($estateQuery as $key => $value) {
+            $i = 0;
+            foreach ($value->afdeling as $key2 => $data) {
+                $blokPerEstate[$est][$data->nama] =  Afdeling::with("blok")->find($data->id)->blok->pluck('nama', 'id');
+                $i++;
+            }
+        }
+
+        $result_list_blok = array();
+        foreach ($list_blok as $key => $value) {
+            foreach ($value as $key2 => $data) {
+                if (strlen($data) == 5) {
+                    $result_list_blok[$key][$data] = substr($data, 0, -2);
+                }
+                if (strlen($data) == 6) {
+                    $sliced = substr_replace($data, '', 1, 1);
+                    $result_list_blok[$key][$data] = substr($sliced, 0, -2);
+                }
+            }
+        }
+
+        $result_list_all_blok = array();
+        foreach ($blokPerEstate as $key2 => $value) {
+            foreach ($value as $key3 => $afd) {
+                foreach ($afd as $key4 => $data) {
+                    if (strlen($data) == 4) {
+                        $result_list_all_blok[$key2][] = substr_replace($data, '', 1, 1);
+                    }
+                }
+            }
+        }
+
+        // //bandingkan list blok query dan list all blok dan get hanya blok yang cocok
+        $result_blok = array();
+        // foreach ($list_estate as $key => $value) {
+        if (array_key_exists($est, $result_list_all_blok)) {
+            $query = array_unique($result_list_all_blok[$est]);
+            $result_blok[$est] = array_intersect($result_list_blok[$est], $query);
+        }
+
+        // dd($result_blok);
+
+        $queryEstate = DB::connection('mysql2')->table('estate_plot')
+            ->select('*')
+            ->join('estate', 'estate_plot.est', '=', 'estate.est')
+            ->where('estate.est', $est)
+            ->get();
+
+        // // //get lat lang dan key $result_blok atau semua list_blok
+
+        $blokLatLn = array();
+
+        foreach ($result_blok as $key => $value) {
+            $inc = 0;
+            foreach ($value as $key2 => $data) {
+                $newData = substr_replace($data, '0', 1, 0);
+                $query = '';
+                $query = DB::connection('mysql2')->table('blok')
+                    ->select('blok.*')
+                    ->where('blok.nama', $newData)
+                    ->get();
+
+                $latln = '';
+                foreach ($query as $key3 => $val) {
+
+                    $latln .= '[' . $val->lon . ',' . $val->lat . '],';
+                }
+
+                $estate = DB::connection('mysql2')->table('estate')
+                    ->select('estate.*')
+                    ->where('estate.est', $est)
+                    ->first();
+
+                $nama_estate = $estate->nama;
+
+                $blokLatLn[$key][$inc]['blok'] = $key2;
+                $blokLatLn[$key][$inc]['estate'] = $nama_estate;
+                $blokLatLn[$key][$inc]['latln'] = rtrim($latln, ',');
+                $inc++;
+            }
+        }
+
+        $estate_plot = array();
+        $plot = '';
+        $estate = '';
+
+        foreach ($queryEstate as $key2 => $val) {
+            $plot .= '[' . $val->lon . ',' . $val->lat . '],';
+            $estate = $val->nama;
+        }
+        $estate_plot[$est]['est'] = $estate . ' Estate';
+        $estate_plot[$est]['plot'] =  rtrim($plot, ',');
+
+        echo json_encode($estate_plot);
+    }
+
+    public function plotEstate(Request $request)
+    {
+        $est = $request->get('est');
+
+        $queryEstate = DB::connection('mysql2')->table('estate_plot')
+            ->select('*')
+            ->join('estate', 'estate_plot.est', '=', 'estate.est')
+            ->where('estate.est', $est)
+            ->get();
+
+        $estate_plot = array();
+        $plot = '';
+        $estate = '';
+
+        foreach ($queryEstate as $key2 => $val) {
+            $plot .= '[' . $val->lon . ',' . $val->lat . '],';
+            $estate = $val->nama;
+        }
+        $estate_plot['est'] = $estate . ' Estate';
+        $estate_plot['plot'] =  rtrim($plot, ',');
+
+        echo json_encode($estate_plot);
+    }
+
+    public function plotBlok(Request $request)
+    {
+        $estate_input = $request->get('est');
+        $tgl = $request->get('tgl');
+
+        $tglData = Carbon::parse($tgl);
+
+        $kemarin = $tglData->subDay()->format('Y-m-d') . ' 00:00:00';
+
+        $newConvert = new Carbon($kemarin);
+
+        $hariIni = $newConvert->addDays(2);
+
+        $hariIni = ($hariIni->format('Y-m-d')) . ' 00:00:00';
+
+        $queryData = DB::connection('mysql2')->table('taksasi')
+            ->select('taksasi.*')
+            ->whereBetween('taksasi.waktu_upload', [$kemarin, $hariIni])
+            ->where('lokasi_kerja', $estate_input)
+            ->orderBy('taksasi.waktu_upload', 'desc')
+            ->get();
+
+        $queryData = json_decode($queryData, true);
+
+        $list_blok = array();
+        foreach ($queryData as $key => $value) {
+            $list_blok[$estate_input][] = $value['blok'];
+        }
+
+        $blokPerEstate = array();
+        $estateQuery = Estate::with("afdeling")->where('est', $estate_input)->get();
+        foreach ($estateQuery as $key => $value) {
+            $i = 0;
+            foreach ($value->afdeling as $key2 => $data) {
+                $blokPerEstate[$estate_input][$data->nama] =  Afdeling::with("blok")->find($data->id)->blok->pluck('nama', 'id');
+                $i++;
+            }
+        }
+
+        $result_list_blok = array();
+        foreach ($list_blok as $key => $value) {
+            foreach ($value as $key2 => $data) {
+                if (strlen($data) == 5) {
+                    $result_list_blok[$key][$data] = substr($data, 0, -2);
+                }
+                if (strlen($data) == 6) {
+                    $sliced = substr_replace($data, '', 1, 1);
+                    $result_list_blok[$key][$data] = substr($sliced, 0, -2);
+                }
+            }
+        }
+
+        $result_list_all_blok = array();
+        foreach ($blokPerEstate as $key2 => $value) {
+            foreach ($value as $key3 => $afd) {
+                foreach ($afd as $key4 => $data) {
+                    if (strlen($data) == 4) {
+                        $result_list_all_blok[$key2][] = substr_replace($data, '', 1, 1);
+                    }
+                }
+            }
+        }
+
+        // //bandingkan list blok query dan list all blok dan get hanya blok yang cocok
+        $result_blok = array();
+        if (array_key_exists($estate_input, $result_list_all_blok)) {
+            $query = array_unique($result_list_all_blok[$estate_input]);
+            $result_blok[$estate_input] = array_intersect($result_list_blok[$estate_input], $query);
+        }
+
+        // // //get lat lang dan key $result_blok atau semua list_blok
+
+        $blokLatLn = array();
+
+        foreach ($result_blok as $key => $value) {
+            $inc = 0;
+            foreach ($value as $key2 => $data) {
+                $newData = substr_replace($data, '0', 1, 0);
+                $query = '';
+                $query = DB::connection('mysql2')->table('blok')
+                    ->select('blok.*')
+                    ->where('blok.nama', $newData)
+                    ->get();
+
+                $latln = '';
+                foreach ($query as $key3 => $val) {
+
+                    $latln .= '[' . $val->lon . ',' . $val->lat . '],';
+                }
+
+                $estate = DB::connection('mysql2')->table('estate')
+                    ->select('estate.*')
+                    ->where('estate.est', $estate_input)
+                    ->first();
+
+                $nama_estate = $estate->nama;
+
+                $blokLatLn[$inc]['blok'] = $key2;
+                $blokLatLn[$inc]['estate'] = $nama_estate;
+                $blokLatLn[$inc]['latln'] = rtrim($latln, ',');
+                $inc++;
+            }
+        }
+
+        echo json_encode($blokLatLn);
+    }
+
+    public function plotLineTaksasi(Request $request)
+    {
+        $estate_input = $request->get('est');
+        $tgl = $request->get('tgl');
+
+        $tglData = Carbon::parse($tgl);
+
+        $kemarin = $tglData->subDay()->format('Y-m-d') . ' 00:00:00';
+
+        $newConvert = new Carbon($kemarin);
+
+        $hariIni = $newConvert->addDays(2);
+
+        $hariIni = ($hariIni->format('Y-m-d')) . ' 00:00:00';
+
+        $queryData = DB::connection('mysql2')->table('taksasi')
+            ->select('taksasi.lat_awal', 'taksasi.lon_awal', 'taksasi.lat_akhir', 'taksasi.lon_akhir')
+            ->whereBetween('taksasi.waktu_upload', [$kemarin, $hariIni])
+            ->where('lokasi_kerja', $estate_input)
+            ->orderBy('taksasi.waktu_upload', 'desc')
+            ->get();
+
+        $plotLine = array();
+        foreach ($queryData as $key => $value) {
+            if (str_contains($value->lat_awal, ';')) {
+                $splitted_lat_awal = explode(';', $value->lat_awal);
+                $splitted_lon_awal = explode(';', $value->lon_awal);
+                $splitted_lat_akhir = explode(';', $value->lat_akhir);
+                $splitted_lon_akhir = explode(';', $value->lon_akhir);
+                for ($i = 0; $i < count($splitted_lat_awal); $i++) {
+                    $plotLine[] =  '[' . $splitted_lon_awal[$i] . ',' . $splitted_lat_awal[$i] . '],[' . $splitted_lon_akhir[$i] . ',' . $splitted_lat_akhir[$i] . ']';
+                }
+            } else {
+                $plotLine[] =  '[' . $value->lon_awal . ',' . $value->lat_awal . '],[' . $value->lon_akhir . ',' . $value->lat_akhir . ']';
+            }
+        }
+
+        echo json_encode($plotLine);
+    }
+
+    public function plotMarkerMan(Request $request)
+    {
+        $estate_input = $request->get('est');
+        $tgl = $request->get('tgl');
+
+        $tglData = Carbon::parse($tgl);
+
+        $kemarin = $tglData->subDay()->format('Y-m-d') . ' 00:00:00';
+
+        $newConvert = new Carbon($kemarin);
+
+        $hariIni = $newConvert->addDays(2);
+
+        $hariIni = ($hariIni->format('Y-m-d')) . ' 00:00:00';
+
+        $queryData = DB::connection('mysql2')->table('taksasi')
+            ->select('taksasi.*')
+            ->whereBetween('taksasi.waktu_upload', [$kemarin, $hariIni])
+            ->where('lokasi_kerja', $estate_input)
+            ->orderBy('taksasi.waktu_upload', 'desc')
+            ->get();
+
+        $plotMarker = array();
+        foreach ($queryData as $key => $value) {
+            if (str_contains($value->lat_awal, ';')) {
+                $splitted_lat_awal = explode(';', $value->lat_awal);
+                $splitted_lon_awal = explode(';', $value->lon_awal);
+                for ($i = 0; $i < count($splitted_lat_awal); $i++) {
+                    $plotMarker[] =  '[' . $splitted_lat_awal[$i] . ',' . $splitted_lon_awal[$i] . ']';
+                }
+            } else {
+                $plotMarker[] =  '[' . $value->lat_awal . ',' . $value->lon_awal . ']';
+            }
+        }
+
+        echo json_encode($plotMarker);
+    }
+
     public function history_taksasi(Request $request)
     {
+        $tgl = $request->get('tgl');
 
-        $tglData = Carbon::parse('2022-10-20');
-
+        $tglData = Carbon::parse();
 
         $kemarin = $tglData->subDay()->format('Y-m-d') . ' 00:00:00';
 
@@ -389,117 +725,46 @@ class DashboardController extends Controller
             }
         }
 
-        $list_blok = array();
+        if ($list_estate) {
+            return view('taksasi.history', ['list_estate' => $list_estate]);
+        } else {
+            return view('taksasi.history');
+        }
+    }
+
+    public function getListEstate(Request $request)
+    {
+        $tgl = $request->get('tgl');
+
+        $tglData = Carbon::parse($tgl);
+
+        $kemarin = $tglData->subDay()->format('Y-m-d') . ' 00:00:00';
+
+        $newConvert = new Carbon($kemarin);
+
+        $hariIni = $newConvert->addDays(2);
+
+        $hariIni = ($hariIni->format('Y-m-d')) . ' 00:00:00';
+
+        $queryData = DB::connection('mysql2')->table('taksasi')
+            ->select('taksasi.*')
+            ->whereBetween('taksasi.waktu_upload', [$kemarin, $hariIni])
+            ->orderBy('taksasi.waktu_upload', 'desc')
+            ->get()
+            ->groupBy('lokasi_kerja');
+
+        $queryData = json_decode($queryData, true);
+
+        $list_estate = array();
         foreach ($queryData as $key => $value) {
             foreach ($value as $key2 => $data) {
-                $list_blok[$key][] = $data['blok'];
-            }
-        }
-
-        foreach ($list_estate as $key3 => $val) {
-            $estateQuery = Estate::with("afdeling")->where('est', $val)->get();
-            $blokPerEstate = array();
-            foreach ($estateQuery as $key => $value) {
-                $i = 0;
-                foreach ($value->afdeling as $key2 => $data) {
-                    $blokPerEstate[$val][$data->nama] =  Afdeling::with("blok")->find($data->id)->blok->pluck('nama', 'id');
-                    $i++;
+                if (!in_array($data['lokasi_kerja'], $list_estate)) {
+                    $list_estate[] = $data['lokasi_kerja'];
                 }
             }
         }
 
-        $result_list_blok = array();
-        foreach ($list_blok as $key => $value) {
-            foreach ($value as $key2 => $data) {
-                if (strlen($data) == 5) {
-                    $result_list_blok[$key][$data] = substr($data, 0, -2);
-                }
-                if (strlen($data) == 6) {
-                    $sliced = substr_replace($data, '', 1, 1);
-                    $result_list_blok[$key][$data] = substr($sliced, 0, -2);
-                }
-            }
-        }
-
-        $result_list_all_blok = array();
-        foreach ($blokPerEstate as $key2 => $est) {
-            foreach ($est as $key3 => $afd) {
-                foreach ($afd as $key4 => $data) {
-                    if (strlen($data) == 4) {
-                        $result_list_all_blok[$key2][] = substr_replace($data, '', 1, 1);
-                    }
-                }
-            }
-        }
-
-        //bandingkan list blok query dan list all blok dan get hanya blok yang cocok
-        $result_blok = array();
-        foreach ($list_estate as $key => $value) {
-            if (array_key_exists($value, $result_list_all_blok)) {
-                $query = array_unique($result_list_all_blok[$value]);
-                $result_blok[$value] = array_intersect($result_list_blok[$value], $query);
-            }
-        }
-
-        //get lat lang dan key $result_blok atau semua list_blok
-        $blokLatLn = array();
-        foreach ($result_blok as $key => $value) {
-            $inc = 0;
-            foreach ($value as $key2 => $data) {
-                $newData = substr_replace($data, '0', 1, 0);
-                $query = '';
-                $query = DB::connection('mysql2')->table('blok')
-                    ->select('blok.*')
-                    ->where('blok.nama', $newData)
-                    ->get();
-
-                $latln = '';
-                foreach ($query as $key3 => $val) {
-                    // $blokLatLn[$key][$inc]['lat' . $key3] = $val->lat;
-                    // $blokLatLn[$key][$inc]['lon' . $key3] = $val->lon;
-
-                    $latln .= '[' . $val->lat . ',' . $val->lon . '],';
-                }
-                $blokLatLn[$key][$inc]['blok'] = $key2;
-                $blokLatLn[$key][$inc]['latln'] = $latln;
-                $inc++;
-            }
-        }
-
-        // dd($blokLatLn);
-
-        // dd($queryData);
-
-        if ($request->ajax()) {
-            $query = DB::connection('mysql2')->table('taksasi')
-                ->select('taksasi.*')
-                ->orderBy('taksasi.waktu_upload', 'desc')
-                ->get();
-
-            $inc = 0;
-            foreach ($query as $key => $value) {
-                $path_arr = explode(';', $value->br_kanan);
-                $value->jumlah_path = count($path_arr);
-                $value->tanggal_upload = Carbon::parse($value->waktu_upload)->format('d M Y');
-                $value->ritase = ceil($value->taksasi / 6500);
-                $value->akp_round = round($value->akp, 2);
-                $value->tak_round = number_format($value->taksasi, 2, ",", ".");
-                $inc++;
-            }
-            // dd($query);
-
-            $query = json_decode($query, true);
-            return DataTables::of($query)
-                ->addIndexColumn()
-                ->addColumn('action', function ($model) {
-                    return '<a href="" class=""><i class="nav-icon fa-solid fa-circle-info" style="color:#1E6E42"></i>    </a>';
-                })
-                ->make(true);
-        }
-
-        // dd($queryData);
-
-        return view('taksasi.history', ['list_estate' => $list_estate, 'data_per_estate' => $queryData, 'blok_per_estate' => $blokLatLn]);
+        echo json_encode($list_estate);
     }
 
     public function getDataRegional(Request $request)
@@ -540,7 +805,6 @@ class DashboardController extends Controller
 
         $newConvert = new Carbon($hariIni);
 
-        // dd($hariIni);
         $besok = $newConvert->addDays();
         $besok = ($besok->format('Y-m-d')) . ' 00:00:00';
 
@@ -617,7 +881,6 @@ class DashboardController extends Controller
 
         $hariIni = $tglData . ' 00:00:00';
 
-        dd($hariIni);
         $newConvert = new Carbon($hariIni);
 
         $besok = $newConvert->addDays();
@@ -652,9 +915,6 @@ class DashboardController extends Controller
             }
         }
 
-
-        // dd($afd_array);
-        // dd(json_encode($afd_array));
         if ($takReq == 1) {
             echo json_encode($afd_array);
         } else {
@@ -739,12 +999,12 @@ class DashboardController extends Controller
                     $inc++;
                 }
             }
-            // dd($arrView);
 
             // $arrView = json_decode($arrView, true);
             return DataTables::of($arrView)
                 ->editColumn('afdeling', function ($model) {
-                    return '<a href="' . route('detail_pemupukan', ['estate' => $model['estate'], 'afdeling' => $model['afdeling']]) . '">  ' . $model['afdeling'] . '    </a>';
+                    $newFormatDate = Carbon::parse($model['tanggal']);
+                    return '<a href="' . route('detail_pemupukan', ['tanggal' => \Carbon\Carbon::parse($model['tanggal'])->format('d-m-Y')]) . '">  ' . $model['afdeling'] . '    </a>';
                 })
                 ->rawColumns(['afdeling'])
                 ->editColumn('biSm1Rekom', function ($model) {
@@ -792,20 +1052,82 @@ class DashboardController extends Controller
         return view('mon_pemupukan.dashboard');
     }
 
+    public function getDataTable(Request $request)
+    {
+        $estate_input = $request->get('est');
+        $tgl = $request->get('tgl');
+
+        $tglData = Carbon::parse($tgl);
+
+        $kemarin = $tglData->subDay()->format('Y-m-d') . ' 00:00:00';
+
+        $newConvert = new Carbon($kemarin);
+
+        $hariIni = $newConvert->addDays(2);
+
+        $hariIni = ($hariIni->format('Y-m-d')) . ' 00:00:00';
+
+        $queryData = DB::connection('mysql2')->table('taksasi')
+            ->select('taksasi.*', DB::raw("DATE_FORMAT(taksasi.waktu_upload, '%d %M %y') as tanggal_formatted"))
+            ->whereBetween('taksasi.waktu_upload', [$kemarin, $hariIni])
+            ->where('lokasi_kerja', $estate_input)
+            ->orderBy('taksasi.waktu_upload', 'desc')
+            ->get();
+
+
+        $inc = 0;
+        foreach ($queryData as $key => $value) {
+            $path_arr = explode(';', $value->br_kanan);
+            $value->jumlah_path = count($path_arr);
+            $value->tanggal_upload = Carbon::parse($value->waktu_upload)->format('d M Y');
+            $value->ritase = ceil($value->taksasi / 6500);
+            $value->akp_round = round($value->akp, 2);
+            $value->tak_round = number_format($value->taksasi, 2, ",", ".");
+            $inc++;
+        }
+
+        echo json_encode($queryData);
+    }
+
     public function detail_pemupukan(Request $request)
     {
-        $estate = request()->route('estate');
+        $estate_input = request()->route('estate');
         $afdeling = request()->route('afdeling');
+        $tanggal = request()->route('tanggal');
+
+        $newDate = Carbon::parse($tanggal);
+        $newDate = $newDate->format('Y-m-d');
+
+        //menentukan plot estate
+        $queryEstate = DB::connection('mysql2')->table('estate_plot')
+            ->select('*')
+            ->join('estate', 'estate_plot.est', '=', 'estate.est')
+            ->where('estate.est', 'RDE')
+            ->get();
+
+        $estate_plot = array();
+        $plot = '';
+        $estate = '';
+        foreach ($queryEstate as $key2 => $val) {
+            $plot .= '[' . $val->lon . ',' . $val->lat . '],';
+            $estate = $val->nama;
+        }
+        $estate_plot['est'] = $estate . ' Estate';
+        $estate_plot['plot'] =  rtrim($plot, ',');
+
         if ($request->ajax()) {
+
             $query = DB::connection('mysql2')->table('monitoring_pemupukan')
                 ->select('monitoring_pemupukan.*', 'pupuk.nama as nama_pupuk')
                 ->join('pupuk', 'monitoring_pemupukan.jenis_pupuk_id', '=', 'pupuk.id')
-                ->where('monitoring_pemupukan.estate', $estate)
+                ->where('monitoring_pemupukan.estate', $estate_input)
                 ->where('monitoring_pemupukan.afdeling', $afdeling)
+                ->where(DB::raw("(DATE_FORMAT(monitoring_pemupukan.waktu_upload,'%Y-%m-%d'))"), "=", $newDate)
                 ->orderBy('monitoring_pemupukan.waktu_upload', 'DESC')
                 ->get();
 
-            // dd($inc);
+            $line_pemupukan = array();
+            $plot = '';
             foreach ($query as $item) {
                 $hari = Carbon::parse($item->waktu_upload)->locale('id');
                 $hari->settings(['formatFunction' => 'translatedFormat']);
@@ -855,10 +1177,13 @@ class DashboardController extends Controller
                 $item->tersebar = $countSebarPupuk;
                 $item->terlokasi = $countLokasiPupuk;
                 $item->kesesuaian_jenis = $countJenisPupuk;
+
+                $plot = '[' . $item->lon_awal . ',' . $item->lat_awal . '],[' . $item->lon_akhir . ',' . $item->lat_akhir . ']';
+                $line_pemupukan['plot'][] = rtrim($plot, ',');
             }
 
             $query = json_decode($query, true);
-            // dd($query);
+
             return DataTables::of($query)
                 ->editColumn('terpupuk', function ($model) {
                     return $model['terpupuk'] . ' / ' . $model['jumlah_pokok'];
@@ -877,6 +1202,7 @@ class DashboardController extends Controller
                 })
                 ->make(true);
         }
+
         return view('mon_pemupukan.detail', ['est' => $estate, 'afd' => $afdeling]);
     }
 }
