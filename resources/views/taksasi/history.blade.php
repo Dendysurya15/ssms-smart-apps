@@ -272,7 +272,7 @@ geoJsonEst += ']}'
 
 var estate = JSON.parse(geoJsonEst)
 
-L.geoJSON(estate, {
+var estateObj = L.geoJSON(estate, {
     onEachFeature: function(feature, layer){
         layer.myTag = 'EstateMarker'
         var label = L.marker(layer.getBounds().getCenter(), {
@@ -302,6 +302,7 @@ L.geoJSON(estate, {
     }
 })
 .addTo(map);
+map.fitBounds(estateObj.getBounds());
 }
 
 var titleBlok = new Array();

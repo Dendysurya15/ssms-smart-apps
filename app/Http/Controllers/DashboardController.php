@@ -1110,6 +1110,34 @@ class DashboardController extends Controller
             ->orderBy('monitoring_pemupukan.waktu_upload', 'DESC')
             ->get();
 
+        $plotLine = array();
+        foreach ($queryData as $key => $value) {
+            if (str_contains($value->lat_awal, ';')) {
+                $splitted_lat_awal = explode(';', $value->lat_awal);
+                $splitted_lon_awal = explode(';', $value->lon_awal);
+                $splitted_lat_akhir = explode(';', $value->lat_akhir);
+                $splitted_lon_akhir = explode(';', $value->lon_akhir);
+                for ($i = 0; $i < count($splitted_lat_awal); $i++) {
+                    $plotLine[] =  '[' . $splitted_lon_awal[$i] . ',' . $splitted_lat_awal[$i] . '],[' . $splitted_lon_akhir[$i] . ',' . $splitted_lat_akhir[$i] . ']';
+                }
+            } else {
+                $plotLine[] =  '[' . $value->lon_awal . ',' . $value->lat_awal . '],[' . $value->lon_akhir . ',' . $value->lat_akhir . ']';
+            }
+        }
+
+        $plotMarker = array();
+        foreach ($queryData as $key => $value) {
+            if (str_contains($value->lat_awal, ';')) {
+                $splitted_lat_awal = explode(';', $value->lat_awal);
+                $splitted_lon_awal = explode(';', $value->lon_awal);
+                for ($i = 0; $i < count($splitted_lat_awal); $i++) {
+                    $plotMarker[] =  '[' . $splitted_lat_awal[$i] . ',' . $splitted_lon_awal[$i] . ']';
+                }
+            } else {
+                $plotMarker[] =  '[' . $value->lat_awal . ',' . $value->lon_awal . ']';
+            }
+        }
+
         $line_pemupukan = array();
         $plot = '';
         foreach ($queryData as $item) {
@@ -1183,8 +1211,8 @@ class DashboardController extends Controller
         $estate_plot['est'] = $estate . ' Estate';
         $estate_plot['plot'] =  rtrim($plot, ',');
 
-        $plotEstateJson = json_encode($plotEstate);
 
+        // dd($estate_plot);
 
         $queryData = json_decode($queryData, true);
 
@@ -1215,24 +1243,24 @@ class DashboardController extends Controller
                 }
             }
         }
+        // dd($result_list_blok);
+        // dd(substr('G12a', 1, 1));
+        // if (preg_match("/^[a-z]+$/", 'G12a'))
 
-
-        if (preg_match("/^[a-z]+$/", 'G12a'))
-
-            print "Yes\n";
-        else
-            print "No\n";
+        //     print "Yes\n";
+        // else
+        //     print "No\n";
 
         $result_list_all_blok = array();
         foreach ($blokPerEstate as $key2 => $value) {
             foreach ($value as $key3 => $afd) {
                 foreach ($afd as $key4 => $data) {
                     if (strlen($data) == 4) {
-                        // if (preg_match("/^[a-zA-Z]+$/", $data)) {
-                        $result_list_all_blok[$key2][] = $data;
-                        // } else {
-                        //     $result_list_all_blok[$key2][] = substr_replace($data, '', 1, 1);
-                        // }
+                        if (substr($data, 1, 1) != '0') {
+                            $result_list_all_blok[$key2][] = $data;
+                        } else {
+                            $result_list_all_blok[$key2][] = substr_replace($data, '', 1, 1);
+                        }
                     } else {
                         $result_list_all_blok[$key2][] = $data;
                     }
@@ -1240,7 +1268,7 @@ class DashboardController extends Controller
             }
         }
 
-        dd($result_list_all_blok);
+        // dd($result_list_all_blok);
 
         // //bandingkan list blok query dan list all blok dan get hanya blok yang cocok
         $result_blok = array();
@@ -1249,7 +1277,7 @@ class DashboardController extends Controller
             $result_blok[$estate_input] = array_intersect($result_list_blok[$estate_input], $query);
         }
 
-        dd($result_blok);
+        // dd($result_blok);
 
         // // //get lat lang dan key $result_blok atau semua list_blok
 
@@ -1259,10 +1287,12 @@ class DashboardController extends Controller
             $inc = 0;
             foreach ($value as $key2 => $data) {
                 $newData = substr_replace($data, '0', 1, 0);
+
                 $query = '';
                 $query = DB::connection('mysql2')->table('blok')
                     ->select('blok.*')
                     ->where('blok.nama', $newData)
+                    ->orWhere('blok.nama', $data)
                     ->get();
 
                 $latln = '';
@@ -1286,9 +1316,13 @@ class DashboardController extends Controller
         }
 
 
-        dd($blokLatLn);
+        $blokLatLn = json_encode($blokLatLn);
+        $plotLine = json_encode($plotLine);
+        $plotMarker = json_encode($plotMarker);
 
+        $plotEstateJson = json_encode($estate_plot);
 
-        return view('mon_pemupukan.detail', ['plotEstateJson' => $plotEstateJson, 'queryData' => $queryData, 'est' => $estate_input, 'afd' => $afdeling_input]);
+        // dd($queryData);
+        return view('mon_pemupukan.detail', ['plotMarker' => $plotMarker, 'plotLine' => $plotLine, 'blokLatLn' => $blokLatLn, 'plotEstateJson' => $plotEstateJson, 'queryData' => $queryData, 'est' => $estate_input, 'afd' => $afdeling_input]);
     }
 }
