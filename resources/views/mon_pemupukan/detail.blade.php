@@ -13,13 +13,15 @@
         font-size: 10pt;
         color: white;
         text-align: center;
-        opacity: 0.6;
+        /* opacity: 0.6; */
     }
 
     .label-estate {
         font-size: 20pt;
         color: white;
         text-align: center;
+        opacity: 0.4;
+
     }
 
     .content {
@@ -139,9 +141,22 @@
     });
 
     var map = L.map('map').setView([-2.27462005615234, 111.61400604248], 13);
-    googleSat = L.tileLayer('http://{s}.google.com/vt?lyrs=s&x={x}&y={y}&z={z}', {
-        maxZoom: 20,
-        subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    // googleSat = L.tileLayer('http://{s}.google.com/vt?lyrs=s&x={x}&y={y}&z={z}', {
+    //     maxZoom: 20,
+    //     subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    // }).addTo(map);
+
+//   googleStreets = L.tileLayer('http://{s}.google.com/vt?lyrs=m&x={x}&y={y}&z={z}',{
+//         maxZoom: 13,
+//         subdomains:['mt0','mt1','mt2','mt3']
+//     }).addTo(map);
+    map.options.minZoom = 13;
+// map.options.maxZoom = 14;
+
+    // //openstreetmap
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 
 
@@ -191,7 +206,7 @@ var test = L.geoJSON(estate, {
     style: function(feature) {
         switch (feature.properties.estate) {
             case 'Natai Baru Estate': return {
-                color: "#FBAB71",
+                color: "#003B73",
             opacity: 1,
             fillOpacity: 0.2,
             
@@ -257,8 +272,8 @@ L.geoJSON(blok, {
     },
     style: function(feature) {
         switch (feature.properties.estate) {
-            case 'Natai Baru': return {color: "#FBAB71"};
-            case 'Rangda':   return {color: "#68BBE3"};
+            case 'Natai Baru': return {color: "#297AD6"};
+            case 'Rangda':   return {color: "#297AD6"};
         }
     }
 })

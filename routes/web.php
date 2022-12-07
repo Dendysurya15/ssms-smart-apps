@@ -34,6 +34,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('tak_history', [DashboardController::class, 'history_taksasi'])->name('tak_history');
     Route::post('getDataTakEst15Days', [DashboardController::class, 'getTakEst15Days'])->name('getDataTakEst15Days');
     Route::post('getNameEstate', [DashboardController::class, 'getNameEstate'])->name('getNameEstate');
+    Route::post('getNameAfdeling', [DashboardController::class, 'getNameAfdeling'])->name('getNameAfdeling');
     Route::post('plotEstate', [DashboardController::class, 'plotEstate'])->name('plotEstate');
     Route::post('plotBlok', [DashboardController::class, 'plotBlok'])->name('plotBlok');
     Route::post('plotLineTaksasi', [DashboardController::class, 'plotLineTaksasi'])->name('plotLineTaksasi');
@@ -45,6 +46,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('getLoadRegional', [DashboardController::class, 'getDataRegional'])->name('getLoadRegional');
     Route::get('dashboard_pemupukan', [DashboardController::class, 'ds_pemupukan'])->name('dash_pemupukan');
     Route::get('detail_pemupukan/{est}/{afd}/{tanggal}', [DashboardController::class, 'detail_pemupukan'])->name('detail_pemupukan');
+    Route::post('getListEstateTerpupuk', [DashboardController::class, 'getListEstateTerpupuk'])->name('getListEstateTerpupuk');
+    Route::post('getDataPemupukan', [DashboardController::class, 'getDataPemupukan'])->name('getDataPemupukan');
     Route::get('/data', [DashboardController::class, 'ds_pemupukan'])->name('data');
     Route::resource('pupuk', PupukController::class);
 });

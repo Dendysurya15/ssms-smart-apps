@@ -356,6 +356,76 @@ class DashboardController extends Controller
         echo $output;
     }
 
+    public function getNameAfdeling(Request $request)
+    {
+
+        $id_estate = $request->get('id_estate');
+
+        $afdelingList = Afdeling::where('estate', $id_estate)->pluck('nama');
+
+        $output = '';
+        $inc_est = 1;
+        foreach ($afdelingList as $key => $val) {
+            $output .= '<option value="' . $val . '">' . $val . '</option>';
+            $inc_est++;
+        }
+        echo $output;
+    }
+
+    public function getListEstateTerpupuk(Request $request)
+    {
+        $date = $request->get('date');
+        $query = DB::connection('mysql2')->table('monitoring_pemupukan')
+            ->select('*', 'estate.id as id_estate')
+            ->join('estate', 'monitoring_pemupukan.estate', '=', 'estate.est')
+            ->whereMonth('monitoring_pemupukan.waktu_upload', Carbon::parse($date)->month)
+            ->groupBy('monitoring_pemupukan.estate')
+            ->pluck('monitoring_pemupukan.estate', 'id_estate');
+
+
+        $output = '';
+        $inc_est = 1;
+        if ($query->first() != '') {
+            foreach ($query as $key => $val) {
+                $output .= '<option value="' . $key . '">' . $val . '</option>';
+                $inc_est++;
+            }
+        }
+
+        echo $output;
+    }
+
+    public function getDataPemupukan(Request $request)
+    {
+        // if ($request->ajax()) {
+        $afd = $request->get('afd');
+        $id_est = $request->get('id_est');
+        $date = $request->get('date');
+
+        $monthFilter = Carbon::parse($date)->month;
+
+        $query = DB::connection('mysql2')->table('monitoring_pemupukan')
+            ->select('*', 'estate.id as id_estate', 'pupuk.nama as nama_pupuk')
+            ->join('estate', 'monitoring_pemupukan.estate', '=', 'estate.est')
+            ->join('pupuk', 'monitoring_pemupukan.jenis_pupuk_id', '=', 'pupuk.id')
+            ->where('estate.id', $id_est)
+            ->where('monitoring_pemupukan.afdeling', $afd)
+            ->whereMonth('waktu_upload', $monthFilter)
+            ->get();
+
+        foreach ($query as $item) {
+            $hari = Carbon::parse($item->waktu_upload)->locale('id');
+            $hari->settings(['formatFunction' => 'translatedFormat']);
+            $item->tanggal = $hari->format('j F Y');
+        }
+
+        // dd($query);
+        echo json_encode($query);
+
+        // return view('mon_pemupukan.dashboard', ['queryTerpupuk' => $query]);
+        // }
+    }
+
     public function tableAndMaps(Request $request)
     {
         $id_est = $request->get('id_est');
@@ -547,6 +617,8 @@ class DashboardController extends Controller
             }
         }
 
+        // dd($blokPerEstate);
+
         $result_list_blok = array();
         foreach ($list_blok as $key => $value) {
             foreach ($value as $key2 => $data) {
@@ -612,6 +684,8 @@ class DashboardController extends Controller
             }
         }
 
+
+        dd($blokLatLn);
         echo json_encode($blokLatLn);
     }
 
@@ -926,128 +1000,126 @@ class DashboardController extends Controller
     public function ds_pemupukan(Request $request)
     {
 
-        if ($request->ajax()) {
-            $query = DB::connection('mysql2')->table('monitoring_pemupukan')
-                ->select('monitoring_pemupukan.*', 'pupuk.nama as nama_pupuk')
-                ->join('pupuk', 'monitoring_pemupukan.jenis_pupuk_id', '=', 'pupuk.id')
-                ->orderBy('monitoring_pemupukan.waktu_upload', 'DESC')
-                ->get();
+        // if ($request->ajax()) {
+        $query = DB::connection('mysql2')->table('monitoring_pemupukan')
+            ->select('monitoring_pemupukan.*', 'pupuk.nama as nama_pupuk')
+            ->join('pupuk', 'monitoring_pemupukan.jenis_pupuk_id', '=', 'pupuk.id')
+            ->orderBy('monitoring_pemupukan.waktu_upload', 'DESC')
+            ->get();
 
-            foreach ($query as $item) {
-                $hari = Carbon::parse($item->waktu_upload)->locale('id');
-                $hari->settings(['formatFunction' => 'translatedFormat']);
-                $item->tanggal = $hari->format('j F Y');
+        // dd($query);
+        foreach ($query as $item) {
+            $hari = Carbon::parse($item->waktu_upload)->locale('id');
+            $hari->settings(['formatFunction' => 'translatedFormat']);
+            $item->tanggal = $hari->format('j F Y');
+        }
+
+        $listEst = array();
+        foreach ($query as $key => $value) {
+            if (!in_array($value->estate, $listEst)) {
+                $listEst[] = $value->estate;
             }
+        }
 
+        $allEst = Estate::with("afdeling")->get();
 
-            // dd($query);
-            $listEst = array();
-            foreach ($query as $key => $value) {
-                if (!in_array($value->estate, $listEst)) {
-                    $listEst[] = $value->estate;
-                }
-            }
-
-            $allEst = Estate::with("afdeling")->get();
-
-            $listAfdEst = array();
-            foreach ($allEst as $key => $value) {
-                foreach ($listEst as $key2 => $value2) {
-                    if ($value->est == $value2) {
-                        foreach ($value->afdeling as $key => $value3) {
-                            $listAfdEst[$value2][] = $value3->nama;
-                        }
+        $listAfdEst = array();
+        foreach ($allEst as $key => $value) {
+            foreach ($listEst as $key2 => $value2) {
+                if ($value->est == $value2) {
+                    foreach ($value->afdeling as $key => $value3) {
+                        $listAfdEst[$value2][] = $value3->nama;
                     }
                 }
             }
-            // dd($listAfdEst);
+        }
+        // dd($listAfdEst);
 
-            // dd($query[0]->estate);
+        // dd($query[0]->estate);
 
-            $arrValPerEstAfd = array();
-            foreach ($listAfdEst as $key => $value) {
-                foreach ($value as $key2 => $val) {
-                    foreach ($query as $key3 => $value2) {
-                        if ($val == $value2->afdeling && $key == $value2->estate) {
-                            $arrValPerEstAfd[$key][$val][] = $value2;
-                        }
+        $arrValPerEstAfd = array();
+        foreach ($listAfdEst as $key => $value) {
+            foreach ($value as $key2 => $val) {
+                foreach ($query as $key3 => $value2) {
+                    if ($val == $value2->afdeling && $key == $value2->estate) {
+                        $arrValPerEstAfd[$key][$val][] = $value2;
                     }
                 }
             }
+        }
 
-            // dd($arrValPerEstAfd);
-            $raw = array();
-            $inc = 0;
-            foreach ($arrValPerEstAfd as $key => $est) {
-                foreach ($est as $key2 => $afd) {
-                    // dd($afd);
-                    foreach ($afd as $key3 => $data) {
-                        $raw[$inc][$key2]['tanggal'] = $data->tanggal;
-                        $raw[$inc][$key2]['estate'] = $key;
-                        $raw[$inc][$key2]['afdeling'] = $key2;
-                        $raw[$inc][$key2]['jenis_pupuk'] = $data->nama_pupuk;
-                    }
+        // dd($arrValPerEstAfd);
+        $raw = array();
+        $inc = 0;
+        foreach ($arrValPerEstAfd as $key => $est) {
+            foreach ($est as $key2 => $afd) {
+                // dd($afd);
+                foreach ($afd as $key3 => $data) {
+                    $raw[$inc][$key2]['tanggal'] = $data->tanggal;
+                    $raw[$inc][$key2]['estate'] = $key;
+                    $raw[$inc][$key2]['afdeling'] = $key2;
+                    $raw[$inc][$key2]['jenis_pupuk'] = $data->nama_pupuk;
                 }
+            }
+            $inc++;
+        }
+
+        $arrView = array();
+        $inc = 0;
+        foreach ($raw as $key => $value) {
+            foreach ($value as $key2 => $val) {
+                $arrView[$inc] = $val;
                 $inc++;
             }
-
-            $arrView = array();
-            $inc = 0;
-            foreach ($raw as $key => $value) {
-                foreach ($value as $key2 => $val) {
-                    $arrView[$inc] = $val;
-                    $inc++;
-                }
-            }
-
-            // $arrView = json_decode($arrView, true);
-            return DataTables::of($arrView)
-                ->editColumn('afdeling', function ($model) {
-                    $newFormatDate = Carbon::parse($model['tanggal']);
-                    return '<a href="' . route('detail_pemupukan', ['est' => $model['estate'], 'afd' => $model['afdeling'], 'tanggal' => $newFormatDate->format('d-m-Y')]) . '">  ' . $model['afdeling'] . '    </a>';
-                })
-                ->rawColumns(['afdeling'])
-                ->editColumn('biSm1Rekom', function ($model) {
-                    return '-';
-                })
-                ->editColumn('sbiSm1Rekom', function ($model) {
-                    return '-';
-                })
-                ->editColumn('biSm2Rekom', function ($model) {
-                    return '-';
-                })
-                ->editColumn('sbiSm2Rekom', function ($model) {
-                    return '-';
-                })
-                ->editColumn('biSm1Apl', function ($model) {
-                    return '-';
-                })
-                ->editColumn('sbiSm1Apl', function ($model) {
-                    return '-';
-                })
-                ->editColumn('biSm2Apl', function ($model) {
-                    return '-';
-                })
-                ->editColumn('sbiSm2Apl', function ($model) {
-                    return '-';
-                })
-                ->editColumn('achieve', function ($model) {
-                    return '-';
-                })
-                ->editColumn('varian', function ($model) {
-                    return '-';
-                })
-                ->editColumn('annual', function ($model) {
-                    return '-';
-                })
-                ->editColumn('kgpokok', function ($model) {
-                    return '-';
-                })
-                ->addColumn('action', function ($model) {
-                    return '<a href="" class="" >  <i class="nav-icon fa fa-eye" style="color:#1E6E42"></i>    </a>';
-                })
-                ->make(true);
         }
+
+        //     return DataTables::of($arrView)
+        //         ->editColumn('afdeling', function ($model) {
+        //             $newFormatDate = Carbon::parse($model['tanggal']);
+        //             return '<a href="' . route('detail_pemupukan', ['est' => $model['estate'], 'afd' => $model['afdeling'], 'tanggal' => $newFormatDate->format('d-m-Y')]) . '">  ' . $model['afdeling'] . '    </a>';
+        //         })
+        //         ->rawColumns(['afdeling'])
+        //         ->editColumn('biSm1Rekom', function ($model) {
+        //             return '-';
+        //         })
+        //         ->editColumn('sbiSm1Rekom', function ($model) {
+        //             return '-';
+        //         })
+        //         ->editColumn('biSm2Rekom', function ($model) {
+        //             return '-';
+        //         })
+        //         ->editColumn('sbiSm2Rekom', function ($model) {
+        //             return '-';
+        //         })
+        //         ->editColumn('biSm1Apl', function ($model) {
+        //             return '-';
+        //         })
+        //         ->editColumn('sbiSm1Apl', function ($model) {
+        //             return '-';
+        //         })
+        //         ->editColumn('biSm2Apl', function ($model) {
+        //             return '-';
+        //         })
+        //         ->editColumn('sbiSm2Apl', function ($model) {
+        //             return '-';
+        //         })
+        //         ->editColumn('achieve', function ($model) {
+        //             return '-';
+        //         })
+        //         ->editColumn('varian', function ($model) {
+        //             return '-';
+        //         })
+        //         ->editColumn('annual', function ($model) {
+        //             return '-';
+        //         })
+        //         ->editColumn('kgpokok', function ($model) {
+        //             return '-';
+        //         })
+        //         ->addColumn('action', function ($model) {
+        //             return '<a href="" class="" >  <i class="nav-icon fa fa-eye" style="color:#1E6E42"></i>    </a>';
+        //         })
+        //         ->make(true);
+        // }
 
         return view('mon_pemupukan.dashboard');
     }
