@@ -43,13 +43,13 @@
         border: 1px solid black;
     }
 </style>
-<div class="content-wrapper">
+<div class="content-wrapper ">
     <!-- Content Header (Page header) -->
     <section class="content-header">
     </section>
 
     <section class="content">
-        <div class="container-fluid">
+        <div class="container-fluid pb-2">
             <a href="{{ route('dash_pemupukan') }}"> <i class="nav-icon fa-solid fa-arrow-left "></i> Kembali</a>
             <div class="card mt-3">
                 <div class="card-body">
@@ -94,6 +94,44 @@
             </div>
 
             <div id="map"></div>
+
+            <div class="card mt-3">
+                <div class="card-body">
+
+                    @foreach ($queryData as $item)
+
+                    <h3 class="mb-3">Temuan Inspeksi Monitoring Blok {{$item['blok']}}</h3>
+
+                    <div class="row">
+                        @if ($item['foto'] != '')
+                        <?php
+                        $splitted = explode(";", $item['foto']);
+                        for ($i = 0; $i < count($splitted); $i++) 
+                        { $key='foto_' . $i; 
+                        ?>
+                        <div class="col-6 mb-2 mt-2">
+                            <img src="https://mobilepro.srs-ssms.com/storage/app/public/temuan/{{$item[$key]}}" style=""
+                                class="img-thumbnail">
+
+                            <p class="mt-3 text-center">Baris ke {{$item['baris1']}} dan {{$item['baris2']}}</p>
+
+                            <p class="mt-1 blockquote-footer"> Komentar : {{$item['komentar']}}</p>
+
+                        </div>
+
+                        <?php
+                         } ?>
+                        @else
+                        <p class="blockquote-footer"> Tidak ada foto dan komentar</p>
+
+                        @endif
+                    </div>
+
+
+                    @endforeach
+                </div>
+            </div>
+
         </div>
     </section>
 

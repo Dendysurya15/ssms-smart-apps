@@ -54,7 +54,7 @@
 
                 <div class="col-2">
                     <select id="afdelingList" class="form-control" style="width:180px">
-                        <option selected disabled>Pilih Afdeling</option>
+                        {{-- <option>Pilih Afdeling</option> --}}
                     </select>
                 </div>
 
@@ -173,7 +173,6 @@
 <script src="{{ asset('/public/js/demo.js') }}"></script>
 
 <script src="{{ asset('/public/js/loader.js') }}"></script>
-<script src="http://www.datejs.com/build/date.js" type="text/javascript"></script>
 
 
 <script>
@@ -265,7 +264,16 @@
                         var firstIndexList = select.options[select.selectedIndex].value;
                     
                         getListAfd(firstIndexList, date)
-                        getDataPemupukan('OA',firstIndexList, date)
+
+                        setTimeout(function() {
+                            var select2 = document.getElementById('afdelingList');
+                            var selectFirstIndex =  $("#afdelingList").val($("#afdelingList option:first").val());
+                            var defaultAfd = $("#afdelingList :selected").text()
+                            
+                            getDataPemupukan(defaultAfd,firstIndexList, date)
+                        }, 2000);
+                      
+                        
                     }else{
                         document.getElementById("estateList").style.display = "none";
                         document.getElementById("afdelingList").style.display = "none";
@@ -281,6 +289,13 @@
                     var _token = $('input[name="_token"]').val();
 
                     getListAfd(value,date)
+                    setTimeout(function() {
+                            var select2 = document.getElementById('afdelingList');
+                            var selectFirstIndex =  $("#afdelingList").val($("#afdelingList option:first").val());
+                            var defaultAfd = $("#afdelingList :selected").text()
+                            
+                            getDataPemupukan(defaultAfd,value, date)
+                        }, 2000);
                 });  
 
                 $('#afdelingList').change(function(){
@@ -300,9 +315,9 @@
         $.ajax({
                 url:"{{ route('getNameAfdeling') }}",
                 method:"POST",
-                data:{ id_estate:value, _token:_token},
+                data:{ id_estate:value, _token:_token,date:date},
                 success:function(result)
-                {
+                {  
                     $('#afdelingList').html(result)
                     // var defaultAfd = document.getElementById("afdelingList").selectedIndex = "OA";;
                     
@@ -324,7 +339,7 @@
                 {
                     
                     var result = JSON.parse(result);
-                    $('#example').dataTable( {
+                    $('#example').DataTable( {
                         "scrollX": true,
                         "aaData": result,
                         "columns": [

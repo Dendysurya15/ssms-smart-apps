@@ -4,6 +4,42 @@
         height: 800px;
     }
 
+    .legend {
+        padding: 6px 8px;
+        font: 14px Arial, Helvetica, sans-serif;
+        background: white;
+        /* background: rgba(255, 255, 255, 0.8); */
+        /*box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);*/
+        /*border-radius: 5px;*/
+        line-height: 24px;
+        color: #555;
+    }
+
+    .legend h4 {
+        text-align: center;
+        font-size: 16px;
+        margin: 2px 12px 8px;
+        color: #777;
+    }
+
+    .legend span {
+        position: relative;
+        bottom: 3px;
+    }
+
+    .legend i {
+        width: 18px;
+        height: 18px;
+        float: left;
+        margin: 0 8px 0 0;
+        opacity: 0.7;
+    }
+
+    .legend i.icon {
+        background-size: 18px;
+        background-color: rgba(255, 255, 255, 1);
+    }
+
     .myCSSClass {
         /* background: green; */
         font-size: 25pt;
@@ -208,10 +244,81 @@
     // }).addTo(map);
 
     // satelite
-    googleSat = L.tileLayer('http://{s}.google.com/vt?lyrs=s&x={x}&y={y}&z={z}', {
-        maxZoom: 20,
-        subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
-    }).addTo(map);
+    const googleSat = L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+    ).addTo(map);
+
+
+
+    var legendVar = ''
+    function drawUserTaksasi(arrData){
+        var legendMaps = L.control({
+        position: "bottomright"
+    });
+
+    const newUserTaksasi = Object.entries(arrData);
+
+    legendMaps.onAdd = function(map) {
+
+        var div = L.DomUtil.create("div", "legend");
+        div.innerHTML += "<h4>Keterangan :</h4>";
+        div.innerHTML += '<div >';
+
+        var colorAfd = ''
+        newUserTaksasi.forEach(element => {
+            switch (element[0]) {
+                case 'OA':
+                    colorAfd = '#ff1744'
+                    break;
+                case 'OB':
+                    colorAfd = '#d500f9'
+                    break;
+                case 'OC':
+                    colorAfd = '#ffa000'
+                    break;
+                case 'OD':
+                    colorAfd = '#00b0ff'
+                    break;
+                case 'OE':
+                    colorAfd = '#ff1744'
+                    break;
+                case 'OF':
+                    colorAfd = '#ff1744'
+                    break;
+                default:
+                    // code block
+            }
+            div.innerHTML += '<i style="background: ' + colorAfd + '"></i><span style="font-weight:bold">' + element[0] + '</span>';
+            div.innerHTML += '<span> (';
+            if (element[1].length != 1) {
+                element[1].forEach(userName => {
+                    div.innerHTML += '<span > ' + userName + ', </span>';
+                });
+            } else {
+                element[1].forEach(userName => {
+                    div.innerHTML += '<span> ' + userName + '</span>';
+                });
+            }
+
+            div.innerHTML += '<span> )<br></span>';
+        });
+
+        // div.innerHTML += '<br>';
+        // div.innerHTML += '<i style="background: #FFFFFF"></i><span>Ice</span><br>';
+        // div.innerHTML += '      <img src="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png" alt="" style="width:13px"><span>    Titik Start Taksasi</span><br>';
+        // div.innerHTML += '      <img src="remove.png" alt="" style="width:15px"><span> Jalur Taksasi</span><br>';
+        div.innerHTML += '</div>';
+
+
+
+        return div;
+    };
+    
+    legendMaps.addTo(map);
+
+
+    legendVar = legendMaps
+    }
 
     //google terrain
     // googleTerrain = L.tileLayer('http://{s}.google.com/vt?lyrs=p&x={x}&y={y}&z={z}',{
@@ -288,7 +395,7 @@ var estateObj = L.geoJSON(estate, {
     style: function(feature) {
         switch (feature.properties.estate) {
             case 'Sulung Estate': return {
-                color: "#FBAB71",
+                color: "#003B73",
             opacity: 1,
             fillOpacity: 0.2,
             
@@ -298,12 +405,26 @@ var estateObj = L.geoJSON(estate, {
             fillOpacity: 0.4,
           
         };
+        case 'Kenambui Estate': return {
+                color: "#003B73",
+            opacity: 1,
+            fillOpacity: 0.2,
+            
+        };
+            case 'Pulau Estate':   return {color: "#003B73",
+            opacity: 1,
+            fillOpacity: 0.4,
+          
+        };
         }
     }
 })
 .addTo(map);
+
 map.fitBounds(estateObj.getBounds());
 }
+
+
 
 var titleBlok = new Array();
 function drawBlokPlot(blok){
@@ -415,6 +536,7 @@ L.geoJSON(line, {
 .addTo(map);
 }
 
+
 var removeMarkers = function() {
 	map.eachLayer( function(layer) {
 
@@ -435,23 +557,73 @@ var removeMarkers = function() {
 
     // zoom the map to the polyline
     // map.fitBounds(polyline.getBounds());
+    var marker = ''
     var layerMarkerMan = new Array();
-    function drawMarkerMan(line){
-    var greenIcon = L.icon({
-    iconUrl: "https://srs-ssms.com/man.svg",
-    // shadowUrl: 'https://srs-ssms.com/man.svg',
-    className: "man-marker",
-    iconSize:     [32,32], // size of the icon
-    shadowSize:   [32, 32], // size of the shadow
-    iconAnchor:   [16, 16], // point of the icon which will correspond to marker's location
-    shadowAnchor: [0, 0],  // the same for the shadow
-    popupAnchor:  [0, 0] // point from which the popup should open relative to the iconAnchor
-});
-    
-    for (let i = 0; i < line.length; i++) {
-                marker = L.marker(JSON.parse(line[i]), {icon: greenIcon}).addTo(map);
-                layerMarkerMan.push(marker)
+    function drawMarkerMan(arrData){
+        
+        for (let i = 0; i < arrData.length; i++) {
+
+        switch (arrData[i]['afdeling']) {
+            case 'OA':
+                marker = 'manMarkerOA'
+                colorMarker = 'red'
+                break;
+            case 'OB':
+                marker = 'manMarkerOB'
+                colorMarker = 'violet'
+                break;
+            case 'OC':
+                marker = 'manMarkerOC'
+                colorMarker = 'gold'
+                break;
+            case 'OD':
+                marker = 'manMarkerOD'
+                colorMarker = 'blue'
+                break;
+            case 'OE':
+                marker = 'manMarkerOE'
+                break;
+            case 'OF':
+                marker = 'manMarkerOF'
+                break;
+            default:
+                // code block
         }
+
+        let start = new L.Icon({
+            iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-" + colorMarker + ".png",
+            shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+            iconSize: [14, 21],
+            iconAnchor: [7, 22],
+            popupAnchor: [1, -34],
+            shadowSize: [28, 20],
+        });
+
+        var latlonFinish = JSON.parse(arrData[i]['plotAwal'])
+        marker = L.marker(latlonFinish, {
+            icon: start
+        }).addTo(map);
+
+        layerMarkerMan.push(marker)
+        }
+
+
+//     console.log(line)
+//     var greenIcon = L.icon({
+//     iconUrl: "https://srs-ssms.com/man.svg",
+//     // shadowUrl: 'https://srs-ssms.com/man.svg',
+//     className: "man-marker",
+//     iconSize:     [32,32], // size of the icon
+//     shadowSize:   [32, 32], // size of the shadow
+//     iconAnchor:   [16, 16], // point of the icon which will correspond to marker's location
+//     shadowAnchor: [0, 0],  // the same for the shadow
+//     popupAnchor:  [0, 0] // point from which the popup should open relative to the iconAnchor
+// });
+    
+//     for (let i = 0; i < line.length; i++) {
+//                 marker = L.marker(JSON.parse(line[i]), {icon: greenIcon}).addTo(map);
+//                 layerMarkerMan.push(marker)
+//         }
    }
 
    function markerDelAgain() {
@@ -464,6 +636,8 @@ for(i=0;i<titleBlok.length;i++) {
     for (let i = 0; i < layerMarkerMan.length; i++) {
         map.removeLayer(layerMarkerMan[i]);
     }
+
+    map.removeControl(legendVar)
 }
   
 //      var greenIcon = L.icon({
@@ -658,6 +832,9 @@ for(i=0;i<titleBlok.length;i++) {
         return button;
     }
 
+
+    
+
     $('#nameEstate').change(function(){
         var est = $('#nameEstate').find('option:selected').text()
         var id_est = $('#nameEstate').find('option:selected').val()
@@ -676,6 +853,9 @@ for(i=0;i<titleBlok.length;i++) {
         getlineTaksasi(est, date)
         getMarkerMan(est, date)
         getDataTable(est, date)
+        getUserTaksasi(est, date)
+        
+    // map.removeLayer(legendMaps);
     });
 
     var dateInput = '';
@@ -710,7 +890,7 @@ for(i=0;i<titleBlok.length;i++) {
                 getPlotBlok(list_estate[0], date)
                 getlineTaksasi(list_estate[0], date)
                 getMarkerMan(list_estate[0], date)
-                
+                getUserTaksasi(list_estate[0], date)
                 getDataTable(list_estate[0], date)
             }else{
                 $("#nameEstate").attr("disabled", "disabled");
@@ -838,6 +1018,30 @@ for(i=0;i<titleBlok.length;i++) {
     {
         var marker = JSON.parse(result);
         drawMarkerMan(marker)
+
+    }
+    })
+    }
+
+    function getUserTaksasi(est, date) {
+
+    var _token = $('input[name="_token"]').val();
+
+    const params = new URLSearchParams(window.location.search)
+    var paramArr = [];
+    for (const param of  params) {
+        paramArr = param
+    }
+
+    $.ajax({
+    url:"{{ route('plotUserTaksasi') }}",
+    method:"POST",
+    data:{est:est,  _token:_token, tgl:date},
+    success:function(result)
+    {
+        var marker = JSON.parse(result);
+
+        drawUserTaksasi(marker)
 
     }
     })

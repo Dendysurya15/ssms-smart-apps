@@ -360,9 +360,19 @@ class DashboardController extends Controller
     {
 
         $id_estate = $request->get('id_estate');
+        $date = $request->get('date');
 
-        $afdelingList = Afdeling::where('estate', $id_estate)->pluck('nama');
+        // $afdelingList = Afdeling::where('estate', $id_estate)->pluck('nama');
 
+        $afdelingList = DB::connection('mysql2')->table('monitoring_pemupukan')
+            ->select('*', 'estate.id as id_estate')
+            ->join('estate', 'monitoring_pemupukan.estate', '=', 'estate.est')
+            ->where('estate.id', $id_estate)
+            ->whereMonth('monitoring_pemupukan.waktu_upload', Carbon::parse($date)->month)
+            ->groupBy('monitoring_pemupukan.afdeling')
+            ->get();
+
+        $afdelingList = $afdelingList->pluck('afdeling');
         $output = '';
         $inc_est = 1;
         foreach ($afdelingList as $key => $val) {
@@ -419,11 +429,7 @@ class DashboardController extends Controller
             $item->tanggal = $hari->format('j F Y');
         }
 
-        // dd($query);
         echo json_encode($query);
-
-        // return view('mon_pemupukan.dashboard', ['queryTerpupuk' => $query]);
-        // }
     }
 
     public function tableAndMaps(Request $request)
@@ -685,7 +691,7 @@ class DashboardController extends Controller
         }
 
 
-        dd($blokLatLn);
+        // dd($blokLatLn);
         echo json_encode($blokLatLn);
     }
 
@@ -751,20 +757,142 @@ class DashboardController extends Controller
             ->orderBy('taksasi.waktu_upload', 'desc')
             ->get();
 
-        $plotMarker = array();
+
+        $arr = array();
+        $inc = 0;
         foreach ($queryData as $key => $value) {
-            if (str_contains($value->lat_awal, ';')) {
-                $splitted_lat_awal = explode(';', $value->lat_awal);
-                $splitted_lon_awal = explode(';', $value->lon_awal);
-                for ($i = 0; $i < count($splitted_lat_awal); $i++) {
-                    $plotMarker[] =  '[' . $splitted_lat_awal[$i] . ',' . $splitted_lon_awal[$i] . ']';
+            $check = explode(';', $value->br_kiri);
+
+            if (count($check) != 1) {
+
+                $lat_awal_exp = explode(';', $value->lat_awal);
+                $lon_awal_exp = explode(';', $value->lon_awal);
+                $lat_akhir_exp = explode(';', $value->lat_akhir);
+                $lon_akhir_exp = explode(';', $value->lon_akhir);
+                $name_exp = explode(';', $value->name);
+                for ($i = 0; $i < count($check); $i++) {
+                    if (array_key_exists($i, $name_exp)) {
+                        $arr[$inc]['name'] = $name_exp[$i];
+                    } else {
+                        $arr[$inc]['name'] = $value->name;
+                    }
+                    $arr[$inc]['afdeling'] = $value->afdeling;
+                    $arr[$inc]['lokasi_kerja'] = $value->lokasi_kerja;
+                    $arr[$inc]['blok'] = $value->blok;
+                    $arr[$inc]['plot'] =  '[' . $lon_awal_exp[$i] . ',' . $lat_awal_exp[$i] . '],[' . $lon_akhir_exp[$i] . ',' . $lat_akhir_exp[$i] . ']';
+                    $arr[$inc]['plotAwal'] =  '[' . $lat_awal_exp[$i] . ',' . $lon_awal_exp[$i] . ']';
+                    $arr[$inc]['plotAkhir'] =  '[' . $lat_akhir_exp[$i] . ',' . $lon_akhir_exp[$i] . ']';
+                    $inc++;
                 }
             } else {
-                $plotMarker[] =  '[' . $value->lat_awal . ',' . $value->lon_awal . ']';
+
+                $arr[$inc]['name'] = $value->name;
+                $arr[$inc]['plot'] =  '[' . $value->lon_awal . ',' . $value->lat_awal . '],[' . $value->lon_akhir . ',' . $value->lat_akhir . ']';
+                $arr[$inc]['plotAwal'] =  '[' . $value->lat_awal . ',' . $value->lon_awal . ']';
+                $arr[$inc]['plotAkhir'] =  '[' . $value->lat_akhir . ',' . $value->lon_akhir . ']';
+                $arr[$inc]['afdeling'] = $value->afdeling;
+
+                $arr[$inc]['lokasi_kerja'] = $value->lokasi_kerja;
+                $arr[$inc]['blok'] = $value->blok;
+
+                $inc++;
             }
         }
 
-        echo json_encode($plotMarker);
+
+        echo json_encode($arr);
+    }
+
+    public function plotUserTaksasi(Request $request)
+    {
+
+        $estate_input = $request->get('est');
+        $tgl = $request->get('tgl');
+
+        $tglData = Carbon::parse($tgl);
+
+        $kemarin = $tglData->subDay()->format('Y-m-d') . ' 00:00:00';
+
+        $newConvert = new Carbon($kemarin);
+
+        $hariIni = $newConvert->addDays(2);
+
+        $hariIni = ($hariIni->format('Y-m-d')) . ' 00:00:00';
+
+        $queryData = DB::connection('mysql2')->table('taksasi')
+            ->select('taksasi.*')
+            ->whereBetween('taksasi.waktu_upload', [$kemarin, $hariIni])
+            ->where('lokasi_kerja', $estate_input)
+            ->orderBy('taksasi.waktu_upload', 'desc')
+            ->get();
+
+
+        $arr = array();
+        $inc = 0;
+        foreach ($queryData as $key => $value) {
+            $check = explode(';', $value->br_kiri);
+
+            if (count($check) != 1) {
+
+                $lat_awal_exp = explode(';', $value->lat_awal);
+                $lon_awal_exp = explode(';', $value->lon_awal);
+                $lat_akhir_exp = explode(';', $value->lat_akhir);
+                $lon_akhir_exp = explode(';', $value->lon_akhir);
+                $name_exp = explode(';', $value->name);
+                for ($i = 0; $i < count($check); $i++) {
+                    if (array_key_exists($i, $name_exp)) {
+                        $arr[$inc]['name'] = $name_exp[$i];
+                    } else {
+                        $arr[$inc]['name'] = $value->name;
+                    }
+                    $arr[$inc]['afdeling'] = $value->afdeling;
+                    $arr[$inc]['lokasi_kerja'] = $value->lokasi_kerja;
+                    $arr[$inc]['blok'] = $value->blok;
+                    $arr[$inc]['plot'] =  '[' . $lon_awal_exp[$i] . ',' . $lat_awal_exp[$i] . '],[' . $lon_akhir_exp[$i] . ',' . $lat_akhir_exp[$i] . ']';
+                    $arr[$inc]['plotAwal'] =  '[' . $lat_awal_exp[$i] . ',' . $lon_awal_exp[$i] . ']';
+                    $arr[$inc]['plotAkhir'] =  '[' . $lat_akhir_exp[$i] . ',' . $lon_akhir_exp[$i] . ']';
+                    $inc++;
+                }
+            } else {
+
+                $arr[$inc]['name'] = $value->name;
+                $arr[$inc]['plot'] =  '[' . $value->lon_awal . ',' . $value->lat_awal . '],[' . $value->lon_akhir . ',' . $value->lat_akhir . ']';
+                $arr[$inc]['plotAwal'] =  '[' . $value->lat_awal . ',' . $value->lon_awal . ']';
+                $arr[$inc]['plotAkhir'] =  '[' . $value->lat_akhir . ',' . $value->lon_akhir . ']';
+                $arr[$inc]['afdeling'] = $value->afdeling;
+
+                $arr[$inc]['lokasi_kerja'] = $value->lokasi_kerja;
+                $arr[$inc]['blok'] = $value->blok;
+
+                $inc++;
+            }
+        }
+
+        $list_afd = array();
+        foreach ($arr as $key => $value) {
+            if (!in_array($value['afdeling'], $list_afd)) {
+                $list_afd[] = $value['afdeling'];
+            }
+        }
+
+
+        $user = array();
+        foreach ($list_afd as $key2 => $data) {
+            foreach ($arr as $key => $value) {
+                if ($data == $value['afdeling']) {
+                    $user[$data][] = $value['name'];
+                }
+            }
+        }
+
+        $userTaksasi = array();
+
+        foreach ($user as $key => $value) {
+            $userTaksasi[$key] = array_values(array_unique($value));
+        }
+
+
+        echo json_encode($userTaksasi);
     }
 
     public function history_taksasi(Request $request)
@@ -1182,6 +1310,8 @@ class DashboardController extends Controller
             ->orderBy('monitoring_pemupukan.waktu_upload', 'DESC')
             ->get();
 
+
+
         $plotLine = array();
         foreach ($queryData as $key => $value) {
             if (str_contains($value->lat_awal, ';')) {
@@ -1257,6 +1387,14 @@ class DashboardController extends Controller
                 }
             }
 
+            if ($item->foto != '') {
+                $splitted = explode(";", $item->foto);
+                for ($i = 0; $i < count($splitted); $i++) {
+                    $key = 'foto_' . $i;
+                    $item->$key = $splitted[$i];
+                }
+            }
+
             $item->terpupuk = $countDipupuk;
             $item->tersebar = $countSebarPupuk;
             $item->terlokasi = $countLokasiPupuk;
@@ -1282,9 +1420,6 @@ class DashboardController extends Controller
         }
         $estate_plot['est'] = $estate . ' Estate';
         $estate_plot['plot'] =  rtrim($plot, ',');
-
-
-        // dd($estate_plot);
 
         $queryData = json_decode($queryData, true);
 

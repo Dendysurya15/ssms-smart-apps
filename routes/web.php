@@ -39,7 +39,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('plotBlok', [DashboardController::class, 'plotBlok'])->name('plotBlok');
     Route::post('plotLineTaksasi', [DashboardController::class, 'plotLineTaksasi'])->name('plotLineTaksasi');
     Route::post('plotMarkerMan', [DashboardController::class, 'plotMarkerMan'])->name('plotMarkerMan');
+    Route::post('plotUserTaksasi', [DashboardController::class, 'plotUserTaksasi'])->name('plotUserTaksasi');
     Route::post('getDataTable', [DashboardController::class, 'getDataTable'])->name('getDataTable');
+    Route::post('getListEstate', [DashboardController::class, 'getListEstate'])->name('getListEstate');
     Route::post('getListEstate', [DashboardController::class, 'getListEstate'])->name('getListEstate');
     Route::get('tableCoba', [DashboardController::class, 'tableCoba'])->name('tableCoba');
     Route::post('getDataAfdeling', [DashboardController::class, 'getDataAfd'])->name('getDataAfdeling');
