@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Yajra\DataTables\DataTables;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class DashboardController extends Controller
 {
@@ -587,21 +588,22 @@ class DashboardController extends Controller
     public function plotBlok(Request $request)
     {
         $estate_input = $request->get('est');
+
         $tgl = $request->get('tgl');
 
-        $tglData = Carbon::parse($tgl);
+        // $tglData = Carbon::parse($tgl);
 
-        $kemarin = $tglData->subDay()->format('Y-m-d') . ' 00:00:00';
+        // $kemarin = $tglData->subDay()->format('Y-m-d') . ' 00:00:00';
 
-        $newConvert = new Carbon($kemarin);
+        // $newConvert = new Carbon($kemarin);
 
-        $hariIni = $newConvert->addDays(2);
+        // $hariIni = $newConvert->addDays(2);
 
-        $hariIni = ($hariIni->format('Y-m-d')) . ' 00:00:00';
+        // $hariIni = ($hariIni->format('Y-m-d')) . ' 00:00:00';
 
         $queryData = DB::connection('mysql2')->table('taksasi')
             ->select('taksasi.*')
-            ->whereBetween('taksasi.waktu_upload', [$kemarin, $hariIni])
+            ->whereDate('taksasi.waktu_upload', $tgl)
             ->where('lokasi_kerja', $estate_input)
             ->orderBy('taksasi.waktu_upload', 'desc')
             ->get();
@@ -700,19 +702,19 @@ class DashboardController extends Controller
         $estate_input = $request->get('est');
         $tgl = $request->get('tgl');
 
-        $tglData = Carbon::parse($tgl);
+        // $tglData = Carbon::parse($tgl);
 
-        $kemarin = $tglData->subDay()->format('Y-m-d') . ' 00:00:00';
+        // $kemarin = $tglData->subDay()->format('Y-m-d') . ' 00:00:00';
 
-        $newConvert = new Carbon($kemarin);
+        // $newConvert = new Carbon($kemarin);
 
-        $hariIni = $newConvert->addDays(2);
+        // $hariIni = $newConvert->addDays(2);
 
-        $hariIni = ($hariIni->format('Y-m-d')) . ' 00:00:00';
+        // $hariIni = ($hariIni->format('Y-m-d')) . ' 00:00:00';
 
         $queryData = DB::connection('mysql2')->table('taksasi')
             ->select('taksasi.lat_awal', 'taksasi.lon_awal', 'taksasi.lat_akhir', 'taksasi.lon_akhir')
-            ->whereBetween('taksasi.waktu_upload', [$kemarin, $hariIni])
+            ->whereDate('taksasi.waktu_upload', $tgl)
             ->where('lokasi_kerja', $estate_input)
             ->orderBy('taksasi.waktu_upload', 'desc')
             ->get();
@@ -740,19 +742,19 @@ class DashboardController extends Controller
         $estate_input = $request->get('est');
         $tgl = $request->get('tgl');
 
-        $tglData = Carbon::parse($tgl);
+        // $tglData = Carbon::parse($tgl);
 
-        $kemarin = $tglData->subDay()->format('Y-m-d') . ' 00:00:00';
+        // $kemarin = $tglData->subDay()->format('Y-m-d') . ' 00:00:00';
 
-        $newConvert = new Carbon($kemarin);
+        // $newConvert = new Carbon($kemarin);
 
-        $hariIni = $newConvert->addDays(2);
+        // $hariIni = $newConvert->addDays(2);
 
-        $hariIni = ($hariIni->format('Y-m-d')) . ' 00:00:00';
+        // $hariIni = ($hariIni->format('Y-m-d')) . ' 00:00:00';
 
         $queryData = DB::connection('mysql2')->table('taksasi')
             ->select('taksasi.*')
-            ->whereBetween('taksasi.waktu_upload', [$kemarin, $hariIni])
+            ->whereDate('taksasi.waktu_upload', $tgl)
             ->where('lokasi_kerja', $estate_input)
             ->orderBy('taksasi.waktu_upload', 'desc')
             ->get();
@@ -809,19 +811,19 @@ class DashboardController extends Controller
         $estate_input = $request->get('est');
         $tgl = $request->get('tgl');
 
-        $tglData = Carbon::parse($tgl);
+        // $tglData = Carbon::parse($tgl);
 
-        $kemarin = $tglData->subDay()->format('Y-m-d') . ' 00:00:00';
+        // $kemarin = $tglData->subDay()->format('Y-m-d') . ' 00:00:00';
 
-        $newConvert = new Carbon($kemarin);
+        // $newConvert = new Carbon($kemarin);
 
-        $hariIni = $newConvert->addDays(2);
+        // $hariIni = $newConvert->addDays(2);
 
-        $hariIni = ($hariIni->format('Y-m-d')) . ' 00:00:00';
+        // $hariIni = ($hariIni->format('Y-m-d')) . ' 00:00:00';
 
         $queryData = DB::connection('mysql2')->table('taksasi')
             ->select('taksasi.*')
-            ->whereBetween('taksasi.waktu_upload', [$kemarin, $hariIni])
+            ->whereDate('taksasi.waktu_upload', $tgl)
             ->where('lokasi_kerja', $estate_input)
             ->orderBy('taksasi.waktu_upload', 'desc')
             ->get();
@@ -938,19 +940,19 @@ class DashboardController extends Controller
     {
         $tgl = $request->get('tgl');
 
-        $tglData = Carbon::parse($tgl);
+        // $tglData = Carbon::parse($tgl);
 
-        $kemarin = $tglData->subDay()->format('Y-m-d') . ' 00:00:00';
+        // $kemarin = $tglData->subDay()->format('Y-m-d') . ' 00:00:00';
 
-        $newConvert = new Carbon($kemarin);
+        // $newConvert = new Carbon($kemarin);
 
-        $hariIni = $newConvert->addDays(2);
+        // $hariIni = $newConvert->addDays(2);
 
-        $hariIni = ($hariIni->format('Y-m-d')) . ' 00:00:00';
+        // $hariIni = ($hariIni->format('Y-m-d')) . ' 00:00:00';
 
         $queryData = DB::connection('mysql2')->table('taksasi')
             ->select('taksasi.*')
-            ->whereBetween('taksasi.waktu_upload', [$kemarin, $hariIni])
+            ->whereDate('taksasi.waktu_upload', $tgl)
             ->orderBy('taksasi.waktu_upload', 'desc')
             ->get()
             ->groupBy('lokasi_kerja');
@@ -1252,28 +1254,229 @@ class DashboardController extends Controller
         return view('mon_pemupukan.dashboard');
     }
 
+
+    public function exportPdfTaksasi($est, $date)
+    {
+        $estate_input = $est;
+        $tgl = $date;
+
+        $queryEstate = DB::connection('mysql2')->table('estate')
+            ->select('estate.*')
+            ->where('est', $estate_input)
+            ->first();
+
+        $queryData = DB::connection('mysql2')->table('taksasi')
+            ->select('taksasi.*')
+            ->whereDate('taksasi.waktu_upload', $tgl)
+            ->where('lokasi_kerja', $estate_input)
+            ->orderBy('taksasi.afdeling', 'asc')
+            // ->groupBy('taksasi.afdeling')
+            ->get();
+
+
+
+        foreach ($queryData as $key => $value) {
+            $path_arr = explode(';', $value->br_kanan);
+            $value->jumlah_path = count($path_arr);
+            $value->ritase = ceil($value->taksasi / 6500);
+        }
+
+        $queryCount = DB::connection('mysql2')->table('taksasi')
+            ->select('taksasi.afdeling', DB::raw('count(taksasi.afdeling) as countData'))
+            ->whereDate('taksasi.waktu_upload', $tgl)
+            ->where('lokasi_kerja', $estate_input)
+            ->orderBy('taksasi.afdeling', 'asc')
+            ->groupBy('taksasi.afdeling')
+            ->pluck('countData', 'afdeling');
+
+        $arr = array();
+
+        $dataAfd = array();
+
+        foreach ($queryCount as $key => $value) {
+            $dataAfd[$key]['afdeling'] = $key;
+            $dataAfd[$key]['blok'] = '-';
+            $dataAfd[$key]['luas'] = '-';
+            $dataAfd[$key]['sph'] = '-';
+            $dataAfd[$key]['bjr'] = '-';
+            $dataAfd[$key]['jumlah_path'] = '-';
+            $dataAfd[$key]['jumlah_pokok'] = '-';
+            $dataAfd[$key]['jumlah_janjang'] = '-';
+            $dataAfd[$key]['akp'] = '-';
+            $dataAfd[$key]['taksasi'] = '-';
+            $dataAfd[$key]['pemanen'] = '-';
+            $dataAfd[$key]['ritase'] = '-';
+        }
+
+        $total_luas = 0;
+        $total_sph = 0;
+        $total_bjr = 0;
+        $total_path = 0;
+        $total_pokok = 0;
+        $total_janjang = 0;
+        $total_akp = 0;
+        $total_taksasi = 0;
+        $total_pemanen = 0;
+        $increment = 0;
+        foreach ($queryCount as $key => $value) {
+            for ($i = 0; $i < $value; $i++) {
+                $tak = 0;
+                $akp = 0;
+                $sum_luas = 0;
+                $sum_sph = 0;
+                $sum_bjr = 0;
+                $sum_path = 0;
+                $sum_pokok = 0;
+                $sum_janjang = 0;
+                $sum_pemanen = 0;
+                $inc = 0;
+                foreach ($queryData as $key2 => $val) {
+                    if ($key == $val->afdeling) {
+                        $arr[$key][] = $val;
+                        $sum_luas += $val->luas;
+                        $sum_sph += $val->sph;
+                        $sum_bjr += $val->bjr;
+                        $sum_path += $val->jumlah_path;
+                        $sum_pokok += $val->jumlah_pokok;
+                        $sum_janjang += $val->jumlah_janjang;
+                        $sum_pemanen += $val->pemanen;
+                        $inc++;
+                    }
+                }
+
+                $arr[$key]['total_' . $key]['luas'] = $sum_luas;
+                $sum_sph = round($sum_sph / $inc, 2);
+                $arr[$key]['total_' . $key]['sph'] = $sum_sph;
+                $sum_bjr = round($sum_bjr / $inc, 2);
+                $arr[$key]['total_' . $key]['bjr'] = $sum_bjr;
+                $arr[$key]['total_' . $key]['jumlah_path'] = $sum_path;
+                $arr[$key]['total_' . $key]['jumlah_pokok'] = $sum_pokok;
+                $arr[$key]['total_' . $key]['jumlah_janjang'] = $sum_janjang;
+                $akp = round($sum_janjang / $sum_pokok, 2) * 100;
+                $arr[$key]['total_' . $key]['akp'] = $akp;
+                $tak = round(($akp * $sum_luas * $sum_bjr * $sum_sph) / 100, 2);
+                $arr[$key]['total_' . $key]['taksasi'] = $tak;
+                $arr[$key]['total_' . $key]['ritase'] = ceil($tak / 6500);
+                $arr[$key]['total_' . $key]['pemanen'] = $sum_pemanen;
+                break;
+            }
+
+
+            $total_luas += $sum_luas;
+            $total_sph += $sum_sph;
+            $total_bjr += $sum_bjr;
+            $total_path += $sum_path;
+            $total_pokok += $sum_pokok;
+            $total_janjang += $sum_janjang;
+            $total_pemanen += $sum_pemanen;
+            $increment++;
+        }
+
+
+        $arrEstate = array();
+        $arrEstate['luas'] = $total_luas;
+        $total_sph =  round($total_sph / $increment, 2);
+        $arrEstate['sph'] = $total_sph;
+        $total_bjr = round($total_bjr / $increment, 2);
+        $arrEstate['bjr'] = $total_bjr;
+        $arrEstate['total_path'] = $total_path;
+        $arrEstate['total_pokok'] = $total_pokok;
+        $arrEstate['total_janjang'] = $total_janjang;
+        $total_akp = round($total_janjang / $total_pokok, 2) * 100;
+        $arrEstate['total_akp'] = $total_akp;
+        $total_taksasi = round(($total_akp * $total_luas * $total_sph * $total_bjr) / 100, 2);
+        $arrEstate['total_taksasi'] = $total_taksasi;
+        $arrEstate['total_pemanen'] = $total_pemanen;
+        $arrEstate['total_ritase'] = ceil($total_taksasi / 6500);
+
+        function tanggal_indo($tanggal, $cetak_hari = false)
+        {
+            $hari = array(
+                1 =>    'Senin',
+                'Selasa',
+                'Rabu',
+                'Kamis',
+                'Jumat',
+                'Sabtu',
+                'Minggu'
+            );
+
+            $bulan = array(
+                1 =>   'Januari',
+                'Februari',
+                'Maret',
+                'April',
+                'Mei',
+                'Juni',
+                'Juli',
+                'Agustus',
+                'September',
+                'Oktober',
+                'November',
+                'Desember'
+            );
+            $split       = explode('-', $tanggal);
+            $tgl_indo = $split[2] . ' ' . $bulan[(int)$split[1]] . ' ' . $split[0];
+
+            if ($cetak_hari) {
+                $num = date('N', strtotime($tanggal));
+                return $hari[$num] . ', ' . $tgl_indo;
+            }
+            return $tgl_indo;
+        }
+
+        $besok = Carbon::parse($tgl)->addDays()->format('Y-m-d');
+
+        $besokFormatted = strtoupper(tanggal_indo($besok, true));
+
+        $todayFormatted = strtoupper(tanggal_indo($tgl, true));
+
+        switch ($queryEstate->wil) {
+            case 1:
+                $wil = 'I';
+                break;
+            case 2:
+                $wil = 'II';
+                break;
+            case 3:
+                $wil = 'III';
+                break;
+
+            default:
+                # code...
+                break;
+        }
+
+        // dd($estate_input);
+        $pdf = pdf::loadview('taksasi.cetak', ['est' => $estate_input, 'tgl' => $tgl, 'data' => $arr, 'dataAfd' => $dataAfd, 'rekap' => $arrEstate, 'namaEstate' => strtoupper($queryEstate->nama), 'wil' => $wil, 'today' => $todayFormatted, 'besok' => $besokFormatted]);
+        $customPaper = array(360, 360, 360, 360);
+        $pdf->set_paper('A3', 'potrait');
+
+        $filename = 'QC-gudang.pdf';
+        return $pdf->stream($filename);
+    }
+
     public function getDataTable(Request $request)
     {
         $estate_input = $request->get('est');
         $tgl = $request->get('tgl');
 
-        $tglData = Carbon::parse($tgl);
+        // $tglData = Carbon::parse($tgl);
 
-        $kemarin = $tglData->subDay()->format('Y-m-d') . ' 00:00:00';
+        // $kemarin = $tglData->subDay()->format('Y-m-d') . ' 00:00:00';
 
-        $newConvert = new Carbon($kemarin);
+        // $newConvert = new Carbon($kemarin);
 
-        $hariIni = $newConvert->addDays(2);
+        // $hariIni = $newConvert->addDays(2);
 
-        $hariIni = ($hariIni->format('Y-m-d')) . ' 00:00:00';
+        // $hariIni = ($hariIni->format('Y-m-d')) . ' 00:00:00';
 
         $queryData = DB::connection('mysql2')->table('taksasi')
             ->select('taksasi.*', DB::raw("DATE_FORMAT(taksasi.waktu_upload, '%d %M %y') as tanggal_formatted"))
-            ->whereBetween('taksasi.waktu_upload', [$kemarin, $hariIni])
+            ->whereDate('taksasi.waktu_upload', $tgl)
             ->where('lokasi_kerja', $estate_input)
             ->orderBy('taksasi.waktu_upload', 'desc')
             ->get();
-
 
         $inc = 0;
         foreach ($queryData as $key => $value) {
@@ -1326,6 +1529,8 @@ class DashboardController extends Controller
                 $plotLine[] =  '[' . $value->lon_awal . ',' . $value->lat_awal . '],[' . $value->lon_akhir . ',' . $value->lat_akhir . ']';
             }
         }
+
+        dd($queryData);
 
         $plotMarker = array();
         foreach ($queryData as $key => $value) {

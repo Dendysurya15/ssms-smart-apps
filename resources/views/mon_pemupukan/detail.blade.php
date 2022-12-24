@@ -192,10 +192,9 @@
 // map.options.maxZoom = 14;
 
     // //openstreetmap
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(map);
+    const googleSat = L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+    ).addTo(map);
 
 
     var geoJsonEst = '{"type"'
@@ -362,6 +361,76 @@ L.geoJSON(line, {
     }
 })
 .addTo(map);
+
+    var legend = L.control({
+        position: "bottomright"
+    });
+    const newUserTaksasi = Object.entries(userTaksasi);
+
+    legend.onAdd = function(map) {
+
+        var div = L.DomUtil.create("div", "legend");
+        div.innerHTML += "<h4>Keterangan :</h4>";
+        div.innerHTML += '<div >';
+
+        var colorAfd = ''
+        newUserTaksasi.forEach(element => {
+            switch (element[0]) {
+                case 'OA':
+                    colorAfd = '#ff1744'
+                    break;
+                case 'OB':
+                    colorAfd = '#d500f9'
+                    break;
+                case 'OC':
+                    colorAfd = '#ffa000'
+                    break;
+                case 'OD':
+                    colorAfd = '#00b0ff'
+                    break;
+                case 'OE':
+                    colorAfd = '#ff1744'
+                    break;
+                case 'OF':
+                    colorAfd = '#ff1744'
+                    break;
+                default:
+                    // code block
+            }
+            div.innerHTML += '<i style="background: ' + colorAfd + '"></i><span style="font-weight:bold">' + element[0] + '</span>';
+            div.innerHTML += '<span> (';
+            if (element[1].length != 1) {
+                var inc = 1;
+                var size = element[1].length
+                element[1].forEach(userName => {
+                    if (inc == size) {
+                        div.innerHTML += '<span > ' + userName + ' </span>';
+                    } else {
+                        div.innerHTML += '<span > ' + userName + ', </span>';
+                    }
+                    inc++
+                });
+            } else {
+                element[1].forEach(userName => {
+                    div.innerHTML += '<span> ' + userName + '</span>';
+                });
+            }
+
+            div.innerHTML += '<span> )<br></span>';
+        });
+
+        // div.innerHTML += '<br>';
+        // div.innerHTML += '<i style="background: #FFFFFF"></i><span>Ice</span><br>';
+        // div.innerHTML += '      <img src="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png" alt="" style="width:13px"><span>    Titik Start Taksasi</span><br>';
+        // div.innerHTML += '      <img src="remove.png" alt="" style="width:15px"><span> Jalur Taksasi</span><br>';
+        div.innerHTML += '</div>';
+
+
+
+        return div;
+    };
+
+    legend.addTo(map);
 
 var layerMarkerMan = new Array();
     var greenIcon = L.icon({

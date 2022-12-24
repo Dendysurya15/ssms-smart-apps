@@ -152,6 +152,13 @@
 
                     </select>
                 </div>
+                <div class="col-2">
+
+
+                    <button id="btnExport" class="btn btn-success"> Export PDF <i
+                            class="nav-icon fa fa-download"></i></button>
+                    {{-- <div id="linkExport"></div> --}}
+                </div>
             </div>
             <br>
             <h3>History Taksasi Panen</h3>
@@ -181,7 +188,7 @@
                                             <th scope="col">SAMPEL PATH</th>
                                             <th scope="col">JANJANG SAMPEL</th>
                                             <th scope="col">POKOK SAMPEL</th>
-                                            <th scope="col">Aksi</th>
+
                                         </tr>
                                     </thead>
                                     <tbody id="list" class="list">
@@ -291,8 +298,15 @@
             div.innerHTML += '<i style="background: ' + colorAfd + '"></i><span style="font-weight:bold">' + element[0] + '</span>';
             div.innerHTML += '<span> (';
             if (element[1].length != 1) {
+                var inc = 1;
+                var size = element[1].length
                 element[1].forEach(userName => {
-                    div.innerHTML += '<span > ' + userName + ', </span>';
+                    if (inc == size) {
+                        div.innerHTML += '<span > ' + userName + ' </span>';
+                    } else {
+                        div.innerHTML += '<span > ' + userName + ', </span>';
+                    }
+                    inc++
                 });
             } else {
                 element[1].forEach(userName => {
@@ -861,15 +875,29 @@ for(i=0;i<titleBlok.length;i++) {
     var dateInput = '';
     $('#inputTanggal').change(function(){
         dateInput = $('#inputTanggal').val()
+
         $("#nameEstate").html('');
+        getListEstate(dateInput)
         removeMarkers();
         markerDelAgain()
-        getListEstate(dateInput)
+    });
+
+    $('#btnExport').click(function(){
+        var dateInput = $('#inputTanggal').val()
+
+        var estate = document.getElementById("nameEstate").value;
+
+
+        exportPDF(dateInput, estate)
+        // $("#nameEstate").html('');
+        // getListEstate(dateInput)
+        // removeMarkers();
+        // markerDelAgain()
     });
 
 
     function getListEstate(date){
-        var _token = $('input[name="_token"]').val();
+        var _token = $('input[name="_token"]').val(); 
         $.ajax({
         url:"{{ route('getListEstate') }}",
         method:"POST",
@@ -892,13 +920,14 @@ for(i=0;i<titleBlok.length;i++) {
                 getMarkerMan(list_estate[0], date)
                 getUserTaksasi(list_estate[0], date)
                 getDataTable(list_estate[0], date)
+                document.getElementById("btnExport").disabled = false;
             }else{
                 $("#nameEstate").attr("disabled", "disabled");
-                removeMarkers();
-                markerDelAgain();
+                // removeMarkers();
+                // markerDelAgain();
                 document.getElementById("pagination").innerHTML="";
                 document.getElementById("list").innerHTML="";
-              
+                document.getElementById("btnExport").disabled = true;
             }
         
         }
@@ -908,7 +937,8 @@ for(i=0;i<titleBlok.length;i++) {
     $(document).ready(function(){
         dateNow =  new Date().toISOString().slice(0, 10)
 
-        getListEstate(dateInput)
+
+        getListEstate(dateNow)
         // $("#nameEstate").attr("disabled", "disabled");
     });
 
@@ -977,6 +1007,17 @@ for(i=0;i<titleBlok.length;i++) {
         drawBlokPlot(blok)
     }
     })
+    }
+
+    function exportPDF(date, est){
+
+    var _token = $('input[name="_token"]').val();
+
+    var url = '/exportPdfTaksasi/'+ est +'/' + date;
+    window.open(
+        url,
+        '_blank' // <- This is what makes it open in a new window.
+    );
     }
 
     function getlineTaksasi(est, date) {

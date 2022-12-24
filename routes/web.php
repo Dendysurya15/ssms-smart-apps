@@ -42,7 +42,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('plotUserTaksasi', [DashboardController::class, 'plotUserTaksasi'])->name('plotUserTaksasi');
     Route::post('getDataTable', [DashboardController::class, 'getDataTable'])->name('getDataTable');
     Route::post('getListEstate', [DashboardController::class, 'getListEstate'])->name('getListEstate');
-    Route::post('getListEstate', [DashboardController::class, 'getListEstate'])->name('getListEstate');
+    Route::get('exportPdfTaksasi/{est}/{date}', [DashboardController::class, 'exportPdfTaksasi'])->name('exportPdfTaksasi');
     Route::get('tableCoba', [DashboardController::class, 'tableCoba'])->name('tableCoba');
     Route::post('getDataAfdeling', [DashboardController::class, 'getDataAfd'])->name('getDataAfdeling');
     Route::post('getLoadRegional', [DashboardController::class, 'getDataRegional'])->name('getLoadRegional');
