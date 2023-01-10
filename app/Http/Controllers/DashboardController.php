@@ -416,12 +416,14 @@ class DashboardController extends Controller
         $monthFilter = Carbon::parse($date)->month;
 
         $query = DB::connection('mysql2')->table('monitoring_pemupukan')
-            ->select('*', 'estate.id as id_estate', 'pupuk.nama as nama_pupuk')
+            ->select('*', DB::raw("DATE_FORMAT(monitoring_pemupukan.waktu_upload, '%Y-%m-%d') as tgl"), 'estate.id as id_estate', 'pupuk.nama as nama_pupuk')
             ->join('estate', 'monitoring_pemupukan.estate', '=', 'estate.est')
             ->join('pupuk', 'monitoring_pemupukan.jenis_pupuk_id', '=', 'pupuk.id')
             ->where('estate.id', $id_est)
             ->where('monitoring_pemupukan.afdeling', $afd)
-            ->whereMonth('waktu_upload', $monthFilter)
+            ->where('waktu_upload', 'like', '%' . $date . '%')
+            ->groupBy('tgl')
+            // ->whereMonth('waktu_upload', $monthFilter)
             ->get();
 
         foreach ($query as $item) {
@@ -1510,6 +1512,7 @@ class DashboardController extends Controller
             ->whereDate('monitoring_pemupukan.waktu_upload', $newDate)
             ->where('monitoring_pemupukan.estate', $estate_input)
             ->where('monitoring_pemupukan.afdeling', $afdeling_input)
+            ->groupBy('monitoring_pemupukan.waktu_upload')
             ->orderBy('monitoring_pemupukan.waktu_upload', 'DESC')
             ->get();
 
@@ -1530,7 +1533,7 @@ class DashboardController extends Controller
             }
         }
 
-        dd($queryData);
+        // dd($queryData);
 
         $plotMarker = array();
         foreach ($queryData as $key => $value) {
@@ -1550,7 +1553,7 @@ class DashboardController extends Controller
         foreach ($queryData as $item) {
             $hari = Carbon::parse($item->waktu_upload)->locale('id');
             $hari->settings(['formatFunction' => 'translatedFormat']);
-            $item->tanggal = $hari->format('j F Y');
+            $item->tanggal = $hari->format('j F Y H:i');
 
             //terpupuk
             $sub = substr($item->dipupuk, 1, -1);
