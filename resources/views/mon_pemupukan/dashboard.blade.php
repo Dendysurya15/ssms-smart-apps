@@ -308,11 +308,15 @@
                         {
                             "data": "afdeling",
                             "render": function(data, type, row, meta) {
-                                if (type === 'display') {
-                                    var sm = 'SM1'
-                                    var rot = 'R1'
-                                    var formattedDate = dateFormat(row.waktu_upload, 'dd-MM-yyyy')
-                                    data = '<a href="rekom_aplikasi/' + row.estate + '/' + row.afdeling + '/' + rot + '/' + sm + '/' + formattedDate + '" target="_blank">DETAIL</i></a>';
+                                if (dateFormat(row.waktu_upload, 'yyyy-MM') == new Date().toJSON().slice(0, 4) + '-01' || dateFormat(row.waktu_upload, 'yyyy-MM') == new Date().toJSON().slice(0, 4) + '-02' || dateFormat(row.waktu_upload, 'yyyy-MM') == new Date().toJSON().slice(0, 4) + '-03') {
+                                    if (type === 'display') {
+                                        var sm = 'SM1'
+                                        var rot = 'R1'
+                                        var formattedDate = dateFormat(row.waktu_upload, 'dd-MM-yyyy')
+                                        data = '<a href="rekom_aplikasi/' + row.estate + '/' + row.afdeling + '/' + rot + '/' + sm + '/' + formattedDate + '" target="_blank">DETAIL</i></a>';
+                                    }
+                                } else {
+                                    data = '-';
                                 }
 
                                 return data;
@@ -321,11 +325,15 @@
                         {
                             "data": "afdeling",
                             "render": function(data, type, row, meta) {
-                                if (type === 'display') {
-                                    var sm = 'SM1'
-                                    var rot = 'R2'
-                                    var formattedDate = dateFormat(row.waktu_upload, 'dd-MM-yyyy')
-                                    data = '<a href="rekom_aplikasi/' + row.estate + '/' + row.afdeling + '/' + rot + '/' + sm + '/' + formattedDate + '" target="_blank">DETAIL</i></a>';
+                                if (dateFormat(row.waktu_upload, 'yyyy-MM') == new Date().toJSON().slice(0, 4) + '-04' || dateFormat(row.waktu_upload, 'yyyy-MM') == new Date().toJSON().slice(0, 4) + '-05' || dateFormat(row.waktu_upload, 'yyyy-MM') == new Date().toJSON().slice(0, 4) + '-06') {
+                                    if (type === 'display') {
+                                        var sm = 'SM1'
+                                        var rot = 'R2'
+                                        var formattedDate = dateFormat(row.waktu_upload, 'dd-MM-yyyy')
+                                        data = '<a href="rekom_aplikasi/' + row.estate + '/' + row.afdeling + '/' + rot + '/' + sm + '/' + formattedDate + '" target="_blank">DETAIL</i></a>';
+                                    }
+                                } else {
+                                    data = '-';
                                 }
 
                                 return data;
@@ -334,11 +342,15 @@
                         {
                             "data": "afdeling",
                             "render": function(data, type, row, meta) {
-                                if (type === 'display') {
-                                    var sm = 'SM2'
-                                    var rot = 'R3'
-                                    var formattedDate = dateFormat(row.waktu_upload, 'dd-MM-yyyy')
-                                    data = '<a href="rekom_aplikasi/' + row.estate + '/' + row.afdeling + '/' + rot + '/' + sm + '/' + formattedDate + '" target="_blank">DETAIL</i></a>';
+                                if (dateFormat(row.waktu_upload, 'yyyy-MM') == new Date().toJSON().slice(0, 4) + '-07' || dateFormat(row.waktu_upload, 'yyyy-MM') == new Date().toJSON().slice(0, 4) + '-08' || dateFormat(row.waktu_upload, 'yyyy-MM') == new Date().toJSON().slice(0, 4) + '-09') {
+                                    if (type === 'display') {
+                                        var sm = 'SM2'
+                                        var rot = 'R3'
+                                        var formattedDate = dateFormat(row.waktu_upload, 'dd-MM-yyyy')
+                                        data = '<a href="rekom_aplikasi/' + row.estate + '/' + row.afdeling + '/' + rot + '/' + sm + '/' + formattedDate + '" target="_blank">DETAIL</i></a>';
+                                    }
+                                } else {
+                                    data = '-';
                                 }
 
                                 return data;
@@ -347,11 +359,15 @@
                         {
                             "data": "afdeling",
                             "render": function(data, type, row, meta) {
-                                if (type === 'display') {
-                                    var sm = 'SM2'
-                                    var rot = 'R4'
-                                    var formattedDate = dateFormat(row.waktu_upload, 'dd-MM-yyyy')
-                                    data = '<a href="rekom_aplikasi/' + row.estate + '/' + row.afdeling + '/' + rot + '/' + sm + '/' + formattedDate + '" target="_blank">DETAIL</i></a>';
+                                if (dateFormat(row.waktu_upload, 'yyyy-MM') == new Date().toJSON().slice(0, 4) + '-10' || dateFormat(row.waktu_upload, 'yyyy-MM') == new Date().toJSON().slice(0, 4) + '-11' || dateFormat(row.waktu_upload, 'yyyy-MM') == new Date().toJSON().slice(0, 4) + '-12') {
+                                    if (type === 'display') {
+                                        var sm = 'SM2'
+                                        var rot = 'R4'
+                                        var formattedDate = dateFormat(row.waktu_upload, 'dd-MM-yyyy')
+                                        data = '<a href="rekom_aplikasi/' + row.estate + '/' + row.afdeling + '/' + rot + '/' + sm + '/' + formattedDate + '" target="_blank">DETAIL</i></a>';
+                                    }
+                                } else {
+                                    data = '-';
                                 }
 
                                 return data;
@@ -439,11 +455,15 @@
                         {
                             "data": "afdeling",
                             "render": function(data, type, row, meta) {
-                                if (type === 'display') {
-                                    var sm = 'SM1'
-                                    var rot = 'R1'
-                                    var formattedDate = dateFormat(row.waktu_upload, 'dd-MM-yyyy')
-                                    data = '<a href="rekom_aplikasi/' + row.estate + '/' + row.afdeling + '/' + rot + '/' + sm + '/' + formattedDate + '" target="_blank">DETAIL</i></a>';
+                                if (dateFormat(row.waktu_upload, 'yyyy-MM') == new Date().toJSON().slice(0, 4) + '-01' || dateFormat(row.waktu_upload, 'yyyy-MM') == new Date().toJSON().slice(0, 4) + '-02' || dateFormat(row.waktu_upload, 'yyyy-MM') == new Date().toJSON().slice(0, 4) + '-03') {
+                                    if (type === 'display') {
+                                        var sm = 'SM1'
+                                        var rot = 'R1'
+                                        var formattedDate = dateFormat(row.waktu_upload, 'dd-MM-yyyy')
+                                        data = '<a href="rekom_aplikasi/' + row.estate + '/' + row.afdeling + '/' + rot + '/' + sm + '/' + formattedDate + '" target="_blank">DETAIL</i></a>';
+                                    }
+                                } else {
+                                    data = '-';
                                 }
 
                                 return data;
@@ -452,11 +472,15 @@
                         {
                             "data": "afdeling",
                             "render": function(data, type, row, meta) {
-                                if (type === 'display') {
-                                    var sm = 'SM1'
-                                    var rot = 'R2'
-                                    var formattedDate = dateFormat(row.waktu_upload, 'dd-MM-yyyy')
-                                    data = '<a href="rekom_aplikasi/' + row.estate + '/' + row.afdeling + '/' + rot + '/' + sm + '/' + formattedDate + '" target="_blank">DETAIL</i></a>';
+                                if (dateFormat(row.waktu_upload, 'yyyy-MM') == new Date().toJSON().slice(0, 4) + '-04' || dateFormat(row.waktu_upload, 'yyyy-MM') == new Date().toJSON().slice(0, 4) + '-05' || dateFormat(row.waktu_upload, 'yyyy-MM') == new Date().toJSON().slice(0, 4) + '-06') {
+                                    if (type === 'display') {
+                                        var sm = 'SM1'
+                                        var rot = 'R2'
+                                        var formattedDate = dateFormat(row.waktu_upload, 'dd-MM-yyyy')
+                                        data = '<a href="rekom_aplikasi/' + row.estate + '/' + row.afdeling + '/' + rot + '/' + sm + '/' + formattedDate + '" target="_blank">DETAIL</i></a>';
+                                    }
+                                } else {
+                                    data = '-';
                                 }
 
                                 return data;
@@ -465,11 +489,15 @@
                         {
                             "data": "afdeling",
                             "render": function(data, type, row, meta) {
-                                if (type === 'display') {
-                                    var sm = 'SM2'
-                                    var rot = 'R3'
-                                    var formattedDate = dateFormat(row.waktu_upload, 'dd-MM-yyyy')
-                                    data = '<a href="rekom_aplikasi/' + row.estate + '/' + row.afdeling + '/' + rot + '/' + sm + '/' + formattedDate + '" target="_blank">DETAIL</i></a>';
+                                if (dateFormat(row.waktu_upload, 'yyyy-MM') == new Date().toJSON().slice(0, 4) + '-07' || dateFormat(row.waktu_upload, 'yyyy-MM') == new Date().toJSON().slice(0, 4) + '-08' || dateFormat(row.waktu_upload, 'yyyy-MM') == new Date().toJSON().slice(0, 4) + '-09') {
+                                    if (type === 'display') {
+                                        var sm = 'SM2'
+                                        var rot = 'R3'
+                                        var formattedDate = dateFormat(row.waktu_upload, 'dd-MM-yyyy')
+                                        data = '<a href="rekom_aplikasi/' + row.estate + '/' + row.afdeling + '/' + rot + '/' + sm + '/' + formattedDate + '" target="_blank">DETAIL</i></a>';
+                                    }
+                                } else {
+                                    data = '-';
                                 }
 
                                 return data;
@@ -478,11 +506,15 @@
                         {
                             "data": "afdeling",
                             "render": function(data, type, row, meta) {
-                                if (type === 'display') {
-                                    var sm = 'SM2'
-                                    var rot = 'R4'
-                                    var formattedDate = dateFormat(row.waktu_upload, 'dd-MM-yyyy')
-                                    data = '<a href="rekom_aplikasi/' + row.estate + '/' + row.afdeling + '/' + rot + '/' + sm + '/' + formattedDate + '" target="_blank">DETAIL</i></a>';
+                                if (dateFormat(row.waktu_upload, 'yyyy-MM') == new Date().toJSON().slice(0, 4) + '-10' || dateFormat(row.waktu_upload, 'yyyy-MM') == new Date().toJSON().slice(0, 4) + '-11' || dateFormat(row.waktu_upload, 'yyyy-MM') == new Date().toJSON().slice(0, 4) + '-12') {
+                                    if (type === 'display') {
+                                        var sm = 'SM2'
+                                        var rot = 'R4'
+                                        var formattedDate = dateFormat(row.waktu_upload, 'dd-MM-yyyy')
+                                        data = '<a href="rekom_aplikasi/' + row.estate + '/' + row.afdeling + '/' + rot + '/' + sm + '/' + formattedDate + '" target="_blank">DETAIL</i></a>';
+                                    }
+                                } else {
+                                    data = '-';
                                 }
 
                                 return data;

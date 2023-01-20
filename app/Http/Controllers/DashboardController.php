@@ -1840,39 +1840,39 @@ class DashboardController extends Controller
             $semester = 'Semester 1';
             $rot = 'r1';
             $rotasi = 'Rotasi 1';
-            $from = $getYear . '-01-01';
-            $to = $getYear . '-03-31';
+            $from = $getYear . '-01';
+            $to = $getYear . '-03';
         } else if ($rot == 'R2') {
             $pupuk_rekom = array('NPK 13/6/27/4/0.65', 'NPK 7/6/34', 'Urea', 'MOP');
             $sm = 'sm1';
             $semester = 'Semester 1';
             $rot = 'r2';
             $rotasi = 'Rotasi 2';
-            $from = $getYear . '-04-01';
-            $to = $getYear . '-06-31';
+            $from = $getYear . '-04';
+            $to = $getYear . '-06';
         } else if ($rot == 'R3') {
             $pupuk_rekom = array('NPK 13/6/27/4/0.65', 'NPK 7/6/34', 'Urea', 'MOP');
             $sm = 'sm2';
             $semester = 'Semester 2';
             $rot = 'r3';
             $rotasi = 'Rotasi 3';
-            $from = $getYear . '-07-01';
-            $to = $getYear . '-09-31';
+            $from = $getYear . '-07';
+            $to = $getYear . '-09';
         } else {
             $pupuk_rekom = array('NPK 13/6/27/4/0.65', 'NPK 7/6/34', 'Dol', 'HGFB', 'Zincop Chelated', 'Zincop Fe Chelated', 'Fe Chelated', 'Boron Cair');
             $sm = 'sm2';
             $semester = 'Semester 2';
             $rot = 'r4';
             $rotasi = 'Rotasi 4';
-            $from = $getYear . '-10-01';
-            $to = $getYear . '-12-31';
+            $from = $getYear . '-10';
+            $to = $getYear . '-12';
         }
 
         $queryData = DB::connection('mysql2')->table('monitoring_pemupukan')
             ->select('monitoring_pemupukan.*', 'pupuk.nama as nama_pupuk')
             ->join('pupuk', 'monitoring_pemupukan.jenis_pupuk_id', '=', 'pupuk.id')
-            // ->whereBetween('monitoring_pemupukan.waktu_upload', [$from, $to])
-            ->where('monitoring_pemupukan.waktu_upload', 'like', '%' . $getDate . '%')
+            ->whereBetween('monitoring_pemupukan.waktu_upload', [$from, $to])
+            // ->where('monitoring_pemupukan.waktu_upload', 'like', '%' . $getDate . '%')
             ->where('monitoring_pemupukan.estate', $estate_input)
             ->where('monitoring_pemupukan.afdeling', $afdeling_input)
             ->groupBy('monitoring_pemupukan.blok')
