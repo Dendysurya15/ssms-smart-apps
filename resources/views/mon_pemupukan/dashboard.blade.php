@@ -42,7 +42,7 @@
             <div class="row mb-3">
 
                 <div class="col-2">
-                    <input class="form-control" type="month" name="tgl" id="inputDate">
+                    <input class="form-control" type="month" name="tgl" value="{{ date('Y-m') }}" id="inputDate">
                 </div>
 
                 <div class="col-2">
@@ -53,7 +53,7 @@
                 </div>
 
                 <div class="col-2">
-                    <select id="afdelingList" class="form-control" style="width:180px">
+                    <select id="afdelingList" name="afdelingList" class="form-control" style="width:180px">
                         {{-- <option>Pilih Afdeling</option> --}}
                     </select>
                 </div>
@@ -61,86 +61,27 @@
             </div>
             <div class="card">
                 <div class="card-body">
-
-                    <table id="example" class="table table-bordered" cellspacing="0" width="100%">
+                    <table id="example" class="table table-bordered text-center" cellspacing="0" width="100%">
                         <thead class="text-center">
                             <tr>
-                                <th rowspan="3">Tanggal</th>
-                                <th rowspan="3">Estate</th>
-                                <th rowspan="3">Divisi</th>
-                                {{-- <th rowspan="3">Luas (Ha)</th> --}}
-                                {{-- <th rowspan="3">Jumlah Pokok</th> --}}
-                                <th rowspan="3">Jenis Pupuk</th>
-                                <th colspan="4">Rekomendasi</th>
-                                {{-- <th>Estate</th> --}}
-                                {{-- <th>Divisi</th> --}}
-                                {{-- <th>Luas (Ha)</th> --}}
-                                <th colspan="4">Aplikasi</th>
-                                {{-- <th>Jenis Pupuk</th> --}}
-                                {{-- <th>Rekomendasi</th> --}}
-                                {{-- <th>Aplikasi</th> --}}
-                                <th rowspan="3">Achievement</th>
-                                <th rowspan="3">Varian</th>
-                                <th rowspan="3">Annual Achievement (%)</th>
-                                <th rowspan="3">Kg/pokok</th>
-                                {{-- <th rowspan="3">Aksi</th> --}}
+                                <th rowspan="2">Last Monitoring</th>
+                                <th rowspan="2">Estate</th>
+                                <th rowspan="2">Afd</th>
+                                <th colspan="2">SM1</th>
+                                <th colspan="2">SM2</th>
+                                <th rowspan="2">Achievement</th>
+                                <th rowspan="2">Varian</th>
+                                <th rowspan="2">Annual Achievement (%)</th>
                             </tr>
                             <tr>
-                                {{-- <th>Jenis Pupuk</th> --}}
-                                <th colspan="2">SM1</th>
-                                {{-- <th>Estate</th> --}}
-                                <th colspan="2">SM2</th>
-                                {{-- <th>Luas (Ha)</th> --}}
-                                <th colspan="2">SM1</th>
-                                {{-- <th>Jenis Pupuk</th> --}}
-                                <th colspan="2">SM2</th>
-                                {{-- <th>Aplikasi</th> --}}
-                                {{-- <th>Achievement</th> --}}
-                                {{-- <th>Varian</th> --}}
-                                {{-- <th>Annual Achievement (%)</th> --}}
-                                {{-- <th>Kg/pokok</th> --}}
-                            </tr>
-                            <tr>
-
-                                {{-- <th>Jenis Pupuk</th> --}}
-
-                                <th>BI</th>
-                                <th>SBI</th>
-                                <th>BI</th>
-                                <th>SBI</th>
-                                <th>BI</th>
-                                <th>SBI</th>
-                                <th>BI</th>
-                                <th>SBI</th>
-
-                                {{-- <th>Achievement</th> --}}
-                                {{-- <th>Varian</th> --}}
-                                {{-- <th>Annual Achievement (%)</th> --}}
-                                {{-- <th>Kg/pokok</th> --}}
+                                <th>Rotasi 1</th>
+                                <th>Rotasi 2</th>
+                                <th>Rotasi 3</th>
+                                <th>Rotasi 4</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="valBody">
 
-
-
-                            {{-- <tr>
-                                <td>Tiger Nixon</td>
-                                <td>System Architect</td>
-                                <td>Edinburgh</td>
-                                <td>61</td>
-                                <td>2011-04-25</td>
-                                <td>$320,800</td>
-                                <td>2011-04-25</td>
-                                <td>$320,800</td>
-                                <td>2011-04-25</td>
-                                <td>$320,800</td>
-                                <td>2011-04-25</td>
-                                <td>$320,800</td>
-                                <td>2011-04-25</td>
-                                <td>$320,800</td>
-                                <td>2011-04-25</td>
-                                <td>$320,800</td>
-                            </tr> --}}
                         </tbody>
                     </table>
 
@@ -151,7 +92,6 @@
 
         </div>
     </section>
-
 </div>
 @include('layout.footer')
 
@@ -171,7 +111,6 @@
 <script src="{{ asset('/public/js/demo.js') }}"></script>
 
 <script src="{{ asset('/public/js/loader.js') }}"></script>
-
 
 <script>
     function dateFormat(inputDate, format) {
@@ -198,36 +137,7 @@
 
         return format;
     }
-    // $('#example').DataTable({
-    //         "scrollX": true,
-    // "searching": true,
-    // "pageLength": 10,
-    // processing: true,
-    // serverSide: true,
-    // ajax: "{{ route('data') }}",
-    // columns: [
-    // { data: 'tanggal', name: 'tanggal' },
-    // { data: 'estate', name: 'estate' },
-    // { data: 'afdeling', name: 'afdeling' },
-    // // { data: 'estate', name: 'estate' },
-    // // { data: 'jumlah_pokok', name: 'jumlah_pokok' },
-    // { data: 'jenis_pupuk', name: 'jenis_pupuk' },
-    // { data: 'biSm1Rekom', name: 'biSm1Rekom' },
-    // { data: 'sbiSm1Rekom', name: 'sbiSm1Rekom' },
-    // { data: 'biSm2Rekom', name: 'biSm2Rekom' },
-    // { data: 'sbiSm2Rekom', name: 'sbiSm2Rekom' },
-    // { data: 'biSm1Apl', name: 'biSm1Apl' },
-    // { data: 'sbiSm1Apl', name: 'sbiSm1Apl' },
-    // { data: 'biSm2Apl', name: 'biSm2Apl' },
-    // { data: 'sbiSm2Apl', name: 'sbiSm2Apl' },
-    // { data: 'achieve', name: 'achieve' },
-    // { data: 'varian', name: 'varian' },
-    // { data: 'annual', name: 'annual' },
-    // { data: 'kgpokok', name: 'kgpokok' },
-    // { data: 'action', name: 'action' },
-    // ],
 
-    // });
     date = ''
 
     const params = new URLSearchParams(window.location.search)
@@ -243,69 +153,228 @@
     }
 
     $(document).ready(function() {
-
-        $('#inputDate').change(function() {
-            date = $(this).val();
-            var _token = $('input[name="_token"]').val();
-
-            $.ajax({
-                url: "{{ route('getListEstateTerpupuk') }}",
-                method: "POST",
-                data: {
-                    date: date,
-                    _token: _token
-                },
-                success: function(result) {
-                    if (result != '') {
-                        document.getElementById("estateList").style.display = "block";
-                        document.getElementById("afdelingList").style.display = "block";
-                        $('#estateList').html(result)
-                        var select = document.getElementById('estateList');
-                        var firstIndexList = select.options[select.selectedIndex].value;
-
-                        getListAfd(firstIndexList, date)
-
-                        setTimeout(function() {
-                            var select2 = document.getElementById('afdelingList');
-                            var selectFirstIndex = $("#afdelingList").val($("#afdelingList option:first").val());
-                            var defaultAfd = $("#afdelingList :selected").text()
-
-                            getDataPemupukan(defaultAfd, firstIndexList, date)
-                        }, 2000);
-
-
-                    } else {
-                        document.getElementById("estateList").style.display = "none";
-                        document.getElementById("afdelingList").style.display = "none";
-                    }
-
-                }
-            })
+        $('#example').DataTable();
+        $('#rekomData').DataTable({
+            "bLengthChange": false,
+            "aaSorting": [],
+            scrollY: true,
+            scrollX: true,
+            scrollCollapse: true,
+            fixedColumns: true
+        });
+        $('#aplData').DataTable({
+            "bLengthChange": false,
+            "aaSorting": []
         });
 
-        $('#estateList').change(function() {
-
-            var value = $(this).val();
-            var _token = $('input[name="_token"]').val();
-
-            getListAfd(value, date)
-            setTimeout(function() {
-                var select2 = document.getElementById('afdelingList');
-                var selectFirstIndex = $("#afdelingList").val($("#afdelingList option:first").val());
-                var defaultAfd = $("#afdelingList :selected").text()
-
-                getDataPemupukan(defaultAfd, value, date)
-            }, 2000);
-        });
-
-        $('#afdelingList').change(function() {
-            afd = $(this).val();
-            id_est = document.getElementById("estateList").value
-
-            getDataPemupukan(afd, id_est, date)
-        });
+        document.getElementById("estateList").style.display = "none";
+        document.getElementById("afdelingList").style.display = "none";
     })
 
+    $('#inputDate').ready(function() {
+        date = $('#inputDate').val();
+        var _token = $('input[name="_token"]').val();
+
+        $.ajax({
+            url: "{{ route('getListEstateTerpupuk') }}",
+            method: "POST",
+            data: {
+                date: date,
+                _token: _token
+            },
+            success: function(result) {
+                if (result != '') {
+                    document.getElementById("estateList").style.display = "block";
+                    document.getElementById("afdelingList").style.display = "block";
+                    def = '<option disabled selected>Pilih Estate</option>';
+                    merge = def + result;
+                    $('#estateList').html(merge)
+                    var select = document.getElementById('estateList');
+
+                    getListAfd(0, date)
+
+                    setTimeout(function() {
+                        lastDataPemupukan(date)
+                    });
+                } else {
+                    document.getElementById("estateList").style.display = "none";
+                    document.getElementById("afdelingList").style.display = "none";
+                    setTimeout(function() {
+                        lastDataPemupukan(date)
+                    });
+                }
+
+            }
+        })
+    });
+
+    $('#inputDate').change(function() {
+        date = $(this).val();
+        var _token = $('input[name="_token"]').val();
+
+        $.ajax({
+            url: "{{ route('getListEstateTerpupuk') }}",
+            method: "POST",
+            data: {
+                date: date,
+                _token: _token
+            },
+            success: function(result) {
+                if (result != '') {
+                    document.getElementById("estateList").style.display = "block";
+                    document.getElementById("afdelingList").style.display = "block";
+                    def = '<option disabled selected>Pilih Estate</option>';
+                    merge = def + result;
+                    $('#estateList').html(merge)
+                    var select = document.getElementById('estateList');
+
+                    getListAfd(0, date)
+
+                    setTimeout(function() {
+                        lastDataPemupukan(date)
+                    });
+                } else {
+                    document.getElementById("estateList").style.display = "none";
+                    document.getElementById("afdelingList").style.display = "none";
+                    setTimeout(function() {
+                        lastDataPemupukan(date)
+                    });
+                }
+
+            }
+        })
+    });
+
+    $('#estateList').change(function() {
+
+        var value = $(this).val();
+        var _token = $('input[name="_token"]').val();
+
+        getListAfd(value, date)
+
+        setTimeout(function() {
+            var selectIndex = $("#afdelingList").val($("#afdelingList option:eq(1)").val());
+            var defaultAfd = $("#afdelingList option:eq(1)").text();
+
+            getDataPemupukan(defaultAfd, value, date)
+        }, 500);
+    });
+
+    $('#afdelingList').change(function() {
+        afd = $(this).val();
+        id_est = document.getElementById("estateList").value
+        $("#valBody").empty();
+
+        getDataPemupukan(afd, id_est, date)
+    });
+
+    function lastDataPemupukan(date) {
+
+        var _token = $('input[name="_token"]').val();
+
+        $.ajax({
+            url: "{{ route('lastDataPemupukan') }}",
+            method: "POST",
+            data: {
+                _token: _token,
+                date: date
+            },
+            success: function(result) {
+                var result = JSON.parse(result);
+
+                $('#example').DataTable({
+                    "scrollX": true,
+                    "aaData": result,
+                    "order": [
+                        [0, 'desc']
+                    ],
+                    "columns": [{
+                            "data": "tanggal"
+                        },
+                        {
+                            "data": "estate"
+                        },
+                        {
+                            "data": "afdeling",
+                            "render": function(data, type, row, meta) {
+                                if (type === 'display') {
+                                    var formattedDate = dateFormat(row.waktu_upload, 'dd-MM-yyyy')
+                                    data = '<a href="detail_pemupukan/' + row.estate + '/' + row.afdeling + '/' + formattedDate + '">' + data + '</a>';
+                                }
+
+                                return data;
+                            }
+                        },
+                        {
+                            "data": "afdeling",
+                            "render": function(data, type, row, meta) {
+                                if (type === 'display') {
+                                    var sm = 'SM1'
+                                    var rot = 'R1'
+                                    var formattedDate = dateFormat(row.waktu_upload, 'dd-MM-yyyy')
+                                    data = '<a href="rekom_aplikasi/' + row.estate + '/' + row.afdeling + '/' + rot + '/' + sm + '/' + formattedDate + '" target="_blank">DETAIL</i></a>';
+                                }
+
+                                return data;
+                            }
+                        },
+                        {
+                            "data": "afdeling",
+                            "render": function(data, type, row, meta) {
+                                if (type === 'display') {
+                                    var sm = 'SM1'
+                                    var rot = 'R2'
+                                    var formattedDate = dateFormat(row.waktu_upload, 'dd-MM-yyyy')
+                                    data = '<a href="rekom_aplikasi/' + row.estate + '/' + row.afdeling + '/' + rot + '/' + sm + '/' + formattedDate + '" target="_blank">DETAIL</i></a>';
+                                }
+
+                                return data;
+                            }
+                        },
+                        {
+                            "data": "afdeling",
+                            "render": function(data, type, row, meta) {
+                                if (type === 'display') {
+                                    var sm = 'SM2'
+                                    var rot = 'R3'
+                                    var formattedDate = dateFormat(row.waktu_upload, 'dd-MM-yyyy')
+                                    data = '<a href="rekom_aplikasi/' + row.estate + '/' + row.afdeling + '/' + rot + '/' + sm + '/' + formattedDate + '" target="_blank">DETAIL</i></a>';
+                                }
+
+                                return data;
+                            }
+                        },
+                        {
+                            "data": "afdeling",
+                            "render": function(data, type, row, meta) {
+                                if (type === 'display') {
+                                    var sm = 'SM2'
+                                    var rot = 'R4'
+                                    var formattedDate = dateFormat(row.waktu_upload, 'dd-MM-yyyy')
+                                    data = '<a href="rekom_aplikasi/' + row.estate + '/' + row.afdeling + '/' + rot + '/' + sm + '/' + formattedDate + '" target="_blank">DETAIL</i></a>';
+                                }
+
+                                return data;
+                            }
+                        },
+                        {
+                            "data": null,
+                            "defaultContent": "-"
+                        },
+                        {
+                            "data": null,
+                            "defaultContent": "-"
+                        },
+                        {
+                            "data": null,
+                            "defaultContent": "-"
+                        }
+                    ],
+                    "bDestroy": true
+                })
+            }
+        })
+    }
 
     function getListAfd(id_est, date) {
 
@@ -322,9 +391,6 @@
             },
             success: function(result) {
                 $('#afdelingList').html(result)
-                // var defaultAfd = document.getElementById("afdelingList").selectedIndex = "OA";;
-
-                // getDataPemupukan(defaultAfd,value,date)
             }
         })
     }
@@ -346,9 +412,13 @@
             success: function(result) {
 
                 var result = JSON.parse(result);
+
                 $('#example').DataTable({
                     "scrollX": true,
                     "aaData": result,
+                    "order": [
+                        [0, 'desc']
+                    ],
                     "columns": [{
                             "data": "tanggal"
                         },
@@ -367,7 +437,56 @@
                             }
                         },
                         {
-                            "data": "nama_pupuk"
+                            "data": "afdeling",
+                            "render": function(data, type, row, meta) {
+                                if (type === 'display') {
+                                    var sm = 'SM1'
+                                    var rot = 'R1'
+                                    var formattedDate = dateFormat(row.waktu_upload, 'dd-MM-yyyy')
+                                    data = '<a href="rekom_aplikasi/' + row.estate + '/' + row.afdeling + '/' + rot + '/' + sm + '/' + formattedDate + '" target="_blank">DETAIL</i></a>';
+                                }
+
+                                return data;
+                            }
+                        },
+                        {
+                            "data": "afdeling",
+                            "render": function(data, type, row, meta) {
+                                if (type === 'display') {
+                                    var sm = 'SM1'
+                                    var rot = 'R2'
+                                    var formattedDate = dateFormat(row.waktu_upload, 'dd-MM-yyyy')
+                                    data = '<a href="rekom_aplikasi/' + row.estate + '/' + row.afdeling + '/' + rot + '/' + sm + '/' + formattedDate + '" target="_blank">DETAIL</i></a>';
+                                }
+
+                                return data;
+                            }
+                        },
+                        {
+                            "data": "afdeling",
+                            "render": function(data, type, row, meta) {
+                                if (type === 'display') {
+                                    var sm = 'SM2'
+                                    var rot = 'R3'
+                                    var formattedDate = dateFormat(row.waktu_upload, 'dd-MM-yyyy')
+                                    data = '<a href="rekom_aplikasi/' + row.estate + '/' + row.afdeling + '/' + rot + '/' + sm + '/' + formattedDate + '" target="_blank">DETAIL</i></a>';
+                                }
+
+                                return data;
+                            }
+                        },
+                        {
+                            "data": "afdeling",
+                            "render": function(data, type, row, meta) {
+                                if (type === 'display') {
+                                    var sm = 'SM2'
+                                    var rot = 'R4'
+                                    var formattedDate = dateFormat(row.waktu_upload, 'dd-MM-yyyy')
+                                    data = '<a href="rekom_aplikasi/' + row.estate + '/' + row.afdeling + '/' + rot + '/' + sm + '/' + formattedDate + '" target="_blank">DETAIL</i></a>';
+                                }
+
+                                return data;
+                            }
                         },
                         {
                             "data": null,
@@ -380,133 +499,11 @@
                         {
                             "data": null,
                             "defaultContent": "-"
-                        },
-                        {
-                            "data": null,
-                            "defaultContent": "-"
-                        },
-                        {
-                            "data": null,
-                            "defaultContent": "-"
-                        },
-                        {
-                            "data": null,
-                            "defaultContent": "-"
-                        },
-                        {
-                            "data": null,
-                            "defaultContent": "-"
-                        },
-                        {
-                            "data": null,
-                            "defaultContent": "-"
-                        },
-                        {
-                            "data": null,
-                            "defaultContent": "-"
-                        },
-                        {
-                            "data": null,
-                            "defaultContent": "-"
-                        },
-                        {
-                            "data": null,
-                            "defaultContent": "-"
-                        },
-                        {
-                            "data": null,
-                            "defaultContent": "-"
-                        },
+                        }
                     ],
                     "bDestroy": true
                 })
-                // var wrapper = document.getElementById('example')
-                // wrapper.innerHTML = "";
-                // var result = JSON.parse(result);
-
-                // // console.log(result)
-                // for (let i = 0; i < result.length; i++) {
-                //     let item = result[i]['waktu_upload']
-                //     let item2 = result[i]['estate']
-                //     let item3 = result[i]['estate']
-                //     let item4 = result[i]['afdeling']
-                //     let item5 = 'asdfa'
-                //     let item6 = '-ads'
-                //     let item7 = '-ddd'
-                //     let item8 = '-dfdff'
-                //     let item9 = '-dd'
-                //     let item10 ='-dd'
-                //     let item11 = '-a'
-                //     let item12 = 'aad-'
-                //     let item13 = '-ddf'
-                //     let item14 = '-a'
-                //     let item15 = '-df'
-                //     let item16 = '-d'
-
-                //     var tr = document.createElement('tr');
-                //     let item_element = document.createElement('td')
-                //     let item_element2 = document.createElement('td')
-                //     let item_element3 = document.createElement('td')
-                //     let item_element4 = document.createElement('td')
-                //     let item_element5 = document.createElement('td')
-                //     let item_element6 = document.createElement('td')
-                //     let item_element7 = document.createElement('td')
-                //     let item_element8 = document.createElement('td')
-                //     let item_element9 = document.createElement('td')
-                //     let item_element10 = document.createElement('td')
-                //     let item_element11 = document.createElement('td')
-                //     let item_element12 = document.createElement('td')
-                //     let item_element13 = document.createElement('td')
-                //     let item_element14 = document.createElement('td')
-                //     let item_element15 = document.createElement('td')
-                //     let item_element16 = document.createElement('td')
-
-                //     item_element.innerText = item
-                //     item_element2.innerText = item2
-                //     item_element3.innerText = item3
-                //     item_element4.innerText = item4
-                //     item_element5.innerText = item5
-                //     item_element6.innerText = item6
-                //     item_element7.innerText = item7
-                //     item_element7.innerText = item7
-                //     item_element8.innerText = item8
-                //     item_element9.innerText = item9
-                //     item_element10.innerText = item10
-                //     item_element11.innerText = item11
-                //     item_element12.innerText = item12
-                //     item_element13.innerText = item13
-                //     item_element14.innerText = item14
-                //     item_element15.innerText = item15
-                //     item_element16.innerText = item16
-
-                //     tr.appendChild(item_element);
-                //     tr.appendChild(item_element2);
-                //     tr.appendChild(item_element3);
-                //     tr.appendChild(item_element4);
-                //     tr.appendChild(item_element5);
-                //     tr.appendChild(item_element6);
-                //     tr.appendChild(item_element7);
-                //     tr.appendChild(item_element8);
-                //     tr.appendChild(item_element9);
-                //     tr.appendChild(item_element10);
-                //     tr.appendChild(item_element11);
-                //     tr.appendChild(item_element12);
-                //     tr.appendChild(item_element13);
-                //     tr.appendChild(item_element14);
-                //     tr.appendChild(item_element15);
-                //     tr.appendChild(item_element16);
-                //     wrapper.appendChild(tr)
-                // }
-                // console.log(result)
-                // console.log(wrapper)
-                // $('#example').html(result)
-
-                //    $('#example').DataTable({
-                //     "scrollX": true,
-                //    })
-
             }
         })
-
     }
 </script>

@@ -48,8 +48,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('getLoadRegional', [DashboardController::class, 'getDataRegional'])->name('getLoadRegional');
     Route::get('dashboard_pemupukan', [DashboardController::class, 'ds_pemupukan'])->name('dash_pemupukan');
     Route::get('detail_pemupukan/{est}/{afd}/{tanggal}', [DashboardController::class, 'detail_pemupukan'])->name('detail_pemupukan');
+    Route::get('rekom_aplikasi/{est}/{afd}/{rot}/{sm}/{tanggal}', [DashboardController::class, 'rekom_aplikasi'])->name('rekom_aplikasi');
     Route::post('getListEstateTerpupuk', [DashboardController::class, 'getListEstateTerpupuk'])->name('getListEstateTerpupuk');
     Route::post('getDataPemupukan', [DashboardController::class, 'getDataPemupukan'])->name('getDataPemupukan');
+    Route::post('lastDataPemupukan', [DashboardController::class, 'lastDataPemupukan'])->name('lastDataPemupukan');
     Route::get('/data', [DashboardController::class, 'ds_pemupukan'])->name('data');
     Route::resource('pupuk', PupukController::class);
 });
