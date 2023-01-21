@@ -60,14 +60,20 @@
                         <thead>
                             <tr>
                                 <th rowspan="2">Blok</th>
-                                @foreach ($arrHeader as $key => $value)
-                                <th colspan="2" class="text-center">{{ $value }}</th>
+                                @foreach ($arrResult as $key => $value)
+                                @foreach ($value as $key1 => $value1)
+                                <th colspan="2" class="text-center">{{ $value1['nama'] }}</th>
+                                @endforeach
+                                @break
                                 @endforeach
                             </tr>
                             <tr>
-                                @foreach ($arrHeader as $key => $value)
+                                @foreach ($arrResult as $key => $value)
+                                @foreach ($value as $key1 => $value1)
                                 <th>Rekomendasi</th>
                                 <th>Aplikasi</th>
+                                @endforeach
+                                @break
                                 @endforeach
                             </tr>
                         </thead>

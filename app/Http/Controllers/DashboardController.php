@@ -701,10 +701,12 @@ class DashboardController extends Controller
 
         $blokPerEstate = array();
         $estateQuery = Estate::with("afdeling")->where('est', $estate_input)->get();
+        $listIdAfd = array();
         foreach ($estateQuery as $key => $value) {
             $i = 0;
             foreach ($value->afdeling as $key2 => $data) {
                 $blokPerEstate[$estate_input][$data->nama] =  Afdeling::with("blok")->find($data->id)->blok->pluck('nama', 'id');
+                $listIdAfd[] = $data->id;
                 $i++;
             }
         }
@@ -754,6 +756,7 @@ class DashboardController extends Controller
                 $query = DB::connection('mysql2')->table('blok')
                     ->select('blok.*')
                     ->where('blok.nama', $newData)
+                    ->whereIn('blok.afdeling', $listIdAfd)
                     ->get();
 
                 $latln = '';
@@ -1840,39 +1843,39 @@ class DashboardController extends Controller
             $semester = 'Semester 1';
             $rot = 'r1';
             $rotasi = 'Rotasi 1';
-            $from = $getYear . '-01';
-            $to = $getYear . '-03';
+            $from = $getYear . '-01-01';
+            $to = $getYear . '-03-31';
         } else if ($rot == 'R2') {
             $pupuk_rekom = array('NPK 13/6/27/4/0.65', 'NPK 7/6/34', 'Urea', 'MOP');
             $sm = 'sm1';
             $semester = 'Semester 1';
             $rot = 'r2';
             $rotasi = 'Rotasi 2';
-            $from = $getYear . '-04';
-            $to = $getYear . '-06';
+            $from = $getYear . '-04-01';
+            $to = $getYear . '-06-31';
         } else if ($rot == 'R3') {
             $pupuk_rekom = array('NPK 13/6/27/4/0.65', 'NPK 7/6/34', 'Urea', 'MOP');
             $sm = 'sm2';
             $semester = 'Semester 2';
             $rot = 'r3';
             $rotasi = 'Rotasi 3';
-            $from = $getYear . '-07';
-            $to = $getYear . '-09';
+            $from = $getYear . '-07-01';
+            $to = $getYear . '-09-31';
         } else {
             $pupuk_rekom = array('NPK 13/6/27/4/0.65', 'NPK 7/6/34', 'Dol', 'HGFB', 'Zincop Chelated', 'Zincop Fe Chelated', 'Fe Chelated', 'Boron Cair');
             $sm = 'sm2';
             $semester = 'Semester 2';
             $rot = 'r4';
             $rotasi = 'Rotasi 4';
-            $from = $getYear . '-10';
-            $to = $getYear . '-12';
+            $from = $getYear . '-10-01';
+            $to = $getYear . '-12-31';
         }
 
         $queryData = DB::connection('mysql2')->table('monitoring_pemupukan')
             ->select('monitoring_pemupukan.*', 'pupuk.nama as nama_pupuk')
             ->join('pupuk', 'monitoring_pemupukan.jenis_pupuk_id', '=', 'pupuk.id')
-            ->whereBetween('monitoring_pemupukan.waktu_upload', [$from, $to])
-            // ->where('monitoring_pemupukan.waktu_upload', 'like', '%' . $getDate . '%')
+            // ->whereBetween('monitoring_pemupukan.waktu_upload', [$from, $to])
+            ->where('monitoring_pemupukan.waktu_upload', 'like', '%' . $getDate . '%')
             ->where('monitoring_pemupukan.estate', $estate_input)
             ->where('monitoring_pemupukan.afdeling', $afdeling_input)
             ->groupBy('monitoring_pemupukan.blok')
@@ -1894,117 +1897,126 @@ class DashboardController extends Controller
                     ->where('blok', $blok)
                     ->get();
 
-                foreach ($queryRekom as $key1 => $value1) {
-                    foreach ($value1 as $key2 => $value2) {
-                        $arrResult[$blok][$key3]['nama'] = $value3;
-                        if ($rot == 'r1') {
-                            if ($arrResult[$blok][$key3]['nama'] == 'NPK 13/6/27/4/0.65') {
-                                $rotResult = $sm . '_' . $rot . '_npk1';
-                            } else if ($arrResult[$blok][$key3]['nama'] == 'NPK 7/6/34') {
-                                $rotResult = $sm . '_' . $rot . '_npk2';
-                            } else if ($arrResult[$blok][$key3]['nama'] == 'Urea') {
-                                $rotResult = $sm . '_' . $rot . '_urea';
-                            } else if ($arrResult[$blok][$key3]['nama'] == 'RP') {
-                                $rotResult = $sm . '_' . $rot . '_rp';
-                            } else if ($arrResult[$blok][$key3]['nama'] == 'MOP') {
-                                $rotResult = $sm . '_' . $rot . '_mop';
-                            } else if ($arrResult[$blok][$key3]['nama'] == 'Kies') {
-                                $rotResult = $sm . '_' . $rot . '_kies';
-                            } else if ($arrResult[$blok][$key3]['nama'] == 'Dol') {
-                                $rotResult = $sm . '_' . $rot . '_dol';
-                            } else if ($arrResult[$blok][$key3]['nama'] == 'HGFB') {
-                                $rotResult = $sm . '_' . $rot . '_hgfb';
-                            } else if ($arrResult[$blok][$key3]['nama'] == 'Zincop Chelated') {
-                                $rotResult = $sm . '_' . $rot . '_zincop_chelated';
-                            } else if ($arrResult[$blok][$key3]['nama'] == 'Zincop Fe Chelated') {
-                                $rotResult = $sm . '_' . $rot . '_zincop_fe_chelated';
-                            } else if ($arrResult[$blok][$key3]['nama'] == 'Fe Chelated') {
-                                $rotResult = $sm . '_' . $rot . '_fe_chelated';
-                            } else if ($arrResult[$blok][$key3]['nama'] == 'Boron Cair') {
-                                $rotResult = $sm . '_' . $rot . '_boron_cair';
+                if (empty($queryRekom->toArray())) {
+                    $arrResult[$blok][$key4]['nama'] = $value4->nama_pupuk;
+                    $arrResult[$blok][$key4]['rekom'] = '-';
+                    $arrResult[$blok][$key4]['apl'] = $value4->dosis_pupuk;
+                    if (empty($arrResult[$blok][$key4]['apl'])) {
+                        $arrResult[$blok][$key4]['apl'] = '-';
+                    }
+                } else {
+                    foreach ($queryRekom as $key1 => $value1) {
+                        foreach ($value1 as $key2 => $value2) {
+                            $arrResult[$blok][$key3]['nama'] = $value3;
+                            if ($rot == 'r1') {
+                                if ($arrResult[$blok][$key3]['nama'] == 'NPK 13/6/27/4/0.65') {
+                                    $rotResult = $sm . '_' . $rot . '_npk1';
+                                } else if ($arrResult[$blok][$key3]['nama'] == 'NPK 7/6/34') {
+                                    $rotResult = $sm . '_' . $rot . '_npk2';
+                                } else if ($arrResult[$blok][$key3]['nama'] == 'Urea') {
+                                    $rotResult = $sm . '_' . $rot . '_urea';
+                                } else if ($arrResult[$blok][$key3]['nama'] == 'RP') {
+                                    $rotResult = $sm . '_' . $rot . '_rp';
+                                } else if ($arrResult[$blok][$key3]['nama'] == 'MOP') {
+                                    $rotResult = $sm . '_' . $rot . '_mop';
+                                } else if ($arrResult[$blok][$key3]['nama'] == 'Kies') {
+                                    $rotResult = $sm . '_' . $rot . '_kies';
+                                } else if ($arrResult[$blok][$key3]['nama'] == 'Dol') {
+                                    $rotResult = $sm . '_' . $rot . '_dol';
+                                } else if ($arrResult[$blok][$key3]['nama'] == 'HGFB') {
+                                    $rotResult = $sm . '_' . $rot . '_hgfb';
+                                } else if ($arrResult[$blok][$key3]['nama'] == 'Zincop Chelated') {
+                                    $rotResult = $sm . '_' . $rot . '_zincop_chelated';
+                                } else if ($arrResult[$blok][$key3]['nama'] == 'Zincop Fe Chelated') {
+                                    $rotResult = $sm . '_' . $rot . '_zincop_fe_chelated';
+                                } else if ($arrResult[$blok][$key3]['nama'] == 'Fe Chelated') {
+                                    $rotResult = $sm . '_' . $rot . '_fe_chelated';
+                                } else if ($arrResult[$blok][$key3]['nama'] == 'Boron Cair') {
+                                    $rotResult = $sm . '_' . $rot . '_boron_cair';
+                                }
+                            } else if ($rot == 'r2') {
+                                if ($arrResult[$blok][$key3]['nama'] == 'NPK 13/6/27/4/0.65') {
+                                    $rotResult = $sm . '_' . $rot . '_npk1';
+                                } else if ($arrResult[$blok][$key3]['nama'] == 'NPK 7/6/34') {
+                                    $rotResult = $sm . '_' . $rot . '_npk2';
+                                } else if ($arrResult[$blok][$key3]['nama'] == 'Urea') {
+                                    $rotResult = $sm . '_' . $rot . '_urea';
+                                } else if ($arrResult[$blok][$key3]['nama'] == 'MOP') {
+                                    $rotResult = $sm . '_' . $rot . '_mop';
+                                }
+                            } else if ($rot == 'r3') {
+                                if ($arrResult[$blok][$key3]['nama'] == 'NPK 13/6/27/4/0.65') {
+                                    $rotResult = $sm . '_' . $rot . '_npk1';
+                                } else if ($arrResult[$blok][$key3]['nama'] == 'NPK 7/6/34') {
+                                    $rotResult = $sm . '_' . $rot . '_npk2';
+                                } else if ($arrResult[$blok][$key3]['nama'] == 'Urea') {
+                                    $rotResult = $sm . '_' . $rot . '_urea';
+                                } else if ($arrResult[$blok][$key3]['nama'] == 'MOP') {
+                                    $rotResult = $sm . '_' . $rot . '_mop';
+                                }
+                            } else {
+                                if ($arrResult[$blok][$key3]['nama'] == 'NPK 13/6/27/4/0.65') {
+                                    $rotResult = $sm . '_' . $rot . '_npk1';
+                                } else if ($arrResult[$blok][$key3]['nama'] == 'NPK 7/6/34') {
+                                    $rotResult = $sm . '_' . $rot . '_npk2';
+                                } else if ($arrResult[$blok][$key3]['nama'] == 'Dol') {
+                                    $rotResult = $sm . '_' . $rot . '_dol';
+                                } else if ($arrResult[$blok][$key3]['nama'] == 'HGFB') {
+                                    $rotResult = $sm . '_' . $rot . '_hgfb';
+                                } else if ($arrResult[$blok][$key3]['nama'] == 'Zincop Chelated') {
+                                    $rotResult = $sm . '_' . $rot . '_zincop_chelated';
+                                } else if ($arrResult[$blok][$key3]['nama'] == 'Zincop Fe Chelated') {
+                                    $rotResult = $sm . '_' . $rot . '_zincop_fe_chelated';
+                                } else if ($arrResult[$blok][$key3]['nama'] == 'Fe Chelated') {
+                                    $rotResult = $sm . '_' . $rot . '_fe_chelated';
+                                } else if ($arrResult[$blok][$key3]['nama'] == 'Boron Cair') {
+                                    $rotResult = $sm . '_' . $rot . '_boron_cair';
+                                }
                             }
-                        } else if ($rot == 'r2') {
-                            if ($arrResult[$blok][$key3]['nama'] == 'NPK 13/6/27/4/0.65') {
-                                $rotResult = $sm . '_' . $rot . '_npk1';
-                            } else if ($arrResult[$blok][$key3]['nama'] == 'NPK 7/6/34') {
-                                $rotResult = $sm . '_' . $rot . '_npk2';
-                            } else if ($arrResult[$blok][$key3]['nama'] == 'Urea') {
-                                $rotResult = $sm . '_' . $rot . '_urea';
-                            } else if ($arrResult[$blok][$key3]['nama'] == 'MOP') {
-                                $rotResult = $sm . '_' . $rot . '_mop';
+                            $arrResult[$blok][$key3]['rekom'] = $value1->$rotResult;
+                            if (empty($arrResult[$blok][$key3]['rekom'])) {
+                                $arrResult[$blok][$key3]['rekom'] = '-';
                             }
-                        } else if ($rot == 'r3') {
-                            if ($arrResult[$blok][$key3]['nama'] == 'NPK 13/6/27/4/0.65') {
-                                $rotResult = $sm . '_' . $rot . '_npk1';
-                            } else if ($arrResult[$blok][$key3]['nama'] == 'NPK 7/6/34') {
-                                $rotResult = $sm . '_' . $rot . '_npk2';
-                            } else if ($arrResult[$blok][$key3]['nama'] == 'Urea') {
-                                $rotResult = $sm . '_' . $rot . '_urea';
-                            } else if ($arrResult[$blok][$key3]['nama'] == 'MOP') {
-                                $rotResult = $sm . '_' . $rot . '_mop';
-                            }
-                        } else {
-                            if ($arrResult[$blok][$key3]['nama'] == 'NPK 13/6/27/4/0.65') {
-                                $rotResult = $sm . '_' . $rot . '_npk1';
-                            } else if ($arrResult[$blok][$key3]['nama'] == 'NPK 7/6/34') {
-                                $rotResult = $sm . '_' . $rot . '_npk2';
-                            } else if ($arrResult[$blok][$key3]['nama'] == 'Dol') {
-                                $rotResult = $sm . '_' . $rot . '_dol';
-                            } else if ($arrResult[$blok][$key3]['nama'] == 'HGFB') {
-                                $rotResult = $sm . '_' . $rot . '_hgfb';
-                            } else if ($arrResult[$blok][$key3]['nama'] == 'Zincop Chelated') {
-                                $rotResult = $sm . '_' . $rot . '_zincop_chelated';
-                            } else if ($arrResult[$blok][$key3]['nama'] == 'Zincop Fe Chelated') {
-                                $rotResult = $sm . '_' . $rot . '_zincop_fe_chelated';
-                            } else if ($arrResult[$blok][$key3]['nama'] == 'Fe Chelated') {
-                                $rotResult = $sm . '_' . $rot . '_fe_chelated';
-                            } else if ($arrResult[$blok][$key3]['nama'] == 'Boron Cair') {
-                                $rotResult = $sm . '_' . $rot . '_boron_cair';
-                            }
-                        }
-                        $arrResult[$blok][$key3]['rekom'] = $value1->$rotResult;
-                        if (empty($arrResult[$blok][$key3]['rekom'])) {
-                            $arrResult[$blok][$key3]['rekom'] = '-';
-                        }
 
-                        if ($key3 == 0 && $value4->jenis_pupuk_id == 25) {
-                            $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
-                        } else if ($key3 == 1 && $value4->jenis_pupuk_id == 53) {
-                            $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
-                        } else if ($key3 == 2 && $value4->jenis_pupuk_id == 28) {
-                            $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
-                        } else if ($key3 == 3 && $value4->jenis_pupuk_id == 12) {
-                            $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
-                        } else if ($key3 == 3 && $value4->jenis_pupuk_id == 13) {
-                            $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
-                        } else if ($key3 == 3 && $value4->jenis_pupuk_id == 14) {
-                            $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
-                        } else if ($key3 == 4 && $value4->jenis_pupuk_id == 15) {
-                            $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
-                        } else if ($key3 == 5 && $value4->jenis_pupuk_id == 16) {
-                            $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
-                        } else if ($key3 == 5 && $value4->jenis_pupuk_id == 17) {
-                            $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
-                        } else if ($key3 == 6 && $value4->jenis_pupuk_id == 18) {
-                            $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
-                        } else if ($key3 == 7 && $value4->jenis_pupuk_id == 20) {
-                            $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
-                        } else if ($key3 == 7 && $value4->jenis_pupuk_id == 21) {
-                            $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
-                        } else if ($key3 == 7 && $value4->jenis_pupuk_id == 49) {
-                            $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
-                        } else if ($key3 == 8 && $value4->jenis_pupuk_id == 23) {
-                            $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
-                        } else if ($key3 == 9 && $value4->jenis_pupuk_id == 22) {
-                            $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
-                        } else if ($key3 == 10 && $value4->jenis_pupuk_id == 51) {
-                            $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
-                        } else if ($key3 == 11 && $value4->jenis_pupuk_id == 34) {
-                            $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
-                        }
+                            if ($key3 == 0 && $value4->jenis_pupuk_id == 25) {
+                                $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
+                            } else if ($key3 == 1 && $value4->jenis_pupuk_id == 53) {
+                                $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
+                            } else if ($key3 == 2 && $value4->jenis_pupuk_id == 28) {
+                                $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
+                            } else if ($key3 == 3 && $value4->jenis_pupuk_id == 12) {
+                                $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
+                            } else if ($key3 == 3 && $value4->jenis_pupuk_id == 13) {
+                                $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
+                            } else if ($key3 == 3 && $value4->jenis_pupuk_id == 14) {
+                                $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
+                            } else if ($key3 == 4 && $value4->jenis_pupuk_id == 15) {
+                                $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
+                            } else if ($key3 == 5 && $value4->jenis_pupuk_id == 16) {
+                                $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
+                            } else if ($key3 == 5 && $value4->jenis_pupuk_id == 17) {
+                                $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
+                            } else if ($key3 == 6 && $value4->jenis_pupuk_id == 18) {
+                                $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
+                            } else if ($key3 == 7 && $value4->jenis_pupuk_id == 20) {
+                                $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
+                            } else if ($key3 == 7 && $value4->jenis_pupuk_id == 21) {
+                                $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
+                            } else if ($key3 == 7 && $value4->jenis_pupuk_id == 49) {
+                                $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
+                            } else if ($key3 == 8 && $value4->jenis_pupuk_id == 23) {
+                                $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
+                            } else if ($key3 == 9 && $value4->jenis_pupuk_id == 22) {
+                                $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
+                            } else if ($key3 == 10 && $value4->jenis_pupuk_id == 51) {
+                                $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
+                            } else if ($key3 == 11 && $value4->jenis_pupuk_id == 34) {
+                                $arrResult[$blok][$key3]['apl'] = $value4->dosis_pupuk;
+                            }
 
-                        if (empty($arrResult[$blok][$key3]['apl'])) {
-                            $arrResult[$blok][$key3]['apl'] = '-';
+                            if (empty($arrResult[$blok][$key3]['apl'])) {
+                                $arrResult[$blok][$key3]['apl'] = '-';
+                            }
                         }
                     }
                 }
@@ -2012,6 +2024,6 @@ class DashboardController extends Controller
         }
 
         // dd($arrResult);
-        return view('mon_pemupukan.rekom_aplikasi', ['arrHeader' => $pupuk_rekom, 'arrResult' => $arrResult, 'est' => $estate_input, 'afd' => $afdeling_input, 'tgl' => $tanggal, 'rot' => $rotasi, 'sm' => $semester]);
+        return view('mon_pemupukan.rekom_aplikasi', ['arrResult' => $arrResult, 'est' => $estate_input, 'afd' => $afdeling_input, 'tgl' => $tanggal, 'rot' => $rotasi, 'sm' => $semester]);
     }
 }
