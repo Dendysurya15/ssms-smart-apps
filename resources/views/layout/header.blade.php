@@ -157,6 +157,23 @@ session_start();
                                 </p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{{ asset('/maps') }}" class="nav-link">
+                                <i class="nav-icon fa-solid fa-map-location-dot"></i>
+                                <p>
+                                    Data Pokok Kuning
+                                </p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="{{ asset('/mapsTest') }}" class="nav-link">
+                                <i class="nav-icon fa-solid fa-map-location-dot"></i>
+                                <p>
+                                    Testing map Estate
+                                </p>
+                            </a>
+                        </li>
                         {{-- <li class="nav-item">
                             <a href="{{ asset('/field-inspection') }}" class="nav-link">
                         <i class="nav-icon fa fa-book"></i>

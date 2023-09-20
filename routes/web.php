@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PupukController;
+use App\Http\Controllers\MapsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -53,7 +54,17 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('getDataPemupukan', [DashboardController::class, 'getDataPemupukan'])->name('getDataPemupukan');
     Route::post('lastDataPemupukan', [DashboardController::class, 'lastDataPemupukan'])->name('lastDataPemupukan');
     Route::get('/data', [DashboardController::class, 'ds_pemupukan'])->name('data');
+
     Route::resource('pupuk', PupukController::class);
+
+    Route::get('/maps', [MapsController::class, 'dashboard'])->name('dashboard');
+
+    Route::get('/plotBlok', [MapsController::class, 'getPlotBlok'])->name('getPlotBlok');
+
+    Route::get('/getPdfqc/{est}/{date}', [DashboardController::class, 'getPdfqc'])->name('getPdfqc');
+
+    Route::get('/mapsTest', [MapsController::class, 'mapsTest'])->name('mapsTest');
+    Route::get('/mapsestatePlot', [MapsController::class, 'mapsestatePlot'])->name('mapsestatePlot');
 });
 
 Route::get('/dashboard_vehicle_management', function () {
