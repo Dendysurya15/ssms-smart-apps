@@ -1530,7 +1530,7 @@ class DashboardController extends Controller
         $customPaper = array(360, 360, 360, 360);
         $pdf->set_paper('A3', 'potrait');
 
-        $filename = 'QC-gudang.pdf';
+        $filename = 'QC-taksasi.pdf';
         return $pdf->stream($filename);
     }
 
@@ -2039,8 +2039,44 @@ class DashboardController extends Controller
             ->whereDate('taksasi.waktu_upload', $tgl)
             ->where('lokasi_kerja', $estate_input)
             ->orderBy('taksasi.afdeling', 'asc')
-            // ->groupBy('taksasi.afdeling')
             ->get();
+
+        $newData = $queryData->groupBy(['afdeling']);
+        $newData = json_decode($newData, true);
+
+
+        $Taksasi = array();
+        foreach ($newData as $key => $value) {
+            $Taksasi[$key] = array(); // Initialize the index in $Taksasi
+
+            foreach ($value as $key1 => $value1) {
+                $brkiri = explode(';', $value1['br_kiri']);
+                $brkanan = explode(';', $value1['br_kanan']);
+                $ffbkiri = explode(';', $value1['ffb_kiri']);
+                $ffb_kanan = explode(';', $value1['ffb_kanan']);
+
+                $maxCount = max(count($brkiri), count($brkanan));
+
+
+                for ($i = 0; $i < $maxCount; $i++) {
+                    $newIndex = count($Taksasi[$key]);
+                    $Taksasi[$key]["baris{$newIndex}"]["br_kiri"] = isset($brkiri[$i]) ? $brkiri[$i] : null;
+                    $Taksasi[$key]["baris{$newIndex}"]["br_kanan"] = isset($brkanan[$i]) ? $brkanan[$i] : null;
+                    $Taksasi[$key]["baris{$newIndex}"]["ffbkiri"] = isset($ffbkiri[$i]) ? $ffbkiri[$i] : null;
+                    $Taksasi[$key]["baris{$newIndex}"]["ffb_kanan"] = isset($ffb_kanan[$i]) ? $ffb_kanan[$i] : null;
+                    $Taksasi[$key]["baris{$newIndex}"]["sph"] = $value1['sph'];
+                    $Taksasi[$key]["baris{$newIndex}"]["blok"] = $value1['blok'];
+                    $Taksasi[$key]["baris{$newIndex}"]["afdeling"] = $value1['afdeling'];
+                    $Taksasi[$key]["baris{$newIndex}"]["lokasi_kerja"] = $value1['lokasi_kerja'];
+                    $Taksasi[$key]["baris{$newIndex}"]["name"] = $value1['name'];
+                    $Taksasi[$key]["baris{$newIndex}"]["luas"] = $value1['luas'];
+                    $Taksasi[$key]["baris{$newIndex}"]["sph"] = $value1['sph'];
+                    $Taksasi[$key]["baris{$newIndex}"]["bjr"] = $value1['bjr'];
+                    $Taksasi[$key]["baris{$newIndex}"]["jumlah_pokok"] = $value1['jumlah_pokok'];
+                    $Taksasi[$key]["baris{$newIndex}"]["jumlah_janjang"] = $value1['jumlah_janjang'];
+                }
+            }
+        }
 
 
 
@@ -2113,20 +2149,20 @@ class DashboardController extends Controller
                     }
                 }
 
-                $arr[$key]['total_' . $key]['luas'] = $sum_luas;
+                $arr[$key]['total']['luas'] = $sum_luas;
                 $sum_sph = round($sum_sph / $inc, 2);
-                $arr[$key]['total_' . $key]['sph'] = $sum_sph;
+                $arr[$key]['total']['sph'] = $sum_sph;
                 $sum_bjr = round($sum_bjr / $inc, 2);
-                $arr[$key]['total_' . $key]['bjr'] = $sum_bjr;
-                $arr[$key]['total_' . $key]['jumlah_path'] = $sum_path;
-                $arr[$key]['total_' . $key]['jumlah_pokok'] = $sum_pokok;
-                $arr[$key]['total_' . $key]['jumlah_janjang'] = $sum_janjang;
+                $arr[$key]['total']['bjr'] = $sum_bjr;
+                $arr[$key]['total']['jumlah_path'] = $sum_path;
+                $arr[$key]['total']['jumlah_pokok'] = $sum_pokok;
+                $arr[$key]['total']['jumlah_janjang'] = $sum_janjang;
                 $akp = round($sum_janjang / $sum_pokok, 2) * 100;
-                $arr[$key]['total_' . $key]['akp'] = $akp;
+                $arr[$key]['total']['akp'] = $akp;
                 $tak = round(($akp * $sum_luas * $sum_bjr * $sum_sph) / 100, 2);
-                $arr[$key]['total_' . $key]['taksasi'] = $tak;
-                $arr[$key]['total_' . $key]['ritase'] = ceil($tak / 6500);
-                $arr[$key]['total_' . $key]['pemanen'] = $sum_pemanen;
+                $arr[$key]['total']['taksasi'] = $tak;
+                $arr[$key]['total']['ritase'] = ceil($tak / 6500);
+                $arr[$key]['total']['pemanen'] = $sum_pemanen;
                 break;
             }
 
@@ -2216,12 +2252,79 @@ class DashboardController extends Controller
                 break;
         }
 
-        // dd($arr, $arrEstate);
-        $pdf = pdf::loadview('taksasi.pdfqctaksasi', ['est' => $estate_input, 'tgl' => $tgl, 'data' => $arr, 'dataAfd' => $dataAfd, 'rekap' => $arrEstate, 'namaEstate' => strtoupper($queryEstate->nama), 'wil' => '1', 'today' => $todayFormatted, 'besok' => $besokFormatted]);
+        $hitungTak = array();
+
+        foreach ($Taksasi as $key => $value) {
+            $luasha = 0;
+            $blokCheck = ''; // Variable to store the previous 'blok' value
+            $pkok_sample = 0;
+            $jumlah_janjang = 0;
+            foreach ($value as $key1 => $value1) {
+                $ffbkiri = $value1['ffbkiri'];
+                $ffbkanan = $value1['ffb_kanan'];
+
+                // Remove non-numeric characters and '-' from ffbkiri
+                $ffbkiriCleaned = preg_replace('/[^0-9]/', '', $ffbkiri);
+                // dd($ffbkiri, $ffbkiriCleaned);
+                // Remove non-numeric characters and '-' from ffb_kanan
+                $ffbkananCleaned = preg_replace('/[^0-9]/', '', $ffbkanan);
+
+                $pk_kiri  = strlen($ffbkiriCleaned);
+                $pk_kanan  = strlen($ffbkananCleaned);
+
+                $jm_pokok = $pk_kiri + $pk_kanan;
+                // Sum the remaining numeric values in ffbkiri
+                $sumKiri = array_sum(str_split($ffbkiriCleaned));
+
+                // Sum the remaining numeric values in ffb_kanan
+                $sumKanan = array_sum(str_split($ffbkananCleaned));
+
+
+                $pkok_sample += $jm_pokok;
+                $jumlah_janjang += $value1['jumlah_janjang'];
+
+                // Update the $blokCheck variable for the next iteration
+                $blokCheck = $value1['blok'];
+
+                $hitungTak[$key][$key1]['total_kiri'] = $sumKiri;
+                $hitungTak[$key][$key1]['total_kanan'] = $sumKanan;
+                $hitungTak[$key][$key1]['kiri'] = $value1['br_kiri'];
+                $hitungTak[$key][$key1]['kanan'] = $value1['br_kanan'];
+                $hitungTak[$key][$key1]['sph'] = $value1['sph'];
+                $hitungTak[$key][$key1]['blok'] = $value1['blok'];
+                $hitungTak[$key][$key1]['afdeling'] = $value1['afdeling'];
+                $hitungTak[$key][$key1]['lokasi_kerja'] = $value1['lokasi_kerja'];
+                $hitungTak[$key][$key1]['name'] = $value1['name'];
+                $hitungTak[$key][$key1]['luas'] = $value1['luas'];
+                $hitungTak[$key][$key1]['bjr'] = $value1['bjr'];
+
+                $hitungTak[$key][$key1]['jumlah_pokok'] = $jm_pokok;
+                $hitungTak[$key][$key1]['jumlah_janjang'] = $value1['jumlah_janjang'];
+                $hitungTak[$key][$key1]['jumlah_path'] = 1;
+                $hitungTak[$key][$key1]['pkok_kiri'] = $pk_kiri;
+                $hitungTak[$key][$key1]['pkok_kanan'] = $pk_kanan;
+            }
+            foreach ($arr as $keyx => $valuex) if ($key == $keyx) {
+                $sph = $valuex['total']['sph'];
+                $bjr = $valuex['total']['bjr'];
+                $luasha = $valuex['total']['luas'];
+            }
+            $hitungTak[$key]['luas_ha'] = $luasha;
+            $hitungTak[$key]['bjr'] = $bjr;
+            $hitungTak[$key]['sph'] = $sph;
+            $hitungTak[$key]['jumlah_pokok'] = $pkok_sample;
+            $hitungTak[$key]['jumlah_janjang'] = $jumlah_janjang;
+            $hitungTak[$key]['jumlah_path'] = count($value);
+        }
+
+        // dd($hitungTak);
+
+        // dd($hitungTak, $arr);
+        $pdf = pdf::loadview('taksasi.pdfqctaksasi', ['est' => $estate_input, 'tgl' => $tgl, 'data' => $arr, 'dataAfd' => $dataAfd, 'rekap' => $arrEstate, 'namaEstate' => strtoupper($queryEstate->nama), 'wil' => '1', 'today' => $todayFormatted, 'besok' => $besokFormatted, 'taksasi' => $hitungTak]);
         $customPaper = array(360, 360, 360, 360);
         $pdf->set_paper('A3', 'potrait');
 
-        $filename = 'QC-gudang.pdf';
+        $filename = 'QC-Taksasi.pdf';
         return $pdf->stream($filename);
     }
 }

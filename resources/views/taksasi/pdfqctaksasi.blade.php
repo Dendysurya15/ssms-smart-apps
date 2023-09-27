@@ -125,77 +125,67 @@
                 <th style="border:1px solid black;width:10%;">BJR (Kg/Jjg)</th>
                 <th style="border:1px solid black;width:10%;">SAMPEL PATH</th>
                 <th style="border:1px solid black;width:10%;">LUAS (HA)</th>
+                <th style="border:1px solid black;width:10%;">Baris Kiri</th>
+                <th style="border:1px solid black;width:10%;">Baris Kanan</th>
                 <th style="border:1px solid black;width:20%;">POKOK SAMPEL</th>
                 <th style="border:1px solid black;width:10%;">JANJANG</th>
-                <th style="border:1px solid black;padding:10px;width:10%">AKP</th>
-                <!--
-                <th style="border:1px solid black;padding:10px;">TAKSASI (Kg)</th>
-                <th style="border:1px solid black;padding:10px;">KEB. PEMANEN (Orang)</th>
-                <th style="border:1px solid black;padding:10px;">RITASE</th> -->
+
+
             </tr>
         </thead>
 
         <tbody style="font-size: 12px;font-weight: 400">
+            @foreach($taksasi as $key => $value)
+            @foreach($value as $key1 =>$value1)
 
-            @foreach($data as $key => $value)
-            @foreach ($value as $key2 => $item)
 
-            @php
-            $total = 'total_' . $key;
-            @endphp
-
-            @if ($key2 == $total)
+            @if(is_array($value1))
             <tr style="background: #E2EFDA;font-weight:bold">
-                <td style="border:1px solid black;text-align:center;padding:7px"></td>
-                <td style="border:1px solid black;text-align:center;padding:7px">Total</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item['luas']}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item['sph']}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item['bjr']}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item['jumlah_path']}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item['jumlah_pokok']}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item['jumlah_janjang']}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item['akp']}}</td>
-                <!--   <td style="border:1px solid black;text-align:center;padding:7px">{{$item['taksasi']}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item['ritase']}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item['pemanen']}}</td> -->
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$key}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$value1['blok']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$value1['sph']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$value1['bjr']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$value1['jumlah_path']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$value1['luas']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$value1['kiri']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$value1['kanan']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$value1['jumlah_pokok']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$value1['jumlah_janjang']}}</td>
             </tr>
-            @else
-            <tr>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item->afdeling}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item->blok}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item->luas}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item->sph}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item->bjr}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item->jumlah_path}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item->jumlah_pokok}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item->jumlah_janjang}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item->akp}}</td>
-                <!--  <td style="border:1px solid black;text-align:center;padding:7px">{{$item->taksasi}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item->pemanen}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item->ritase}}</td> -->
-            </tr>
-
             @endif
+            @endforeach
+
+            <tr style="background: #bea925;font-weight: bold">
+                <td style="border:1px solid black;text-align:center;padding:7px" colspan="2">Afdeling</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$value['sph']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$value['bjr']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$value['jumlah_path']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$value['luas_ha']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">-</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">-</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$value['jumlah_pokok']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$value['jumlah_janjang']}}</td>
 
 
+            </tr>
             @endforeach
 
 
-            @endforeach
             <tr style="background: #D9E1F2;font-weight: bold">
                 <td style="border:1px solid black;text-align:center;padding:7px" colspan="2">ESTATE</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$rekap['luas']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$rekap['sph']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$rekap['bjr']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$rekap['total_path']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$rekap['luas']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">-</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">-</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$rekap['total_pokok']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$rekap['total_janjang']}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$rekap['total_akp']}}</td>
-                <!-- <td style="border:1px solid black;text-align:center;padding:7px">{{$rekap['total_taksasi']}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$rekap['total_pemanen']}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$rekap['total_ritase']}}</td> -->
+
+
 
             </tr>
+
         </tbody>
 
 
