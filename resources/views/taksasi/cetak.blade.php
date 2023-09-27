@@ -5,14 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" type="text/css" media="screen"
-        href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
 
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
     <title>Document</title>
 </head>
 
@@ -81,17 +79,14 @@
     <table class="table table-bordered " style="font-size: 11px;">
         <thead>
             <tr>
-                <th colspan="12" class="text-center"
-                    style="padding:10px;background: #D9E1F2;border: 2px solid black;font-size:16px">
+                <th colspan="12" class="text-center" style="padding:10px;background: #D9E1F2;border: 2px solid black;font-size:16px">
                     LAPORAN TAKSASI PANEN
                 </th>
             </tr>
             <tr>
-                <th style=" color: white;border-left:1px solid white;border-bottom:1px solid black;border-right:1px solid white"
-                    colspan="3">|</th>
+                <th style=" color: white;border-left:1px solid white;border-bottom:1px solid black;border-right:1px solid white" colspan="3">|</th>
                 <th style=" color: white;border-bottom:1px solid white;border-right:1px solid white" colspan="6">|</th>
-                <th style=" color: white;border-left:1px solid white;border-bottom:1px solid black;border-right:1px solid white"
-                    colspan="3">|</th>
+                <th style=" color: white;border-left:1px solid white;border-bottom:1px solid black;border-right:1px solid white" colspan="3">|</th>
             </tr>
             <tr>
                 <th colspan="3" style="font-size: 13px;
@@ -101,8 +96,7 @@
 
                 <th colspan="6" style="border-right: 1px solid black;border-bottom:1px solid white"></th>
 
-                <th colspan="3"
-                    style="padding:8px;font-size: 13px;text-align: left;background:#D9E1F2;border:1px solid black">
+                <th colspan="3" style="padding:8px;font-size: 13px;text-align: left;background:#D9E1F2;border:1px solid black">
                     TANGGAL TAKSASI : {{$today}}</th>
             </tr>
             <tr>
@@ -114,8 +108,7 @@
                 <th colspan="6" style="border-right: 1px solid black;border-bottom: 1px solid white"></th>
 
 
-                <th colspan="3"
-                    style="padding:8px;font-size: 13px;text-align: left;background:#D9E1F2;border:1px solid black">
+                <th colspan="3" style="padding:8px;font-size: 13px;text-align: left;background:#D9E1F2;border:1px solid black">
                     TANGGAL PANEN : {{$besok}}</th>
             </tr>
             <tr>
@@ -140,17 +133,16 @@
         </thead>
         <tbody style="font-size: 12px;font-weight: 400">
 
-            @foreach($data as $key => $value)
+            @foreach($new_tak as $key => $value)
+            @foreach($afd_tak as $afd => $valuex)
+            @if($key === $afd)
             @foreach ($value as $key2 => $item)
 
-            @php
-            $total = 'total_' . $key;
-            @endphp
 
-            @if ($key2 == $total)
+
             <tr style="background: #E2EFDA;font-weight:bold">
-                <td style="border:1px solid black;text-align:center;padding:7px"></td>
-                <td style="border:1px solid black;text-align:center;padding:7px">Total</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$key}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$key2}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$item['luas']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$item['sph']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$item['bjr']}}</td>
@@ -159,46 +151,47 @@
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$item['jumlah_janjang']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$item['akp']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$item['taksasi']}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item['ritase']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$item['pemanen']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$item['ritase']}}</td>
+
             </tr>
-            @else
+
+            @endforeach
             <tr>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item->afdeling}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item->blok}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item->luas}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item->sph}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item->bjr}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item->jumlah_path}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item->jumlah_pokok}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item->jumlah_janjang}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item->akp}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item->taksasi}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item->pemanen}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$item->ritase}}</td>
-            </tr>
+                <td style="border:1px solid black;text-align:center;padding:7px" colspan="2">{{$afd}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$valuex['luas']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$valuex['sph']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$valuex['bjr']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$valuex['jumlah_path']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$valuex['jumlah_pokok']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$valuex['jumlah_janjang']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$valuex['akp']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$valuex['taksasi']}}</td>
 
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$valuex['pemanenx']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$valuex['ritase']}}</td>
+
+            </tr>
             @endif
-
-
+            @endforeach
             @endforeach
 
-
-            @endforeach
             <tr style="background: #D9E1F2;font-weight: bold">
-                <td style="border:1px solid black;text-align:center;padding:7px" colspan="2">ESTATE</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$rekap['luas']}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$rekap['sph']}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$rekap['bjr']}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$rekap['total_path']}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$rekap['total_pokok']}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$rekap['total_janjang']}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$rekap['total_akp']}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$rekap['total_taksasi']}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$rekap['total_pemanen']}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$rekap['total_ritase']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px" colspan="2">Estate</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$takest['luas']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$takest['sph']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$takest['bjr']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$takest['jumlah_path']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$takest['jumlah_pokok']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$takest['jumlah_janjang']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$takest['akp']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$takest['taksasi']}}</td>
 
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$takest['pemanenx']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$takest['ritase']}}</td>
             </tr>
+
+
         </tbody>
     </table>
 
@@ -223,8 +216,7 @@
 
     <h2 class="text-center">Maps User Taksasi</h2>
     <br>
-    <img src="https://mobilepro.srs-ssms.com/storage/app/public/taksasi/{{$est}}_{{$tgl}}.png"
-        style="width:1040px;height:640px;">
+    <img src="https://mobilepro.srs-ssms.com/storage/app/public/taksasi/{{$est}}_{{$tgl}}.png" style="width:1040px;height:640px;">
 </body>
 
 </html>

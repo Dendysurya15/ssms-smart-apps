@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Yajra\DataTables\DataTables;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Arr;
 
 class DashboardController extends Controller
 {
@@ -1351,7 +1352,126 @@ class DashboardController extends Controller
             // ->groupBy('taksasi.afdeling')
             ->get();
 
+        $queryDataNew = DB::connection('mysql2')->table('taksasi')
+            ->select('taksasi.*')
+            ->whereDate('taksasi.waktu_upload', $tgl)
+            ->where('lokasi_kerja', $estate_input)
+            ->orderBy('taksasi.afdeling', 'asc')
+            // ->groupBy('taksasi.afdeling')
+            ->get();
 
+        $queryDataNew = $queryDataNew->groupBy(['afdeling', 'blok']);
+        $queryDataNew = json_decode($queryDataNew, true);
+
+        // dd($queryDataNew);
+
+        $Taksasi = array();
+        foreach ($queryDataNew as $key => $value) {
+            foreach ($value as $key1 => $value1) {
+                $jumlahpk = 0;
+                $sum_janjang = 0;
+                $sum_pokok = 0;
+                $pemanen = 0;
+
+                foreach ($value1 as $key2 => $value2) {
+                    // dd($value2);
+
+                    $sum_janjang += $value2['jumlah_janjang'];
+                    $sum_pokok += $value2['jumlah_pokok'];
+                    $pemanen += $value2['pemanen'];
+
+
+
+                    // dd($value2);
+                }
+                $akp = round(($sum_janjang / $sum_pokok) * 100, 2);
+                $tak = round(($akp * $value2['luas'] * $value2['bjr'] * $value2['sph']) / 100, 1);
+                // $sum_sph = round($sum_sph / $inc, 2);
+                $Taksasi[$key][$key1]['luas'] = $value2['luas'];
+                $Taksasi[$key][$key1]['bjr'] = $value2['bjr'];
+                $Taksasi[$key][$key1]['sph'] = $value2['sph'];
+                $Taksasi[$key][$key1]['jumlah_path'] = count($value1);
+                $Taksasi[$key][$key1]['jumlah_pokok'] = $sum_pokok;
+                $Taksasi[$key][$key1]['jumlah_janjang'] = $sum_janjang;
+                $Taksasi[$key][$key1]['pemanen'] = $pemanen;
+                $Taksasi[$key][$key1]['akp'] = $akp;
+                $Taksasi[$key][$key1]['taksasi'] = $tak;
+                $Taksasi[$key][$key1]['ritase'] = ceil($tak / 6500);
+            }
+        }
+        // dd($Taksasi, $queryDataNew);
+
+        $takafd = array();
+
+        foreach ($Taksasi as $key => $value) {
+            $luas = 0;
+            $sum_sph = 0;
+            $jumlah_path = 0;
+            $sum_bjr = 0;
+            $jumlah_janjang = 0;
+            $jumlah_pokok = 0;
+            $pemanen = 0;
+            $tak = 0;
+            foreach ($value as $key1 => $value1) {
+                // dd($value1);
+                $luas += $value1['luas'];
+                $sum_sph += $value1['sph'];
+                $jumlah_path += $value1['jumlah_path'];
+                $sum_bjr += $value1['bjr'];
+                $jumlah_pokok += $value1['jumlah_pokok'];
+                $jumlah_janjang += $value1['jumlah_janjang'];
+                $pemanen += $value1['pemanen'];
+            } # code...
+            $akp = round(($jumlah_janjang / $jumlah_pokok) * 100, 2);
+            $sum_sph = round($sum_sph / count($value), 2);
+            $sum_bjr = round($sum_bjr / count($value), 2);
+            $tak = round(($akp * $luas * $sum_bjr * $sum_sph) / 100, 1);
+            $takafd[$key]['luas'] = $luas;
+            $takafd[$key]['jumlah_path'] = $jumlah_path;
+            $takafd[$key]['sph'] = $sum_sph;
+            $takafd[$key]['bjr'] = $sum_bjr;
+            $takafd[$key]['jumlah_pokok'] = $jumlah_pokok;
+            $takafd[$key]['jumlah_janjang'] = $jumlah_janjang;
+            $takafd[$key]['akp'] = $akp;
+            $takafd[$key]['taksasi'] = $tak;
+            $takafd[$key]['ritase'] = ceil($tak / 6500);
+            $takafd[$key]['pemanenx'] = $pemanen;
+        }
+
+        $takest = [];
+        $luas = 0;
+        $sum_sph = 0;
+        $jumlah_path = 0;
+        $sum_bjr = 0;
+        $jumlah_janjang = 0;
+        $jumlah_pokok = 0;
+        $pemanen = 0;
+        $tak = 0;
+        foreach ($takafd as $key => $value) {
+            $luas += $value['luas'];
+            $sum_sph += $value['sph'];
+            $jumlah_path += $value['jumlah_path'];
+            $sum_bjr += $value['bjr'];
+            $jumlah_pokok += $value['jumlah_pokok'];
+            $jumlah_janjang += $value['jumlah_janjang'];
+            $pemanen += $value['pemanenx'];
+        }
+        $akp = round(($jumlah_janjang / $jumlah_pokok) * 100, 2);
+        $sum_sph = round($sum_sph / count($takafd), 2);
+        $sum_bjr = round($sum_bjr / count($takafd), 2);
+        $tak = round(($akp * $luas * $sum_bjr * $sum_sph) / 100, 1);
+        $takest['luas'] = $luas;
+        $takest['jumlah_path'] = $jumlah_path;
+        $takest['path'] = count($takafd);
+        $takest['sph'] = $sum_sph;
+        $takest['bjr'] = $sum_bjr;
+        $takest['jumlah_pokok'] = $jumlah_pokok;
+        $takest['jumlah_janjang'] = $jumlah_janjang;
+        $takest['akp'] = $akp;
+        $takest['taksasi'] = $tak;
+        $takest['ritase'] = ceil($tak / 6500);
+        $takest['pemanenx'] = $pemanen;
+        // dd($takafd, $takest);
 
         foreach ($queryData as $key => $value) {
             $path_arr = explode(';', $value->br_kanan);
@@ -1366,6 +1486,8 @@ class DashboardController extends Controller
             ->orderBy('taksasi.afdeling', 'asc')
             ->groupBy('taksasi.afdeling')
             ->pluck('countData', 'afdeling');
+
+        // dd($queryCount);
 
         $arr = array();
 
@@ -1385,6 +1507,7 @@ class DashboardController extends Controller
             $dataAfd[$key]['pemanen'] = '-';
             $dataAfd[$key]['ritase'] = '-';
         }
+
 
         $total_luas = 0;
         $total_sph = 0;
@@ -1450,7 +1573,7 @@ class DashboardController extends Controller
             $increment++;
         }
 
-
+        // dd($arr);
         $arrEstate = array();
         $arrEstate['luas'] = $total_luas;
         $total_sph =  round($total_sph / $increment, 2);
@@ -1525,8 +1648,8 @@ class DashboardController extends Controller
                 break;
         }
 
-        // dd($estate_input);
-        $pdf = pdf::loadview('taksasi.cetak', ['est' => $estate_input, 'tgl' => $tgl, 'data' => $arr, 'dataAfd' => $dataAfd, 'rekap' => $arrEstate, 'namaEstate' => strtoupper($queryEstate->nama), 'wil' => $wil, 'today' => $todayFormatted, 'besok' => $besokFormatted]);
+        // dd($arr);
+        $pdf = pdf::loadview('taksasi.cetak', ['est' => $estate_input, 'tgl' => $tgl, 'data' => $arr, 'dataAfd' => $dataAfd, 'rekap' => $arrEstate, 'namaEstate' => strtoupper($queryEstate->nama), 'wil' => $wil, 'today' => $todayFormatted, 'besok' => $besokFormatted, 'new_tak' => $Taksasi, 'afd_tak' => $takafd, 'takest' => $takest]);
         $customPaper = array(360, 360, 360, 360);
         $pdf->set_paper('A3', 'potrait');
 
