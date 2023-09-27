@@ -1344,6 +1344,8 @@ class DashboardController extends Controller
             ->where('est', $estate_input)
             ->first();
 
+
+
         $queryData = DB::connection('mysql2')->table('taksasi')
             ->select('taksasi.*')
             ->whereDate('taksasi.waktu_upload', $tgl)
@@ -1647,9 +1649,41 @@ class DashboardController extends Controller
                 # code...
                 break;
         }
+        $rom = DB::connection('mysql2')->table('estate')
+            ->select('estate.*')
+            ->where('est', $estate_input)
+            ->pluck('wil');
 
+        function convertToRoman2($number)
+        {
+            $map = [
+                'M' => 1000,
+                'CM' => 900,
+                'D' => 500,
+                'CD' => 400,
+                'C' => 100,
+                'XC' => 90,
+                'L' => 50,
+                'XL' => 40,
+                'X' => 10,
+                'IX' => 9,
+                'V' => 5,
+                'IV' => 4,
+                'I' => 1,
+            ];
+
+            $result = '';
+            foreach ($map as $roman => $value) {
+                $matches = intval($number / $value);
+                $result .= str_repeat($roman, $matches);
+                $number %= $value;
+            }
+
+            return $result;
+        }
+        $romanNumeral = convertToRoman2($rom[0]);
         // dd($arr);
-        $pdf = pdf::loadview('taksasi.cetak', ['est' => $estate_input, 'tgl' => $tgl, 'data' => $arr, 'dataAfd' => $dataAfd, 'rekap' => $arrEstate, 'namaEstate' => strtoupper($queryEstate->nama), 'wil' => $wil, 'today' => $todayFormatted, 'besok' => $besokFormatted, 'new_tak' => $Taksasi, 'afd_tak' => $takafd, 'takest' => $takest]);
+        $pdf = pdf::loadview('taksasi.cetak', ['est' => $estate_input, 'tgl' => $tgl, 'data' => $arr, 'dataAfd' => $dataAfd, 'rekap' => $arrEstate, 'namaEstate' => strtoupper($queryEstate->nama), 'wil' => $romanNumeral, 'today' => $todayFormatted, 'besok' => $besokFormatted, 'new_tak' => $Taksasi, 'afd_tak' => $takafd, 'takest' => $takest]);
         $customPaper = array(360, 360, 360, 360);
         $pdf->set_paper('A3', 'potrait');
 
@@ -2157,6 +2191,8 @@ class DashboardController extends Controller
             ->where('est', $estate_input)
             ->first();
 
+        // dd($queryEstate);
+
         $queryData = DB::connection('mysql2')->table('taksasi')
             ->select('taksasi.*')
             ->whereDate('taksasi.waktu_upload', $tgl)
@@ -2374,7 +2410,124 @@ class DashboardController extends Controller
                 # code...
                 break;
         }
+        $queryDataNew = DB::connection('mysql2')->table('taksasi')
+            ->select('taksasi.*')
+            ->whereDate('taksasi.waktu_upload', $tgl)
+            ->where('lokasi_kerja', $estate_input)
+            ->orderBy('taksasi.afdeling', 'asc')
+            // ->groupBy('taksasi.afdeling')
+            ->get();
 
+        $queryDataNew = $queryDataNew->groupBy(['afdeling', 'blok']);
+        $queryDataNew = json_decode($queryDataNew, true);
+
+
+        $Taksasix = array();
+        foreach ($queryDataNew as $key => $value) {
+            foreach ($value as $key1 => $value1) {
+                $jumlahpk = 0;
+                $sum_janjang = 0;
+                $sum_pokok = 0;
+                $pemanen = 0;
+
+                foreach ($value1 as $key2 => $value2) {
+                    // dd($value2);
+
+                    $sum_janjang += $value2['jumlah_janjang'];
+                    $sum_pokok += $value2['jumlah_pokok'];
+                    $pemanen += $value2['pemanen'];
+
+
+
+                    // dd($value2);
+                }
+                $akp = round(($sum_janjang / $sum_pokok) * 100, 2);
+                $tak = round(($akp * $value2['luas'] * $value2['bjr'] * $value2['sph']) / 100, 1);
+                // $sum_sph = round($sum_sph / $inc, 2);
+                $Taksasix[$key][$key1]['luas'] = $value2['luas'];
+                $Taksasix[$key][$key1]['bjr'] = $value2['bjr'];
+                $Taksasix[$key][$key1]['sph'] = $value2['sph'];
+                $Taksasix[$key][$key1]['jumlah_path'] = count($value1);
+                $Taksasix[$key][$key1]['jumlah_pokok'] = $sum_pokok;
+                $Taksasix[$key][$key1]['jumlah_janjang'] = $sum_janjang;
+                $Taksasix[$key][$key1]['pemanen'] = $pemanen;
+                $Taksasix[$key][$key1]['akp'] = $akp;
+                $Taksasix[$key][$key1]['taksasix'] = $tak;
+                $Taksasix[$key][$key1]['ritase'] = ceil($tak / 6500);
+            }
+        }
+
+        $takafd = array();
+
+        foreach ($Taksasix as $key => $value) {
+            $luas = 0;
+            $sum_sph = 0;
+            $jumlah_path = 0;
+            $sum_bjr = 0;
+            $jumlah_janjang = 0;
+            $jumlah_pokok = 0;
+            $pemanen = 0;
+            $tak = 0;
+            foreach ($value as $key1 => $value1) {
+                // dd($value1);
+                $luas += $value1['luas'];
+                $sum_sph += $value1['sph'];
+                $jumlah_path += $value1['jumlah_path'];
+                $sum_bjr += $value1['bjr'];
+                $jumlah_pokok += $value1['jumlah_pokok'];
+                $jumlah_janjang += $value1['jumlah_janjang'];
+                $pemanen += $value1['pemanen'];
+            } # code...
+            $akp = round(($jumlah_janjang / $jumlah_pokok) * 100, 2);
+            $sum_sph = round($sum_sph / count($value), 2);
+            $sum_bjr = round($sum_bjr / count($value), 2);
+            $tak = round(($akp * $luas * $sum_bjr * $sum_sph) / 100, 1);
+            $takafd[$key]['luas'] = $luas;
+            $takafd[$key]['jumlah_path'] = $jumlah_path;
+            $takafd[$key]['sph'] = $sum_sph;
+            $takafd[$key]['bjr'] = $sum_bjr;
+            $takafd[$key]['jumlah_pokok'] = $jumlah_pokok;
+            $takafd[$key]['jumlah_janjang'] = $jumlah_janjang;
+            $takafd[$key]['akp'] = $akp;
+            $takafd[$key]['taksasi'] = $tak;
+            $takafd[$key]['ritase'] = ceil($tak / 6500);
+            $takafd[$key]['pemanenx'] = $pemanen;
+        }
+
+        $takest = [];
+        $luas = 0;
+        $sum_sph = 0;
+        $jumlah_path = 0;
+        $sum_bjr = 0;
+        $jumlah_janjang = 0;
+        $jumlah_pokok = 0;
+        $pemanen = 0;
+        $tak = 0;
+        foreach ($takafd as $key => $value) {
+            $luas += $value['luas'];
+            $sum_sph += $value['sph'];
+            $jumlah_path += $value['jumlah_path'];
+            $sum_bjr += $value['bjr'];
+            $jumlah_pokok += $value['jumlah_pokok'];
+            $jumlah_janjang += $value['jumlah_janjang'];
+            $pemanen += $value['pemanenx'];
+        }
+        $akp = round(($jumlah_janjang / $jumlah_pokok) * 100, 2);
+        $sum_sph = round($sum_sph / count($takafd), 2);
+        $sum_bjr = round($sum_bjr / count($takafd), 2);
+        $tak = round(($akp * $luas * $sum_bjr * $sum_sph) / 100, 1);
+        $takest['luas'] = $luas;
+        $takest['jumlah_path'] = $jumlah_path;
+        $takest['path'] = count($takafd);
+        $takest['sph'] = $sum_sph;
+        $takest['bjr'] = $sum_bjr;
+        $takest['jumlah_pokok'] = $jumlah_pokok;
+        $takest['jumlah_janjang'] = $jumlah_janjang;
+        $takest['akp'] = $akp;
+        $takest['taksasi'] = $tak;
+        $takest['ritase'] = ceil($tak / 6500);
+        $takest['pemanenx'] = $pemanen;
+        // dd($takafd, $takest);
         $hitungTak = array();
 
         foreach ($Taksasi as $key => $value) {
@@ -2427,10 +2580,11 @@ class DashboardController extends Controller
                 $hitungTak[$key][$key1]['pkok_kiri'] = $pk_kiri;
                 $hitungTak[$key][$key1]['pkok_kanan'] = $pk_kanan;
             }
-            foreach ($arr as $keyx => $valuex) if ($key == $keyx) {
-                $sph = $valuex['total']['sph'];
-                $bjr = $valuex['total']['bjr'];
-                $luasha = $valuex['total']['luas'];
+            foreach ($takafd as $keyx => $valuex) if ($key == $keyx) {
+                // dd($valuex);
+                $sph = $valuex['sph'];
+                $bjr = $valuex['bjr'];
+                $luasha = $valuex['luas'];
             }
             $hitungTak[$key]['luas_ha'] = $luasha;
             $hitungTak[$key]['bjr'] = $bjr;
@@ -2442,8 +2596,42 @@ class DashboardController extends Controller
 
         // dd($hitungTak);
 
-        // dd($hitungTak, $arr);
-        $pdf = pdf::loadview('taksasi.pdfqctaksasi', ['est' => $estate_input, 'tgl' => $tgl, 'data' => $arr, 'dataAfd' => $dataAfd, 'rekap' => $arrEstate, 'namaEstate' => strtoupper($queryEstate->nama), 'wil' => '1', 'today' => $todayFormatted, 'besok' => $besokFormatted, 'taksasi' => $hitungTak]);
+        $rom = DB::connection('mysql2')->table('estate')
+            ->select('estate.*')
+            ->where('est', $estate_input)
+            ->pluck('wil');
+
+        function convertToRoman($number)
+        {
+            $map = [
+                'M' => 1000,
+                'CM' => 900,
+                'D' => 500,
+                'CD' => 400,
+                'C' => 100,
+                'XC' => 90,
+                'L' => 50,
+                'XL' => 40,
+                'X' => 10,
+                'IX' => 9,
+                'V' => 5,
+                'IV' => 4,
+                'I' => 1,
+            ];
+
+            $result = '';
+            foreach ($map as $roman => $value) {
+                $matches = intval($number / $value);
+                $result .= str_repeat($roman, $matches);
+                $number %= $value;
+            }
+
+            return $result;
+        }
+        $romanNumeral = convertToRoman($rom[0]);
+
+        // dd($hitungTak, $takafd);
+        $pdf = pdf::loadview('taksasi.pdfqctaksasi', ['est' => $estate_input, 'tgl' => $tgl, 'data' => $arr, 'dataAfd' => $dataAfd, 'rekap' => $arrEstate, 'namaEstate' => strtoupper($queryEstate->nama), 'wil' => $romanNumeral, 'today' => $todayFormatted, 'besok' => $besokFormatted, 'taksasi' => $hitungTak]);
         $customPaper = array(360, 360, 360, 360);
         $pdf->set_paper('A3', 'potrait');
 
