@@ -160,7 +160,10 @@
             <tr>
                 <td style="border:1px solid black;text-align:center;padding:7px" colspan="2">{{$afd}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$valuex['luas']}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$valuex['sph']}}</td>
+                <td style="border: 1px solid black; text-align: center; padding: 7px">
+                    {{ intval($valuex['sph']) }}
+                </td>
+
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$valuex['bjr']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$valuex['jumlah_path']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$valuex['jumlah_pokok']}}</td>
@@ -179,7 +182,7 @@
             <tr style="background: #D9E1F2;font-weight: bold">
                 <td style="border:1px solid black;text-align:center;padding:7px" colspan="2">Estate</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$takest['luas']}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$takest['sph']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{intval($takest['sph'])}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$takest['bjr']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$takest['jumlah_path']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$takest['jumlah_pokok']}}</td>

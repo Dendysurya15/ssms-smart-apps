@@ -150,14 +150,14 @@
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$value1['kiri']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$value1['kanan']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$value1['jumlah_pokok']}}</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$value1['jumlah_janjang']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$value1['total_kiri'] + $value1['total_kanan'] }}</td>
             </tr>
             @endif
             @endforeach
 
             <tr style="background: #bea925;font-weight: bold">
                 <td style="border:1px solid black;text-align:center;padding:7px" colspan="2">Afdeling</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$value['sph']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{intval($value['sph'])}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$value['bjr']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$value['jumlah_path']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$value['luas_ha']}}</td>
@@ -173,7 +173,7 @@
 
             <tr style="background: #D9E1F2;font-weight: bold">
                 <td style="border:1px solid black;text-align:center;padding:7px" colspan="2">ESTATE</td>
-                <td style="border:1px solid black;text-align:center;padding:7px">{{$rekap['sph']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{intval($rekap['sph'])}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$rekap['bjr']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$rekap['total_path']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$rekap['luas']}}</td>

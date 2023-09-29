@@ -15,11 +15,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Yajra\DataTables\DataTables;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Arr;
 
 class DashboardController extends Controller
 {
-
     public function dashboard(Request $request)
     {
         // $dateToday = new DateTime();
@@ -1029,6 +1027,16 @@ class DashboardController extends Controller
     {
         $tgl = $request->get('tgl');
 
+        // $tglData = Carbon::parse($tgl);
+
+        // $kemarin = $tglData->subDay()->format('Y-m-d') . ' 00:00:00';
+
+        // $newConvert = new Carbon($kemarin);
+
+        // $hariIni = $newConvert->addDays(2);
+
+        // $hariIni = ($hariIni->format('Y-m-d')) . ' 00:00:00';
+
         $queryData = DB::connection('mysql2')->table('taksasi')
             ->select('taksasi.*')
             ->whereDate('taksasi.waktu_upload', $tgl)
@@ -1929,32 +1937,60 @@ class DashboardController extends Controller
 
         // // //get lat lang dan key $result_blok atau semua list_blok
 
+
         $blokLatLn = array();
 
         foreach ($result_blok as $key => $value) {
             $inc = 0;
             foreach ($value as $key2 => $data) {
-                $newData = substr_replace($data, '0', 1, 0);
 
+                $estate = DB::connection('mysql2')->table('estate')
+                    ->select('estate.*')
+                    ->where('estate.est', $estate_input)
+                    ->leftJoin('afdeling', 'afdeling.id', 'afdeling.estate')
+                    // ->where('')
+                    ->first();
+                $nama_estate = $estate->nama;
+                $id_estate = $estate->id;
+                // dd($estate);
+
+                // // dd($estate);
+                $queryTest = DB::connection('mysql2')->table('afdeling')
+                    ->select('afdeling.*')
+                    ->leftJoin('estate', 'estate.wil', 'estate.id', 'estate.wil')
+
+                    ->where('afdeling.estate', '=', $id_estate)
+                    ->where('afdeling.nama', '=', $afdeling_input)
+                    ->get();
+
+                $blok_afd = [];
+                foreach ($queryTest as $key => $value) {
+                    // dd($value);
+                    $blok_afd = $value->id;
+                }
+                // dd($blok_afd);
+
+                $newData = substr_replace($data, '0', 1, 0);
+                // dd($newData);
                 $query = '';
                 $query = DB::connection('mysql2')->table('blok')
                     ->select('blok.*')
                     ->where('blok.nama', $newData)
+                    ->where('blok.afdeling', $blok_afd)
                     ->orWhere('blok.nama', $data)
+                    // ->where('afdeling.')
                     ->get();
 
+                // dd($query);
                 $latln = '';
                 foreach ($query as $key3 => $val) {
 
                     $latln .= '[' . $val->lon . ',' . $val->lat . '],';
                 }
 
-                $estate = DB::connection('mysql2')->table('estate')
-                    ->select('estate.*')
-                    ->where('estate.est', $estate_input)
-                    ->first();
+                // dd($latln);
 
-                $nama_estate = $estate->nama;
+
 
                 $blokLatLn[$inc]['blok'] = $key2;
                 $blokLatLn[$inc]['estate'] = $nama_estate;
@@ -2585,12 +2621,13 @@ class DashboardController extends Controller
                 $sph = $valuex['sph'];
                 $bjr = $valuex['bjr'];
                 $luasha = $valuex['luas'];
+                $jumlah_janjangx = $valuex['jumlah_janjang'];
             }
             $hitungTak[$key]['luas_ha'] = $luasha;
             $hitungTak[$key]['bjr'] = $bjr;
             $hitungTak[$key]['sph'] = $sph;
             $hitungTak[$key]['jumlah_pokok'] = $pkok_sample;
-            $hitungTak[$key]['jumlah_janjang'] = $jumlah_janjang;
+            $hitungTak[$key]['jumlah_janjang'] = $jumlah_janjangx;
             $hitungTak[$key]['jumlah_path'] = count($value);
         }
 
