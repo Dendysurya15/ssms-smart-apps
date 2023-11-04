@@ -65,12 +65,15 @@
         <div class="row w-100">
             <div class="col-md-2 offset-md-8">
                 {{csrf_field()}}
-                <select class="form-control" id="Estate">
-                    <option value="" disabled>Pilih EST</option>
+                <select class="form-control" id="Estate" onchange="populateEstateOptions(this.value)">
                     @foreach($estate as $item)
 
                     <option value={{$item}} selected>{{$item}}</option>
                     @endforeach
+                </select>
+
+                <select class="form-control" id="afdling">
+
                 </select>
             </div>
 
@@ -79,7 +82,8 @@
     </div>
     <button id="saveButton">Save</button>
     <div class="card p-4">
-        <h4 class="text-center mt-2" style="font-weight: bold">Tracking Plot Pokok - </h4>
+        <h4 class="text-center mt-2" style="font-weight: bold">Last EST = {{$lastest}} </h4>
+        <h4 class="text-center mt-2" style="font-weight: bold">Last afd = {{$lastafd}} </h4>
         <hr>
         <div id="map" style="height: 650px;"></div>
     </div>
@@ -95,179 +99,200 @@
 <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
 <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css' rel='stylesheet' />
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+
+
 <script>
-    var map;
-    var coordinates = []; // Declare coordinates globally to store the polygon's coordinates.
+    var afd = <?php echo json_encode($afd); ?>;
+    var afdeling = document.getElementById('afdling');
 
+    function populateEstateOptions(estateSelcted) {
+        // Clear existing options
 
-    $('#showEstMap').click(function() {
-        getPlotBlok();
+        // console.log(selectedWilIdx);
+        afdeling.innerHTML = '';
 
-        // Swal.fire({
-        //     title: 'Loading',
-        //     html: '<span class="loading-text">Mohon Tunggu...</span>',
-        //     allowOutsideClick: false,
-        //     showConfirmButton: false,
-        //     onBeforeOpen: () => {
-        //         Swal.showLoading();
-        //     }
-        // });
-    });
-
-    function getPlotBlok() {
-        var _token = $('input[name="_token"]').val();
-        var estData = $("#Estate").val();
-        // var tahunData = $("#tahun_tanam").val();
-        // var afd = 'OC';
-        $.ajax({
-            url: "{{ route('mapsestatePlot') }}",
-            method: "get",
-            data: {
-                estData: estData,
-                _token: _token
-            },
-            success: function(result) {
-                var plot = JSON.parse(result);
-                // Swal.close();
-                const blokResult = Object.entries(plot['blok']);
-                const BlokPlus = Object.entries(plot['blok_Pulau']);
-                const BlokPlus2 = Object.entries(plot['blok_Pulau2']);
-                // const polygonCoords = Object.entries(plot['coords']);
-                // const pokok_data = Object.entries(plot['pokok_data']);
-
-
-                // Remove existing layers before updating the map
-                if (map) {
-                    map.eachLayer(function(layer) {
-                        map.removeLayer(layer);
-                    });
-                }
-
-
-                drawBlokPlot(blokResult)
-                // draw_pokok(blokResult)
-
-            }
+        // Filter the opt_est array based on the selectedWilIdx
+        var filteredEstates = afd.filter(function(estate) {
+            return estate.est == estateSelcted;
         });
+        filteredEstates.forEach(function(estate) {
+            var optionElement = document.createElement('option');
+            optionElement.value = estate.id;
+            optionElement.textContent = estate.id;
+            afdeling.appendChild(optionElement);
+        });
+
+
+
+        afdeling.dispatchEvent(new Event('change'));
     }
-
     $(document).ready(function() {
-        map = L.map('map', { // Use the globally declared 'map' variable here.
-            editable: true
+        // Initialize the map
+        var map = L.map('map', {
+            editable: true,
+            center: [0, 0], // Adjust this to the desired initial map center
+            zoom: 10, // Adjust the initial zoom level
         });
 
-        var googleStreet = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
+        // Add a base layer (Google Street) to the map
         var googleSatellite = L.tileLayer('http://{s}.google.com/vt?lyrs=s&x={x}&y={y}&z={z}', {
             maxZoom: 20,
             subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
         });
 
-        googleStreet.addTo(map); // Add "Google Street" as the default base map
+        // googleSatellite, addtomap
+        googleSatellite.addTo(map); // Add "Google Street" as the default base map
 
-        var baseMaps = {
-            "Google Street": googleStreet,
-            "Google Satellite": googleSatellite
-        };
+        // Create a layer group for markers
+        var markerBlok = L.layerGroup().addTo(map);
 
-        L.control.layers(baseMaps).addTo(map);
 
-        map.addControl(new L.Control.Fullscreen());
+        var drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
 
+        var drawControl = new L.Control.Draw({
+            edit: {
+                featureGroup: drawnItems,
+                poly: {
+                    allowIntersection: false
+                }
+            },
+            draw: {
+                polygon: {
+                    allowIntersection: false,
+                    showArea: true
+                }
+            }
+        });
+
+
+        map.addControl(drawControl);
+        var est = "est"; // Define your 'est' prefix
+        var afd = "afd"; // Define your 'afd' prefix
+
+        map.on('draw:created', function(e) {
+            var layer = e.layer;
+            drawnItems.addLayer(layer);
+
+            // Access the polygon's coordinates
+            var polygonCoordinates = layer.getLatLngs().flat(); // Flatten the nested arrays
+            console.log(polygonCoordinates);
+
+            $('#saveButton').click(function() {
+                var coordinates = polygonCoordinates.map(function(latLng) {
+                    return [latLng.lat, latLng.lng]; // Create an array with lat and lng
+                });
+                var estData = $("#Estate").val();
+                var afdling = $("#afdling").val();
+                // Send the coordinates to your Laravel application using AJAX
+                console.log(estData);
+                console.log(afdling);
+                var _token = $('input[name="_token"]').val();
+                $.ajax({
+                    type: 'POST', // Adjust the HTTP method if needed
+                    url: "{{ route('inputquery') }}",
+                    data: JSON.stringify({
+                        coordinates: coordinates,
+                        estData: estData,
+                        afdling: afdling,
+                        _token: _token
+                    }), // Send as JSON
+                    contentType: 'application/json', // Set content type to JSON
+                    success: function(response) {
+                        // Handle the response from the server
+                        console.log(response);
+                    },
+                    error: function(error) {
+                        console.error('Error:', error);
+                    }
+                });
+
+
+            });
+
+        });
+
+        // Define the drawMap function
+        function drawMap(newData) {
+            markerBlok.clearLayers(); // Clear area maps layer only
+
+            var bounds = new L.LatLngBounds(); // Create a bounds object to store the coordinates
+
+            for (var key in newData) {
+                if (newData.hasOwnProperty(key)) {
+                    var regionData = newData[key];
+
+                    for (var i = 0; i < regionData.length; i++) {
+                        var data = regionData[i].lat_lon;
+
+                        if (Array.isArray(data)) {
+                            // Initialize the coordinates array for each polygon
+                            var coordinates = [];
+
+                            for (var j = 0; j < data.length; j++) {
+                                var latLon = data[j].split(';'); // Split the lat_lon string by ';'
+                                var lat = parseFloat(latLon[0]);
+                                var lon = parseFloat(latLon[1]);
+
+                                if (!isNaN(lat) && !isNaN(lon)) {
+                                    var latLng = new L.LatLng(lat, lon);
+
+                                    // Extend the bounds with the new LatLng object
+                                    bounds.extend(latLng);
+                                    coordinates.push(latLng);
+                                }
+                            }
+                            var polygonStyle = {
+                                fillOpacity: 0.05,
+                                opacity: 0.5
+                            };
+
+
+                            var polygon = L.polygon(coordinates, polygonStyle).addTo(markerBlok);
+
+                            var polygonCenter = polygon.getBounds().getCenter();
+
+
+                        }
+                    }
+                }
+            }
+
+            // Fit the map to the calculated bounds
+            map.fitBounds(bounds);
+        }
+
+
+        $('#showEstMap').on('click', function() {
+            var _token = $('input[name="_token"]').val();
+            var estData = $("#Estate").val();
+            var afdling = $("#afdling").val();
+
+            console.log(estData);
+            console.log(afdling);
+
+            $.ajax({
+                url: "{{ route('mapsestatePlot') }}",
+                method: "get",
+                data: {
+                    estData: estData,
+                    afdling: afdling,
+                    _token: _token
+                },
+                success: function(result) {
+                    var plot = JSON.parse(result);
+                    // Swal.close();
+                    const newData = Object.entries(plot['blok']);
+
+
+                    drawMap(newData)
+                    // draw_pokok(blokResult)
+
+                }
+            });
+        });
 
     });
-
-    function drawBlokPlot(blok) {
-
-        var estData = $("#Estate").val();
-        // Add the tile layer and create the map
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
-        // Create an array to store the coordinates for the polygon
-        var coordinates = [];
-
-        // Extract coordinates from your 'blok' array
-        blok.forEach(function(entry) {
-            var lat = parseFloat(entry[1].lat); // Access lat from index 1
-            var lon = parseFloat(entry[1].lon); // Access lon from index 1
-
-            // Check if lat and lon are valid numbers
-            if (!isNaN(lat) && !isNaN(lon)) {
-                coordinates.push([lat, lon]);
-            }
-        });
-
-        var polygon = L.polygon(coordinates).addTo(map);
-
-        // Fit the map bounds to the polygon
-        map.fitBounds(polygon.getBounds());
-
-        // Make the polygon editable
-        polygon.enableEdit();
-
-        // Listen for changes in the polygon and update the coordinates
-        polygon.on('editable:vertex:dragend', function(e) {
-            coordinates = polygon.getLatLngs()[0]; // Update coordinates with edited coordinates
-            console.log(coordinates);
-        });
-        $('#saveButton').click(function() {
-            var textData = coordinates.map(function(latLng) {
-                // console.log(coordinates);
-                return estData + ',' + latLng.lat + ',' + latLng.lng;
-            }).join('\n');
-
-            // Create a Blob with the text data and save it as a TXT file
-            var blob = new Blob([textData], {
-                type: 'text/plain;charset=utf-8'
-            });
-            saveAs(blob, 'coordinates.txt');
-        });
-
-
-
-        if (polygon.getBounds().isValid()) {
-            map.fitBounds(polygon.getBounds());
-        } else {
-            console.error('Invalid bounds:', polygon.getBounds());
-        }
-    }
-
-
-
-    function draw_pokok(blok) {
-
-
-        // Add a base layer (you can choose from various map providers, e.g., OpenStreetMap)
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
-        // Iterate through the nested structure and add markers to the map
-        blok.forEach(function(entry) {
-            var lat = parseFloat(entry[1].lat);
-            var lon = parseFloat(entry[1].lon);
-            var number = entry[1].number;
-            var id = entry[1].id;
-            var plot = entry[1].Plot;
-
-            if (!isNaN(lat) && !isNaN(lon)) {
-                var marker = L.marker([lat, lon]).addTo(map);
-                marker.bindPopup("Plot: " + plot +
-                    "<br>Number: " + number +
-                    "<br>ID: " + id +
-                    "<br>lat: " + lat +
-                    "<br>lon: " + lon
-                );
-            }
-        });
-
-        // Fit the map bounds to all markers
-        var bounds = L.latLngBounds(blok.map(function(entry) {
-            var lat = parseFloat(entry[1].lat);
-            var lon = parseFloat(entry[1].lon);
-            return L.latLng(lat, lon);
-        }));
-        map.fitBounds(bounds);
-    }
 </script>

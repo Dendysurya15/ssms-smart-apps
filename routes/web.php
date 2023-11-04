@@ -65,6 +65,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('/mapsTest', [MapsController::class, 'mapsTest'])->name('mapsTest');
     Route::get('/mapsestatePlot', [MapsController::class, 'mapsestatePlot'])->name('mapsestatePlot');
+    Route::post('/inputquery', [MapsController::class, 'getData'])->name('inputquery');
 });
 
 Route::get('/dashboard_vehicle_management', function () {
