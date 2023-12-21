@@ -153,10 +153,12 @@
                     </select>
                 </div>
                 <div class="col-2">
-                    <button id="btnExport" class="btn btn-success"> Export PDF <i class="nav-icon fa fa-download"></i></button>
+                    <button id="btnExport" class="btn btn-success"> Export PDF <i
+                            class="nav-icon fa fa-download"></i></button>
                 </div>
                 <div class="col-3">
-                    <button id="btnExportqc" class="btn btn-success"> Export PDF QC <i class="nav-icon fa fa-download"></i></button>
+                    <button id="btnExportqc" class="btn btn-success"> Export PDF QC <i
+                            class="nav-icon fa fa-download"></i></button>
                 </div>
             </div>
             <br>
@@ -168,7 +170,8 @@
                         <div class="card-body">
                             <p id="textData"></p>
                             <div class="table_wrapper">
-                                <table id="yajra-table" style="margin: 0 auto;text-align:center" class="table table-striped">
+                                <table id="yajra-table" style="margin: 0 auto;text-align:center"
+                                    class="table table-striped">
                                     <thead>
                                         <tr>
                                             <th scope="col">No</th>
@@ -212,7 +215,9 @@
 @include('layout.footer')
 
 {{-- <script src="{{ asset('lottie/93121-no-data-preview.json') }}" type="text/javascript"></script> --}}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.9.4/lottie.min.js" integrity="sha512-ilxj730331yM7NbrJAICVJcRmPFErDqQhXJcn+PLbkXdE031JJbcK87Wt4VbAK+YY6/67L+N8p7KdzGoaRjsTg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.9.4/lottie.min.js"
+    integrity="sha512-ilxj730331yM7NbrJAICVJcRmPFErDqQhXJcn+PLbkXdE031JJbcK87Wt4VbAK+YY6/67L+N8p7KdzGoaRjsTg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <!-- jQuery -->
 <script src="{{ asset('/public/plugins/jquery/jquery.min.js') }}"></script>
 <!-- Bootstrap 4 -->
@@ -226,7 +231,8 @@
 
 <script src="{{ asset('/public/js/loader.js') }}"></script>
 
-<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCzh5V86q6kt8UKJ8YE3oDOW0OexAXmlz8">
+<script type="text/javascript"
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCzh5V86q6kt8UKJ8YE3oDOW0OexAXmlz8">
 </script>
 
 <script>
@@ -273,8 +279,29 @@
                     case 'OE':
                         colorAfd = '#ff1744'
                         break;
-                    case 'OF':
-                        colorAfd = '#ff1744'
+                        case 'OF':
+                        colorAfd = '#666666'
+                        break;
+                    case 'OG':
+                        colorAfd = '#666666'
+                        break;
+                        case 'OH':
+                        colorAfd = '#666666'
+                        break;
+                        case 'OI':
+                        colorAfd = '#ba9355'
+                        break;
+                        case 'OJ':
+                        colorAfd = '#ccff00'
+                        break;
+                        case 'OK':
+                        colorAfd = '#8f9e8a'
+                        break;
+                        case 'OL':
+                        colorAfd = '#14011c'
+                        break;
+                        case 'OM':
+                        colorAfd = '#01b9c5'
                         break;
                     default:
                         // code block
@@ -396,6 +423,12 @@
                                     fillOpacity: 0.4,
 
                             };
+                            default:
+                            return {    
+                                color: "#003B73",
+                                    opacity: 1,
+                                    fillOpacity: 0.4,
+                            };
                     }
                 }
             })
@@ -426,7 +459,10 @@
             getPlotStr += '"' + blok[i]['blok'] + '",'
             getPlotStr += '"estate"'
             getPlotStr += ":"
-            getPlotStr += '"' + blok[i]['estate'] + '"'
+            getPlotStr += '"' + blok[i]['estate'] + '",'
+            getPlotStr += '"afdeling"'
+            getPlotStr += ":"
+            getPlotStr += '"' + blok[i]['afdeling'] + '"'
             getPlotStr += '},'
             getPlotStr += '"geometry"'
             getPlotStr += ":"
@@ -442,8 +478,10 @@
         getPlotStr = getPlotStr.substring(0, getPlotStr.length - 1);
         getPlotStr += ']}'
 
+
         var blok = JSON.parse(getPlotStr)
 
+        console.log(blok)
         L.geoJSON(blok, {
                 onEachFeature: function(feature, layer) {
 
@@ -460,19 +498,112 @@
                     layer.addTo(map);
                 },
                 style: function(feature) {
-                    switch (feature.properties.estate) {
-                        case 'Sulung':
+                    switch (feature.properties.afdeling) {
+                        case 'OA':
                             return {
-                                color: "#FBAB71"
+                                fillColor: "#ff1744",
+                                    color: 'white',
+                                    fillOpacity: 0.4,
+                                    opacity: 0.4,
                             };
-                        case 'Rangda':
+                        case 'OB':
                             return {
-                                color: "#68BBE3"
+                                fillColor: "#d500f9",
+                                    color: 'white',
+                                    fillOpacity: 0.4,
+                                    opacity: 0.4,
+                            };
+                        case 'OC':
+                            return {
+                                fillColor: "#ffa000",
+                                    color: 'white',
+                                    fillOpacity: 0.4,
+                                    opacity: 0.4,
+                            };
+                        case 'OD':
+                            return {
+                                fillColor: "#00b0ff",
+                                    color: 'white',
+                                    fillOpacity: 0.4,
+                                    opacity: 0.4,
+                            };
+
+                        case 'OE':
+                            return {
+                                fillColor: "#67D98A",
+                                    color: 'white',
+                                    fillOpacity: 0.4,
+                                    opacity: 0.4,
+
+                            };
+                        case 'OF':
+                            return {
+                                fillColor: "#666666",
+                                    color: 'white',
+                                    fillOpacity: 0.4,
+                                    opacity: 0.4,
+
+                            };
+                        case 'OG':
+                            return {
+                                fillColor: "#666666",
+                                    color: 'white',
+                                    fillOpacity: 0.4,
+                                    opacity: 0.4,
+
+                            };
+                            case 'OH':
+                            return {
+                                fillColor: "#666666",
+                                    color: 'white',
+                                    fillOpacity: 0.4,
+                                    opacity: 0.4,
+
+                            };
+                            case 'OI':
+                            return {
+                                fillColor: "#ba9355",
+                                    color: 'white',
+                                    fillOpacity: 0.4,
+                                    opacity: 0.4,
+
+                            };
+                            case 'OJ':
+                            return {
+                                fillColor: "#ccff00",
+                                    color: 'white',
+                                    fillOpacity: 0.4,
+                                    opacity: 0.4,
+
+                            };
+                            case 'OK':
+                            return {
+                                fillColor: "#8f9e8a",
+                                    color: 'white',
+                                    fillOpacity: 0.4,
+                                    opacity: 0.4,
+
+                            };
+                            case 'OL':
+                            return {
+                                fillColor: "#14011c",
+                                    color: 'white',
+                                    fillOpacity: 0.4,
+                                    opacity: 0.4,
+
+                            };
+                            case 'OM':
+                            return {
+                                fillColor: "#01b9c5",
+                                    color: 'white',
+                                    fillOpacity: 0.4,
+                                    opacity: 0.4,
+
                             };
                     }
                 }
             })
-            .addTo(map);
+            ;
     }
 
     function drawLineTaksasi(line) {
@@ -569,6 +700,34 @@
                     break;
                 case 'OF':
                     marker = 'manMarkerOF'
+                    break;
+                    case 'OG':
+                    marker = 'manMarkerOF'
+                    colorMarker = 'grey'
+                    break;
+                    case 'OH':
+                    marker = 'manMarkerOF'
+                    colorMarker = 'gold'
+                    break;
+                    case 'OI':
+                    marker = 'manMarkerOF'
+                    colorMarker = 'violet'
+                    break;
+                    case 'OJ':
+                    marker = 'manMarkerOF'
+                    colorMarker = 'grey'
+                    break;
+                    case 'OK':
+                    marker = 'manMarkerOF'
+                    colorMarker = 'red'
+                    break;
+                    case 'OL':
+                    marker = 'manMarkerOF'
+                    colorMarker = 'blue'
+                    break;
+                    case 'OM':
+                    marker = 'manMarkerOF'
+                    colorMarker = 'grey'
                     break;
                 default:
                     // code block
@@ -909,7 +1068,10 @@
                 tgl: date
             },
             success: function(result) {
+                
                 var blok = JSON.parse(result);
+
+                
                 drawBlokPlot(blok)
             }
         })

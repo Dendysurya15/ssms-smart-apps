@@ -675,6 +675,9 @@ class DashboardController extends Controller
 
         $tgl = $request->get('tgl');
 
+
+
+
         // $tglData = Carbon::parse($tgl);
 
         // $kemarin = $tglData->subDay()->format('Y-m-d') . ' 00:00:00';
@@ -692,6 +695,16 @@ class DashboardController extends Controller
             ->orderBy('taksasi.waktu_upload', 'desc')
             ->get();
 
+        $markers = [];
+
+        foreach ($queryData as $row) {
+            $lat = floatval($row->lat_awal);
+            $lon = floatval($row->lon_awal);
+            $markers[] = [$lat, $lon];
+        }
+        $markers = array_values($markers);
+
+
         $queryData = json_decode($queryData, true);
 
         $list_blok = array();
@@ -702,69 +715,262 @@ class DashboardController extends Controller
         $blokPerEstate = array();
         $estateQuery = Estate::with("afdeling")->where('est', $estate_input)->get();
         $listIdAfd = array();
+
+        $polygons = array();
+        $listBlok = [];
         foreach ($estateQuery as $key => $value) {
-            $i = 0;
             foreach ($value->afdeling as $key2 => $data) {
-                $blokPerEstate[$estate_input][$data->nama] =  Afdeling::with("blok")->find($data->id)->blok->pluck('nama', 'id');
-                $listIdAfd[] = $data->id;
-                $i++;
-            }
-        }
+                foreach ($data as $value2) {
+                    $data2 = Afdeling::with("blok")->find($data->id)->blok;
+                    foreach ($data2 as $value2) {
+                        $nama = $value2->nama;
+                        $latln = $value2->lat . ',' . $value2->lon;
 
-        // dd($blokPerEstate);
-
-        $result_list_blok = array();
-        foreach ($list_blok as $key => $value) {
-            foreach ($value as $key2 => $data) {
-                if (strlen($data) == 5) {
-                    $result_list_blok[$key][$data] = substr($data, 0, -2);
-                }
-                if (strlen($data) == 6) {
-                    $sliced = substr_replace($data, '', 1, 1);
-                    $result_list_blok[$key][$data] = substr($sliced, 0, -2);
-                }
-            }
-        }
-
-        $result_list_all_blok = array();
-        foreach ($blokPerEstate as $key2 => $value) {
-            foreach ($value as $key3 => $afd) {
-                foreach ($afd as $key4 => $data) {
-                    if (strlen($data) == 4) {
-                        $result_list_all_blok[$key2][] = substr_replace($data, '', 1, 1);
+                        if (!isset($polygons[$nama])) {
+                            $polygons[$nama] = $latln;
+                            $listBlok[] = $nama;
+                        } else {
+                            $polygons[$nama] .= '$' . $latln;
+                        }
                     }
                 }
             }
         }
 
-        // //bandingkan list blok query dan list all blok dan get hanya blok yang cocok
-        $result_blok = array();
-        if (array_key_exists($estate_input, $result_list_all_blok)) {
-            $query = array_unique($result_list_all_blok[$estate_input]);
-            $result_blok[$estate_input] = array_intersect($result_list_blok[$estate_input], $query);
+        $polygons = array_values($polygons);
+
+
+
+        function isPointInPolygon($point, $polygon)
+        {
+
+            $x = $point[0];
+            $y = $point[1];
+
+            // dd($polygon);
+            $vertices = array_map(function ($vertex) {
+                return explode(',', $vertex);
+            }, explode('$', $polygon));
+
+            // dd($vertices);
+
+            $numVertices = count($vertices);
+            $isInside = false;
+
+            for ($i = 0, $j = $numVertices - 1; $i < $numVertices; $j = $i++) {
+                $xi = $vertices[$i][0];
+                $yi = $vertices[$i][1];
+                $xj = $vertices[$j][0];
+                $yj = $vertices[$j][1];
+
+                $intersect = (($yi > $y) != ($yj > $y)) && ($x < ($xj - $xi) * ($y - $yi) / ($yj - $yi) + $xi);
+
+                if ($intersect) {
+                    $isInside = !$isInside;
+                }
+            }
+
+            return $isInside;
         }
+
+        $finalResultBlok = [];
+
+        // dd($markers);
+        foreach ($polygons as $key => $polygon) {
+            foreach ($markers as $index => $marker) {
+                // dd($marker, $polygon);
+                if (isPointInPolygon($marker, $polygon)) {
+
+                    $finalResultBlok[] = $listBlok[$key];
+                }
+            }
+        }
+        $finalResultBlok = array_unique($finalResultBlok);
+
+
+        // $result_list_blok = array();
+        // foreach ($list_blok as $key => $value) {
+        //     foreach ($value as $key2 => $data) {
+        //         $parts = explode('-CBI', $data);
+
+        //         if (count($parts) > 1) {
+        //             $result_list_blok[$key][$data] = $parts[0];
+        //         } elseif (strlen($data) == 5) {
+        //             $result_list_blok[$key][$data] = substr($data, 0, -2);
+        //         } elseif ($key == "SCE") {
+        //             $s = substr_replace($data, '', 1, 1);
+
+        //             $s = substr_replace($s, '0', 1, 0);
+
+        //             $result = substr($s, 0, -2);
+
+        //             if (substr($data, 0, 1) == 'H') {
+        //                 $result_list_blok[$key][$data] = $result . 'a';
+        //             } else {
+        //                 $result_list_blok[$key][$data] = $result;
+        //             }
+        //         } elseif ($key == "RGE") {
+
+        //             $result_list_blok[$key][$data] = substr($data, 0, -2);
+        //         } elseif ($key == "SJE") {
+
+        //             $result_list_blok[$key][$data] = substr($data, 0, -3);
+        //         } elseif ($key == "LME1") {
+
+        //             $result_list_blok[$key][$data] = substr($data, 0, -3);
+        //         } elseif ($key == "LME2") {
+
+        //             $result_list_blok[$key][$data] = substr($data, 0, -3);
+        //         } elseif ($key == "TBE") {
+
+        //             $result_list_blok[$key][$data] = substr($data, 0, -2);
+        //         } elseif ($key == "KTE4") {
+
+        //             $result_list_blok[$key][$data] = substr($data, 0, -3);
+        //         } elseif ($key == "KNE") {
+
+        //             $result_list_blok[$key][$data] = substr($data, 0, 4);
+        //         } elseif ($key == "UPE") {
+
+        //             $result_list_blok[$key][$data] = substr($data, 0, 4);
+        //         } elseif (strlen($data) == 6) {
+        //             if ($key == "KTE" || $key == "MKE" || $key == "PKE" || $key == "BSE" || $key == "BWE" || $key == "GDE" || $key == "BDE" || $key = "BHE") {
+        //                 $result_list_blok[$key][$data] = substr($data, 0, -3);
+        //             } else {
+        //                 $sliced = substr_replace($data, '', 1, 1);
+        //                 $result_list_blok[$key][$data] = substr($sliced, 0, -2);
+        //             }
+        //         } elseif (strlen($data) == 3) {
+        //             $result_list_blok[$key][$data] = $data;
+        //         } elseif (strpos($data, 'CBI') !== false) {
+        //             // $result_list_blok[$key][$data] = substr($data, 0, -7);
+        //             $result_list_blok[$key][$data] = substr($data, 0, 4);
+        //         } elseif (strpos($data, 'SSMSCBI') !== false) {
+        //             // $sliced = substr_replace($data, '', 1, 1);
+        //             $result_list_blok[$key][$data] = substr($data, 0, 4);
+        //             // $result_list_blok[$key][$data] = substr($sliced, 0, -10);
+        //         }
+        //     }
+        // }
+
+        // $data = [];
+        // while ($row = $result->fetch_assoc()) {
+        //     $data[] = $row;
+        // }
+
+
+        // $groupedResults = [];
+        // foreach ($data as $item) {
+        //     $nama = $item['nama'];
+        //     if (!isset($groupedResults[$nama])) {
+        //         $groupedResults[$nama] = [];
+        //     }
+        //     $groupedResults[$nama][] = $item;
+        // }
+        // print_r($groupedResults);
+
+        // [blok] => N23012
+        // [estate] => Badirih
+        // [afdeling] => OB
+        // [latln] => [114.235591,-3.041843],[114.232783,-3.041775],[114.232888,-3.032611],[114.235797,-3.03265],[114.235591,-3.041843]
+
+        // $blokLatLnEw = array();
+        // $inc = 0;
+        // foreach ($groupedResults as $key => $value) {
+        //     $latln = '';
+        //     $latln2 = '';
+        //     foreach ($value as $key3 => $value4) {
+
+        //         $latln .= $value4['lat'] . ',' . $value4['lon'] . '$';
+        //         $latln2 .= '[' . $value4['lon'] . ',' . $value4['lat'] . '],';
+        //     }
+
+        //     $blokLatLnEw[$inc]['blok'] = $key;
+        //     $blokLatLnEw[$inc]['afd'] = $value4['afd_nama'];
+        //     $blokLatLnEw[$inc]['estate'] = $namaEstate;
+        //     $blokLatLnEw[$inc]['latln'] = rtrim($latln, '$');
+        //     $blokLatLnEw[$inc]['latinnew'] = rtrim($latln2, ',');
+        //     $inc++;
+        // }
+        // // print_r($blokLatLnEw);
+
+
+
+        // $uniqueCombinations = [];
+        // $blokLatLn = array();
+        // foreach ($blokLatLnEw as $value) {
+        //     foreach ($arr as $marker) {
+        //         if (isPointInPolygon($marker['latins'], $value['latln'])) {
+        //             // Create a unique key based on nama, estate, and latin
+        //             $key = $value['blok'] . '_' . $est . '_' . $value['latln'];
+
+        //             // $latln .= '[' . $val->lon . ',' . $val->lat . '],';
+
+        //             // Check if the combination already exists
+        //             if (!isset($uniqueCombinations[$key])) {
+        //                 $uniqueCombinations[$key] = true; // Mark the combination as encountered
+        //                 $blokLatLn[$namaEstate][] = [
+        //                     'blok' => $marker['blok'],
+        //                     'estate' => $est,
+        //                     'afdeling' => $value['afd'],
+        //                     'latln' => $value['latinnew']
+        //                 ];
+        //             }
+        //         }
+        //     }
+        // }
+        // dd($blokPerEstate);
+
+        // $result_list_blok = array();
+        // foreach ($list_blok as $key => $value) {
+        //     foreach ($value as $key2 => $data) {
+        //         if (strlen($data) == 5) {
+        //             $result_list_blok[$key][$data] = substr($data, 0, -2);
+        //         }
+        //         if (strlen($data) == 6) {
+        //             $sliced = substr_replace($data, '', 1, 1);
+        //             $result_list_blok[$key][$data] = substr($sliced, 0, -2);
+        //         }
+        //     }
+        // }
+
+        // $result_list_all_blok = array();
+        // foreach ($blokPerEstate as $key2 => $value) {
+        //     foreach ($value as $key3 => $afd) {
+        //         foreach ($afd as $key4 => $data) {
+        //             if (strlen($data) == 4) {
+        //                 $result_list_all_blok[$key2][] = substr_replace($data, '', 1, 1);
+        //             }
+        //         }
+        //     }
+        // }
+
+        // // //bandingkan list blok query dan list all blok dan get hanya blok yang cocok
+        // $result_blok = array();
+        // if (array_key_exists($estate_input, $result_list_all_blok)) {
+        //     $query = array_unique($result_list_all_blok[$estate_input]);
+        //     $result_blok[$estate_input] = array_intersect($result_list_blok[$estate_input], $query);
+        // }
 
         // // //get lat lang dan key $result_blok atau semua list_blok
 
         $blokLatLn = array();
+        $inc = 0;
+        foreach ($finalResultBlok as $key => $value) {
 
-        foreach ($result_blok as $key => $value) {
-            $inc = 0;
-            foreach ($value as $key2 => $data) {
-                $newData = substr_replace($data, '0', 1, 0);
-                $query = '';
-                $query = DB::connection('mysql2')->table('blok')
-                    ->select('blok.*')
-                    ->where('blok.nama', $newData)
-                    ->whereIn('blok.afdeling', $listIdAfd)
-                    ->get();
 
-                $latln = '';
-                foreach ($query as $key3 => $val) {
+            $query = DB::connection('mysql2')->table('blok')
+                ->select('blok.*', 'estate.est', 'afdeling.nama as nama_afdeling')
+                ->join('afdeling', 'blok.afdeling', '=', 'afdeling.id')
+                ->join('estate', 'afdeling.estate', '=', 'estate.id')
+                ->where('estate.est', $estate_input)
+                ->where('blok.nama', $value)
+                ->get();
 
-                    $latln .= '[' . $val->lon . ',' . $val->lat . '],';
-                }
+            $latln = '';
 
+            foreach ($query as $key2 => $data) {
+                $latln .= '[' . $data->lon . ',' . $data->lat . '],';
                 $estate = DB::connection('mysql2')->table('estate')
                     ->select('estate.*')
                     ->where('estate.est', $estate_input)
@@ -772,11 +978,14 @@ class DashboardController extends Controller
 
                 $nama_estate = $estate->nama;
 
-                $blokLatLn[$inc]['blok'] = $key2;
+
+                // dd($latln);
+                $blokLatLn[$inc]['blok'] = $data->nama;
                 $blokLatLn[$inc]['estate'] = $nama_estate;
+                $blokLatLn[$inc]['afdeling'] = $data->nama_afdeling;
                 $blokLatLn[$inc]['latln'] = rtrim($latln, ',');
-                $inc++;
             }
+            $inc++;
         }
 
 
