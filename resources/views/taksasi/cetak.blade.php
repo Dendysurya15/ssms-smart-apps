@@ -5,12 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" type="text/css" media="screen" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" media="screen"
+        href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
 
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
     <title>Document</title>
 </head>
 
@@ -79,24 +81,35 @@
     <table class="table table-bordered " style="font-size: 11px;">
         <thead>
             <tr>
-                <th colspan="12" class="text-center" style="padding:10px;background: #D9E1F2;border: 2px solid black;font-size:16px">
+                <th colspan="15" class="text-center"
+                    style="padding:10px;background: #D9E1F2;border: 2px solid black;font-size:16px">
                     LAPORAN TAKSASI PANEN
                 </th>
             </tr>
             <tr>
-                <th style=" color: white;border-left:1px solid white;border-bottom:1px solid black;border-right:1px solid white" colspan="3">|</th>
-                <th style=" color: white;border-bottom:1px solid white;border-right:1px solid white" colspan="6">|</th>
-                <th style=" color: white;border-left:1px solid white;border-bottom:1px solid black;border-right:1px solid white" colspan="3">|</th>
+                <th colspan="15"
+                    style="color: white;border-bottom:1px solid white;border-left:1px solid white;border-right:1px solid white">
+                    askdf
+                </th>
+
+                {{-- <th
+                    style=" color: white;border-left:1px solid white;border-bottom:1px solid black;border-right:1px solid white"
+                    colspan="3">|</th> --}}
+                {{-- <th style=" color: white;border-bottom:1px solid white;border-right:1px solid white" colspan="9">|
+                </th>
+                <th style=" color: white;border-left:1px solid white;border-bottom:1px solid black;border-right:1px solid white"
+                    colspan="3">|</th> --}}
             </tr>
             <tr>
                 <th colspan="3" style="font-size: 13px;
-               padding:8px;text-align: left;background:#D9E1F2;">
+               padding:8px;text-align: left;background:#D9E1F2;border-top:1.5px solid black">
                     ESTATE : {{$namaEstate}}
                 </th>
 
-                <th colspan="6" style="border-right: 1px solid black;border-bottom:1px solid white"></th>
+                <th colspan="6" style="border-top: 1px solid black;border-bottom:1px solid white"></th>
 
-                <th colspan="3" style="padding:8px;font-size: 13px;text-align: left;background:#D9E1F2;border:1px solid black">
+                <th colspan="6"
+                    style="padding:8px;font-size: 13px;text-align: left;background:#D9E1F2;border-top:1.5px solid black">
                     TANGGAL TAKSASI : {{$today}}</th>
             </tr>
             <tr>
@@ -108,11 +121,12 @@
                 <th colspan="6" style="border-right: 1px solid black;border-bottom: 1px solid white"></th>
 
 
-                <th colspan="3" style="padding:8px;font-size: 13px;text-align: left;background:#D9E1F2;border:1px solid black">
+                <th colspan="6"
+                    style="padding:8px;font-size: 13px;text-align: left;background:#D9E1F2;border:1px solid black">
                     TANGGAL PANEN : {{$besok}}</th>
             </tr>
             <tr>
-                <th style=" color: white;border-left:1px solid white;border-right:1px solid white" colspan="12">|</th>
+                <th style=" color: white;border-left:1px solid white;border-right:1px solid white" colspan="15">|</th>
             </tr>
         </thead>
         <thead class="text-center" style="border: 1px solid black">
@@ -122,6 +136,9 @@
                 <th style="border:1px solid black;padding:10px;width:7%;">LUAS (HA)</th>
                 <th style="border:1px solid black;padding:10px;width:6%;">SPH (Pkk/Ha)</th>
                 <th style="border:1px solid black;padding:10px;width:5%;">BJR (Kg/Jjg)</th>
+                <th style="border:1px solid black;padding:10px;width:8%;">BARIS KIRI</th>
+                <th style="border:1px solid black;padding:10px;width:8%;">BARIS KANAN</th>
+                <th style="border:1px solid black;padding:10px;width:10%;">NAMA ANCAK</th>
                 <th style="border:1px solid black;padding:10px;width:5%;">SAMPEL PATH</th>
                 <th style="border:1px solid black;padding:10px;width:5%;">POKOK SAMPEL</th>
                 <th style="border:1px solid black;padding:10px;width:5%;">JANJANG</th>
@@ -146,6 +163,9 @@
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$item['luas']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$item['sph']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$item['bjr']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$item['br_kiri']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$item['br_kanan']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">{{$item['nama_ancak']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$item['jumlah_path']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$item['jumlah_pokok']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$item['jumlah_janjang']}}</td>
@@ -165,6 +185,9 @@
                 </td>
 
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$valuex['bjr']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">-</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">-</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">-</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$valuex['jumlah_path']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$valuex['jumlah_pokok']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$valuex['jumlah_janjang']}}</td>
@@ -184,6 +207,9 @@
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$takest['luas']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{intval($takest['sph'])}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$takest['bjr']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">-</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">-</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">-</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$takest['jumlah_path']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$takest['jumlah_pokok']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$takest['jumlah_janjang']}}</td>
@@ -219,7 +245,8 @@
 
     <h2 class="text-center">Maps User Taksasi</h2>
     <br>
-    <img src="https://mobilepro.srs-ssms.com/storage/app/public/taksasi/{{$est}}_{{$tgl}}.png" style="width:1040px;height:640px;">
+    <img src="https://mobilepro.srs-ssms.com/storage/app/public/taksasi/{{$est}}_{{$tgl}}.png"
+        style="width:1040px;height:640px;">
 </body>
 
 </html>
