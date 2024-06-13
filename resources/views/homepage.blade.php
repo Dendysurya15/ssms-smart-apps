@@ -100,26 +100,37 @@
                             </table>
                         </div>
 
-                        <div class="card mt-3 p-3">
-                            <h4 style="color:#013C5E;font-weight: 550">Rekap Taksasi Wilayah
-                            </h4>
-                            <table id="table-wilayah" class="display">
-                                <thead>
-                                    <tr>
-                                        <th>Wilayah</th>
-                                        <th>Luas (Ha)</th>
-                                        <th>Jumlah Blok</th>
-                                        <th>Ritase</th>
-                                        <th>AKP (%)</th>
-                                        <th>Taksasi (Kg)</th>
-                                        <th>Kebutuhan Pemanen</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="card mt-3 p-3">
+                                    <h4 style="color:#013C5E;font-weight: 550">Rekap Taksasi Wilayah
+                                    </h4>
+                                    <table id="table-wilayah" class="display">
+                                        <thead>
+                                            <tr>
+                                                <th>Wilayah</th>
+                                                <th>Luas (Ha)</th>
+                                                <th>Jumlah Blok</th>
+                                                <th>Ritase</th>
+                                                <th>AKP (%)</th>
+                                                <th>Taksasi (Kg)</th>
+                                                <th>Kebutuhan Pemanen</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
 
+                                </div>
+                            </div>
+
+                            <div class="col-6">
+                                <div class="card mt-3 p-3">
+                                    <div id="chart"></div>
+                                </div>
+                            </div>
                         </div>
+
                     </div>
                     <div id="estateTab" class="tab-pane fade in active">
                         @include('homepage-tab-estate')
@@ -154,11 +165,76 @@
 
 <script src="{{ asset('/public/js/loader.js') }}"></script>
 
-
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
 <script>
     $(document).ready(function(){
+
         $('a[href="#regoinal&WilayahTab"]').click();
+
+
+
+        var options = {
+                        series: [
+                            {
+                                name: 'Taksasi (Kg)',
+                                data: [1]
+                            },
+                            {
+                                name: 'AKP (%)',
+                                data: [2]
+                            }
+                        ],
+                        chart: {
+                            type: 'bar',
+                            height: 350
+                        },
+                        plotOptions: {
+                            bar: {
+                                horizontal: false,
+                                columnWidth: '55%',
+                                endingShape: 'rounded'
+                            },
+                        },
+                        dataLabels: {
+                            enabled: false
+                        },
+                        stroke: {
+                            show: true,
+                            width: 2,
+                            colors: ['transparent']
+                        },
+                        xaxis: {
+                            categories: ['Wilayah 1'],
+                        },
+                        yaxis: [{
+                            title: {
+                                text: 'Taksasi (Kg)'
+                            }
+                        }, {
+                            opposite: true,
+                            title: {
+                                text: 'AKP (%)'
+                            }
+                        }],
+                        fill: {
+                            opacity: 1
+                        },
+                        tooltip: {
+                            y: [{
+                                formatter: function (val) {
+                                    return val + " Kg"
+                                }
+                            }, {
+                                formatter: function (val) {
+                                    return val + " %"
+                                }
+                            }]
+                        }
+                    };
+
+        var chart = new ApexCharts(document.querySelector("#chart"), options);
+        chart.render();
         // Set default date to today
         var dateToday = new Date().toISOString().slice(0,10);
         $('#tgl').val(dateToday);
@@ -236,6 +312,7 @@
                         "processing": true,
                         "serverSide": false,
                         "data": dataWil,
+                        "pageLength": 25,
                         "columns": [
                             { "data": "wilayah", "title": "Wilayah" },
                             { "data": "luas", "title": "Luas" },
@@ -245,6 +322,29 @@
                             { "data": "ritase", "title": "Ritase" },
                             { "data": "keb_pemanen", "title": "Keb Pemanen" }
                         ]
+                    });
+                    var taksasiData = [];
+                    var akpData = [];
+                    var chartCategories = [];
+
+                    $.each(parseResult['data_wil'], function(wilayah, values) {
+                        chartCategories.push(wilayah);
+                        taksasiData.push(values.taksasi === '-' ? 0 : values.taksasi);  // Convert '-' to 0 for the chart
+                        akpData.push(values.akp === '-' ? 0 : values.akp);  // Convert '-' to 0 for the chart
+                    });
+
+                    chart.updateSeries([{
+                        name: 'AKP (%)',
+                        data: akpData
+                    }, {
+                        name: 'Taksasi (Kg)',
+                        data: taksasiData
+                    }]);
+
+                    chart.updateOptions({
+                        xaxis: {
+                            categories: chartCategories
+                        }
                     });
                 }
             });
