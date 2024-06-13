@@ -61,111 +61,69 @@
                     <div class="col-12 col-lg-3 pb-3">
                         Pilih Tanggal
                         <form class="" action="{{ route('dashboard') }}" method="get">
-                            <input class="form-control" type="date" name="tgl" onchange="this.form.submit()">
+                            <input class="form-control" type="date" name="tgl" id="tgl">
                         </form>
                     </div>
                 </div>
 
 
-                <div class="row">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item active"><a data-toggle="tab" href="#regoinal&WilayahTab"
+                            class="nav-link ">Regional &
+                            Wilayah</a>
+                    </li>
+                    <li class="nav-item"><a data-toggle="tab" href="#estateTab" class="nav-link">Estate</a>
+                    </li>
+                </ul>
 
-                    <div class="pt-3 pb-3 font-italic col-12 col-lg mr-2 selectCard"
-                        style="color:#013C5E;background-color:white;border-radius:5px;  display: table;width: 100%;">
-                        <a href="{{ asset('/dashboard_taksasi') }}">
+                <div class="tab-content">
 
-                            <div class="pl-3 pr-3 font-weight-bold">
-                                {{-- <span class="font-weight-bold">Update data taksasi terakhir</span>
-                                <hr> --}}
-                                <span class="font-weight-bold">{{$date}} - {{$hour}} WIB</span>
+                    <div id="regoinal&WilayahTab" class="tab-pane fade in active">
+                        <div class="card mt-3 p-3">
+                            <h4 style="color:#013C5E;font-weight: 550">Rekap Taksasi Regional
+                            </h4>
+                            <table id="table-regional" class="display">
+                                <thead>
+                                    <tr>
+                                        <th>Regional</th>
+                                        <th>Luas (Ha)</th>
+                                        <th>Jumlah Blok</th>
+                                        <th>Ritase</th>
+                                        <th>AKP (%)</th>
+                                        <th>Taksasi (Kg)</th>
+                                        <th>Kebutuhan Pemanen</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
 
-                                <hr>
-                            </div>
-                            <div style="display: table-cell;vertical-align: middle;">
+                                </tbody>
+                            </table>
+                        </div>
 
-                                <span class="pl-3 " style="color: #6C7C8B">
-                                    {{-- Taksasi @if ($dataEstate != '')
-                                    {{$dataEstate['est']}}
-                                    @else --}}
-                                    Rangda
-                                    {{-- @endif Estate --}}
-                                </span>
-                                <br>
-                                <span class="pl-3" style="font-size: 40px;font-weight:500">
-                                    @if ($estTak != '')
-                                    {{$estTak}}
-                                    @else
-                                    0
-                                    @endif
-                                </span>
-                                <span> kg</span>
-                                {{-- <span class="pl-3"> <i class="fa fa-arrow-down" style="color: red"></i> (Turun
-                                    3,56%)</span> --}}
-                                <div style="margin-bottom: 10px"> </div>
+                        <div class="card mt-3 p-3">
+                            <h4 style="color:#013C5E;font-weight: 550">Rekap Taksasi Wilayah
+                            </h4>
+                            <table id="table-wilayah" class="display">
+                                <thead>
+                                    <tr>
+                                        <th>Wilayah</th>
+                                        <th>Luas (Ha)</th>
+                                        <th>Jumlah Blok</th>
+                                        <th>Ritase</th>
+                                        <th>AKP (%)</th>
+                                        <th>Taksasi (Kg)</th>
+                                        <th>Kebutuhan Pemanen</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
 
-                                <div style="margin-bottom: 10px"> </div>
-                                <span class="pl-3" style="color: #6C7C8B">
-                                    Kebutuhan Pemanen Rangda Estate
-                                </span>
-                                <br>
-                                <span class="pl-3" style="font-size: 40px;font-weight:500">
-                                    @if ($estPemanen != '')
-                                    {{$estPemanen}}
-                                    @else
-                                    0
-                                    @endif
-                                </span>
-                                <span> Orang</span>
-                                {{-- <span class="pl-3"> <i class="fa fa-arrow-up" style="color: green"></i> (Naik
-                                    7,56%)</span> --}}
-
-                            </div>
-                        </a>
+                        </div>
                     </div>
-                    <div class="pt-3 pb-3 font-italic col-12 col-lg mr-2  selectCard"
-                        style="color:#013C5E;background-color:white;border-radius:5px;  display: table;width: 100%;height: 250px;">
-                        <a href="{{ asset('/dashboard_taksasi') }}">
-                            <div class="pl-3 pr-3 mb-3">
-                                Persebaran taksasi
-                                afdeling
-                                <span class="font-weight-bold">
-                                    {{-- @if ($dataEstate != '')
-                                    {{$dataEstate['est']}}
-                                    @else --}}
-                                    Rangda
-                                    {{-- @endif --}}
-                                </span>
-
-                            </div>
-
-                            <div class="row pl-3 pr-3 ">
-                                <div class="col-12">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">Afdeling</th>
-                                                <th scope="col">Taksasi (kg)</th>
-                                                <th scope="col">Kebutuhan Pemanen (orang)</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-
-                                            @foreach ($dateAfdeling as $item)
-                                            <tr>
-                                                <th scope="row">{{$item['afd']}}</th>
-                                                <td>{{$item['taksasi']}} </td>
-                                                <td>{{$item['kebutuhan_pemanen']}}</td>
-                                            </tr>
-                                            @endforeach
-
-                                        </tbody>
-                                    </table>
-
-                                </div>
-                            </div>
-
-                        </a>
+                    <div id="estateTab" class="tab-pane fade in active">
+                        @include('homepage-tab-estate')
                     </div>
-
                 </div>
 
 
@@ -199,5 +157,106 @@
 
 
 <script>
+    $(document).ready(function(){
+        $('a[href="#regoinal&WilayahTab"]').click();
+        // Set default date to today
+        var dateToday = new Date().toISOString().slice(0,10);
+        $('#tgl').val(dateToday);
 
+        // Function to initialize or reload DataTable
+        function loadDataTableRegionalWilayah(date) {
+            var _token = $('input[name="_token"]').val();
+            $.ajax({
+                url: "{{ route('get-data-regional-wilayah') }}",
+                method: "GET",
+                cache: false,
+                data: {
+                    _token: _token,
+                    tgl_request: date
+                },
+                success: function(result) {
+                    var parseResult = JSON.parse(result);      
+                    var dataReg = [];
+                    var dataWil = [];
+
+                    $.each(parseResult['data_reg'], function(regional, values) {
+                        dataReg.push({
+                            "regional": regional,
+                            "luas": values.luas,
+                            "jumlahBlok": values.jumlahBlok,
+                            "akp": values.akp,
+                            "taksasi": values.taksasi,
+                            "ritase": values.ritase,
+                            "keb_pemanen": values.keb_pemanen
+                        });
+                    });
+
+                    $.each(parseResult['data_wil'], function(wilayah, values) {
+                        dataWil.push({
+                            "wilayah": wilayah,
+                            "luas": values.luas,
+                            "jumlahBlok": values.jumlahBlok,
+                            "akp": values.akp,
+                            "taksasi": values.taksasi,
+                            "ritase": values.ritase,
+                            "keb_pemanen": values.keb_pemanen
+                        });
+                    });
+
+                    // Initialize or reload DataTable
+                    if ($.fn.dataTable.isDataTable('#table-regional')) {
+                        // If DataTable already exists, destroy it and create a new one
+                        $('#table-regional').DataTable().clear().destroy();
+                    }
+
+                 
+
+                    $('#table-regional').DataTable({
+                        "processing": true,
+                        "serverSide": false,
+                        "data": dataReg,
+                        "columns": [
+                            { "data": "regional", "title": "Regional" },
+                            { "data": "luas", "title": "Luas" },
+                            { "data": "jumlahBlok", "title": "Jumlah Blok" },
+                            { "data": "akp", "title": "AKP" },
+                            { "data": "taksasi", "title": "Taksasi" },
+                            { "data": "ritase", "title": "Ritase" },
+                            { "data": "keb_pemanen", "title": "Keb Pemanen" }
+                        ]
+                    });
+
+                    if ($.fn.dataTable.isDataTable('#table-wilayah')) {
+                        // If DataTable already exists, destroy it and create a new one
+                        $('#table-wilayah').DataTable().clear().destroy();
+                    }
+
+
+                    $('#table-wilayah').DataTable({
+                        "processing": true,
+                        "serverSide": false,
+                        "data": dataWil,
+                        "columns": [
+                            { "data": "wilayah", "title": "Wilayah" },
+                            { "data": "luas", "title": "Luas" },
+                            { "data": "jumlahBlok", "title": "Jumlah Blok" },
+                            { "data": "akp", "title": "AKP" },
+                            { "data": "taksasi", "title": "Taksasi" },
+                            { "data": "ritase", "title": "Ritase" },
+                            { "data": "keb_pemanen", "title": "Keb Pemanen" }
+                        ]
+                    });
+                }
+            });
+        }
+
+        // Load DataTable for the first time with today's date
+        loadDataTableRegionalWilayah(dateToday);
+
+        // Event listener for date input change
+        $('#tgl').on('change', function() {
+            var selectedDate = $(this).val();
+            loadDataTableRegionalWilayah(selectedDate);
+        });
+    });
 </script>
