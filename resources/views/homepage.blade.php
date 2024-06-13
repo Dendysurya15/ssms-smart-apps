@@ -74,10 +74,11 @@
                     </li>
                     <li class="nav-item"><a data-toggle="tab" href="#estateTab" class="nav-link">Estate</a>
                     </li>
+                    <li class="nav-item"><a data-toggle="tab" href="#realisasiTab" class="nav-link">Realisasi</a>
+                    </li>
                 </ul>
 
                 <div class="tab-content">
-
                     <div id="regoinal&WilayahTab" class="tab-pane fade in active">
                         <div class="card mt-3 p-3">
                             <h4 style="color:#013C5E;font-weight: 550">Rekap Taksasi Regional
@@ -126,14 +127,56 @@
 
                             <div class="col-6">
                                 <div class="card mt-3 p-3">
-                                    <div id="chart"></div>
+                                    <h4 style="color:#013C5E;font-weight: 550">Grafik Tonase dan AKP
+                                    </h4>
+                                    <div id="chartTonaseAKP"></div>
                                 </div>
                             </div>
                         </div>
 
                     </div>
                     <div id="estateTab" class="tab-pane fade in active">
-                        @include('homepage-tab-estate')
+                        <div class="card mt-3 p-3">
+                            <h4 style="color:#013C5E;font-weight: 550">Rekap Taksasi Estate
+                            </h4>
+                            <div class="row">
+                                <div class="col-2">
+                                    {{csrf_field()}}
+                                    <select id="reg" class="form-control">
+                                        <option selected disabled>Pilih Regional</option>
+                                        @foreach($reg as $key => $value)
+                                        <option value="{{$key}}" {{ $key==0 ? 'selected' : '' }}>{{$value}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-2">
+                                    <select id="est" class="form-control">
+                                        <option selected disabled>Pilih Estate</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mt-3">
+                                <table id="table-estate" class="display">
+                                    <thead>
+                                        <tr>
+                                            <th>Afdeling</th>
+                                            <th>Luas (Ha)</th>
+                                            <th>Jumlah Blok</th>
+                                            <th>Ritase</th>
+                                            <th>AKP (%)</th>
+                                            <th>Taksasi (Kg)</th>
+                                            <th>Kebutuhan Pemanen</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="realisasiTab" class="tab-pane fade in active">
+                        <h1>Halaman realisasi</h1>
                     </div>
                 </div>
 
@@ -172,8 +215,6 @@
 
         $('a[href="#regoinal&WilayahTab"]').click();
 
-
-
         var options = {
                         series: [
                             {
@@ -187,7 +228,7 @@
                         ],
                         chart: {
                             type: 'bar',
-                            height: 350
+                            height: 550
                         },
                         plotOptions: {
                             bar: {
@@ -233,8 +274,8 @@
                         }
                     };
 
-        var chart = new ApexCharts(document.querySelector("#chart"), options);
-        chart.render();
+        var chartTonaseAKP = new ApexCharts(document.querySelector("#chartTonaseAKP"), options);
+        chartTonaseAKP.render();
         // Set default date to today
         var dateToday = new Date().toISOString().slice(0,10);
         $('#tgl').val(dateToday);
@@ -333,7 +374,7 @@
                         akpData.push(values.akp === '-' ? 0 : values.akp);  // Convert '-' to 0 for the chart
                     });
 
-                    chart.updateSeries([{
+                    chartTonaseAKP.updateSeries([{
                         name: 'AKP (%)',
                         data: akpData
                     }, {
@@ -341,7 +382,7 @@
                         data: taksasiData
                     }]);
 
-                    chart.updateOptions({
+                    chartTonaseAKP.updateOptions({
                         xaxis: {
                             categories: chartCategories
                         }
@@ -357,6 +398,111 @@
         $('#tgl').on('change', function() {
             var selectedDate = $(this).val();
             loadDataTableRegionalWilayah(selectedDate);
+        });
+
+
+
+        if ($('#reg option:selected').length === 0) {
+            $('#reg option:first').prop('selected', true);
+        }
+
+    function loadEstateOptions(regionalId) {
+        var _token = $('input[name="_token"]').val();
+
+        $.ajax({
+            url: "{{ route('getNameEstate') }}",
+            method: "POST",
+            data: {
+                _token: _token,
+                id_reg: regionalId
+            },
+            success: function(result) {
+
+                $('#est').empty().append(result);
+                $('#est option:first').prop('selected', true);
+                var selectedEstateId = $('#est').val();
+                var selectedDate = $('#tgl').val();
+                loadDataTableEstate(selectedEstateId, selectedDate);
+            },
+            error: function(xhr, status, error) {
+                console.error("An error occurred while fetching estates: ", error);
+            }
+        });
+        }
+
+        // Event listener for Regional dropdown change
+        $('#reg').on('change', function() {
+            var selectedRegionalId = $(this).val();
+            loadEstateOptions(selectedRegionalId);
+        });
+
+        // Load estates for the default selected regional on page load
+        var defaultRegionalId = $('#reg').val();
+        if (defaultRegionalId) {
+            loadEstateOptions(defaultRegionalId);
+        }
+
+
+        function loadDataTableEstate(estate, selectedDate) {
+            var _token = $('input[name="_token"]').val();
+
+            $.ajax({
+                url: "{{ route('get-data-estate') }}",
+                method: "GET",
+                data: {
+                    _token: _token,
+                    estate_request: estate,
+                    tgl_request: selectedDate
+                },
+                success: function(result) {
+                    var parseResult = JSON.parse(result);      
+                    var dataEst = [];
+
+                    $.each(parseResult['data_estate'], function(afdeling, values) {
+                        dataEst.push({
+                            "afdeling": afdeling,
+                            "luas": values.luas,
+                            "jumlahBlok": values.jumlahBlok,
+                            "akp": values.akp,
+                            "taksasi": values.taksasi,
+                            "ritase": values.ritase,
+                            "keb_pemanen": values.keb_pemanen
+                        });
+                    });
+                    if ($.fn.dataTable.isDataTable('#table-estate')) {
+                        // If DataTable already exists, destroy it and create a new one
+                        $('#table-estate').DataTable().clear().destroy();
+                    }
+
+
+                    $('#table-estate').DataTable({
+                        "processing": true,
+                        "serverSide": false,
+                        "data": dataEst,
+                        "pageLength": 25,
+                        "columns": [
+                            { "data": "afdeling", "title": "Afdeling" },
+                            { "data": "luas", "title": "Luas" },
+                            { "data": "jumlahBlok", "title": "Jumlah Blok" },
+                            { "data": "akp", "title": "AKP" },
+                            { "data": "taksasi", "title": "Taksasi" },
+                            { "data": "ritase", "title": "Ritase" },
+                            { "data": "keb_pemanen", "title": "Keb Pemanen" }
+                        ]
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error("An error occurred while loading data for another data table: ", error);
+                }
+            });
+        }
+
+        // Event listener for #est dropdown change
+        $('#est').on('change', function() {
+            var selectedEstateId = $(this).val();
+            var selectedDate = $('#tgl').val(); // Get the selected date from #tgl
+
+            loadDataTableEstate(selectedEstateId, selectedDate);
         });
     });
 </script>

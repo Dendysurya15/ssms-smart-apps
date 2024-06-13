@@ -199,13 +199,14 @@ class DashboardController extends Controller
         }
 
         $est_tak =  number_format($est_tak, 2, ",", ".");
-
+        $reg_all = Regional::where('nama', '!=', 'Regional V')->get()->pluck('nama');
         return view('homepage', [
             'date' => $getDate->format('l, j F Y'),
             'hour' =>  Carbon::now()->format('H:i:s'),
             'estTak' => $est_tak, // default RDE 
             'estPemanen' => $est_pemanen, // default RDE 
             'dateAfdeling' => $afd_array,
+            'reg' => $reg_all,
         ]);
     }
 

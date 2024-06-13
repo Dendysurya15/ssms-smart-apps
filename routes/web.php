@@ -68,7 +68,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/mapsestatePlot', [MapsController::class, 'mapsestatePlot'])->name('mapsestatePlot');
     Route::post('/inputquery', [MapsController::class, 'getData'])->name('inputquery');
 
-    Route::get('/get-data-regional-wilayah', [DashboardNewController::class, 'getAllDataRegional'])->name('get-data-regional-wilayah');
+    Route::get('/get-data-regional-wilayah', [DashboardNewController::class, 'getAllDataRegionalWilayah'])->name('get-data-regional-wilayah');
+    Route::get('/get-data-estate', [DashboardNewController::class, 'getAllDataEstate'])->name('get-data-estate');
 });
 
 Route::get('/dashboard_vehicle_management', function () {
