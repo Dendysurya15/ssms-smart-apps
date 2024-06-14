@@ -321,6 +321,27 @@
 
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
+{{-- <script src="{{ asset('lottie/93121-no-data-preview.json') }}" type="text/javascript"></script> --}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.9.4/lottie.min.js"
+    integrity="sha512-ilxj730331yM7NbrJAICVJcRmPFErDqQhXJcn+PLbkXdE031JJbcK87Wt4VbAK+YY6/67L+N8p7KdzGoaRjsTg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- jQuery -->
+<script src="{{ asset('/public/plugins/jquery/jquery.min.js') }}"></script>
+<!-- Bootstrap 4 -->
+<script src="{{ asset('/public/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<!-- ChartJS -->
+<script src="{{ asset('/public/plugins/chart.js/Chart.min.js') }}"></script>
+<!-- AdminLTE App -->
+<script src="{{ asset('/public/js/adminlte.min.js') }}"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="{{ asset('/public/js/demo.js') }}"></script>
+
+<script src="{{ asset('/public/js/loader.js') }}"></script>
+
+<script type="text/javascript"
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCzh5V86q6kt8UKJ8YE3oDOW0OexAXmlz8">
+</script>
+
 <script>
     date = new Date().toISOString().slice(0, 10)
     var map = L.map('map').setView([-2.27462005615234, 111.61400604248], 13);
@@ -739,21 +760,21 @@ function drawLineTaksasi(line) {
         .addTo(map);
 }
 
+function removeMarkers() {
+        map.eachLayer(function(layer) {
+            if (layer.myTag && (layer.myTag === "EstateMarker" || layer.myTag === "BlokMarker" || layer.myTag === "LineMarker")) {
+                map.removeLayer(layer);
+            }
+        });
+    }
 
-var removeMarkers = function() {
-    map.eachLayer(function(layer) {
+    function markerDelAgain() {
+        titleBlok.forEach(layer => map.removeLayer(layer));
+        titleEstate.forEach(layer => map.removeLayer(layer));
+        layerMarkerMan.forEach(layer => map.removeLayer(layer));
+        map.removeControl(legendVar);
+    }
 
-        if (layer.myTag && layer.myTag === "EstateMarker") {
-            map.removeLayer(layer)
-        }
-        if (layer.myTag && layer.myTag === "BlokMarker") {
-            map.removeLayer(layer)
-        }
-        if (layer.myTag && layer.myTag === "LineMarker") {
-            map.removeLayer(layer)
-        }
-    });
-}
 
 
 var marker = ''
@@ -853,21 +874,6 @@ function drawMarkerMan(arrData) {
     //                 layerMarkerMan.push(marker)
     //         }
 }
-
-function markerDelAgain() {
-    for (i = 0; i < titleBlok.length; i++) {
-        map.removeLayer(titleBlok[i]);
-    }
-    for (i = 0; i < titleEstate.length; i++) {
-        map.removeLayer(titleEstate[i]);
-    }
-    for (let i = 0; i < layerMarkerMan.length; i++) {
-        map.removeLayer(layerMarkerMan[i]);
-    }
-
-    map.removeControl(legendVar)
-}
-
 
 
 function getPlotEstate(est, date) {
@@ -1273,6 +1279,14 @@ $.ajax({
             var regionalId =  $('#reg').val()
             loadDataTableRegionalWilayah(selectedDate, regionalId);
             loadDataTableEstate( $('#est').val(), selectedDate)
+            removeMarkers();
+            markerDelAgain()
+            getPlotEstate($('#est').val(), selectedDate)
+            getPlotBlok($('#est').val(), selectedDate)
+            getlineTaksasi($('#est').val(), selectedDate)
+            getMarkerMan($('#est').val(), selectedDate)
+            getUserTaksasi($('#est').val(), selectedDate)
+           
         });
 
         if ($('#reg option:selected').length === 0) {
@@ -1296,6 +1310,13 @@ $.ajax({
                 var selectedEstateId = $('#est').val();
                 var selectedDate = $('#tgl').val();
                 loadDataTableEstate(selectedEstateId, selectedDate);
+           
+                 getPlotEstate(selectedEstateId, selectedDate)
+            getPlotBlok(selectedEstateId, selectedDate)
+            getlineTaksasi(selectedEstateId, selectedDate)
+            getMarkerMan(selectedEstateId, selectedDate)
+            getUserTaksasi(selectedEstateId, selectedDate)
+        
             },
             error: function(xhr, status, error) {
                 console.error("An error occurred while fetching estates: ", error);
@@ -1404,16 +1425,14 @@ $.ajax({
             var selectedDate = $('#tgl').val(); // Get the selected date from #tgl
 
             loadDataTableEstate(selectedEstateId, selectedDate);
-
-
             removeMarkers();
             markerDelAgain()
-
             getPlotEstate(selectedEstateId, selectedDate)
             getPlotBlok(selectedEstateId, selectedDate)
             getlineTaksasi(selectedEstateId, selectedDate)
             getMarkerMan(selectedEstateId, selectedDate)
             getUserTaksasi(selectedEstateId, selectedDate)
+            
         });
     });
 
