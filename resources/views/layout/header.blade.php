@@ -133,7 +133,7 @@ session_start();
                         <!-- USER LAB -->
 
                         <!-- TABEL -->
-                        <li class="nav-item">
+                        {{-- <li class="nav-item">
                             <!-- uses solid style -->
                             <a href="{{ asset('/dashboard_taksasi') }}" class="nav-link">
                                 <i class="nav-icon fa-solid fa-file"></i>
@@ -149,7 +149,7 @@ session_start();
                                     Taksasi Afdeling
                                 </p>
                             </a>
-                        </li>
+                        </li> --}}
                         <li class="nav-item">
                             <a href="{{ asset('/history_taksasi') }}" class="nav-link">
                                 <i class="nav-icon fa-solid fa-clock-rotate-left"></i>
@@ -158,14 +158,14 @@ session_start();
                                 </p>
                             </a>
                         </li>
-                        <li class="nav-item">
+                        {{-- <li class="nav-item">
                             <a href="{{ asset('/dashboard_pemupukan') }}" class="nav-link">
                                 <i class="nav-icon fa fa-seedling"></i>
                                 <p>
                                     Dashboard Pemupukan
                                 </p>
                             </a>
-                        </li>
+                        </li> --}}
                         <li class="nav-item">
                             <a href="{{ asset('/maps') }}" class="nav-link">
                                 <i class="nav-icon fa-solid fa-map-location-dot"></i>

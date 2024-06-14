@@ -57,19 +57,29 @@
                         </p>
 
                     </div>
+                </div>
 
-                    <div class="col-12 col-lg-3 pb-3">
-                        Pilih Tanggal
+                <div class="row">
+                    <div class="col-2">
                         <form class="" action="{{ route('dashboard') }}" method="get">
                             <input class="form-control" type="date" name="tgl" id="tgl">
                         </form>
                     </div>
+
+                    <div class="col-2">
+                        {{csrf_field()}}
+                        <select id="reg" class="form-control">
+                            <option selected disabled>Pilih Regional</option>
+                            @foreach($reg as $key => $value)
+                            <option value="{{$key}}" {{ $key==0 ? 'selected' : '' }}>{{$value}}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
 
 
-                <ul class="nav nav-tabs">
-                    <li class="nav-item active"><a data-toggle="tab" href="#regoinal&WilayahTab"
-                            class="nav-link ">Regional &
+                <ul class="nav nav-tabs mt-3">
+                    <li class="nav-item active"><a data-toggle="tab" href="#regionalTab" class="nav-link ">Regional &
                             Wilayah</a>
                     </li>
                     <li class="nav-item"><a data-toggle="tab" href="#estateTab" class="nav-link">Estate</a>
@@ -79,11 +89,11 @@
                 </ul>
 
                 <div class="tab-content">
-                    <div id="regoinal&WilayahTab" class="tab-pane fade in active">
+                    <div id="regionalTab" class="tab-pane fade in active">
                         <div class="card mt-3 p-3">
                             <h4 style="color:#013C5E;font-weight: 550">Rekap Taksasi Regional
                             </h4>
-                            <table id="table-regional" class="display">
+                            <table id="table-regional" class="display" style="width: 100%">
                                 <thead>
                                     <tr>
                                         <th>Regional</th>
@@ -106,7 +116,7 @@
                                 <div class="card mt-3 p-3">
                                     <h4 style="color:#013C5E;font-weight: 550">Rekap Taksasi Wilayah
                                     </h4>
-                                    <table id="table-wilayah" class="display">
+                                    <table id="table-wilayah" class="display" style="width: 100%">
                                         <thead>
                                             <tr>
                                                 <th>Wilayah</th>
@@ -121,59 +131,94 @@
                                         <tbody>
                                         </tbody>
                                     </table>
-
                                 </div>
                             </div>
 
                             <div class="col-6">
                                 <div class="card mt-3 p-3">
-                                    <h4 style="color:#013C5E;font-weight: 550">Grafik Tonase dan AKP
+                                    <h4 style="color:#013C5E;font-weight: 550">Grafik Tonase dan AKP Wilayah
                                     </h4>
-                                    <div id="chartTonaseAKP"></div>
+                                    <div id="chartTonaseAKPWil"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="card mt-3 p-3">
+                                    <h4 style="color:#013C5E;font-weight: 550">Rekap Taksasi Estate
+                                    </h4>
+
+                                    <table id="table-estate" class="display" style="width: 100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Estate</th>
+                                                <th>Luas (Ha)</th>
+                                                <th>Jumlah Blok</th>
+                                                <th>Ritase</th>
+                                                <th>AKP (%)</th>
+                                                <th>Taksasi (Kg)</th>
+                                                <th>Kebutuhan Pemanen</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card mt-3 p-3">
+                                    <h4 style="color:#013C5E;font-weight: 550">Grafik Tonase dan AKP Estate
+                                    </h4>
+                                    <div id="chartTonaseAKPEst"></div>
                                 </div>
                             </div>
                         </div>
 
                     </div>
                     <div id="estateTab" class="tab-pane fade in active">
-                        <div class="card mt-3 p-3">
-                            <h4 style="color:#013C5E;font-weight: 550">Rekap Taksasi Estate
-                            </h4>
-                            <div class="row">
-                                <div class="col-2">
-                                    {{csrf_field()}}
-                                    <select id="reg" class="form-control">
-                                        <option selected disabled>Pilih Regional</option>
-                                        @foreach($reg as $key => $value)
-                                        <option value="{{$key}}" {{ $key==0 ? 'selected' : '' }}>{{$value}}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="col-2">
-                                    <select id="est" class="form-control">
-                                        <option selected disabled>Pilih Estate</option>
-                                    </select>
+                        <div class="row">
+                            <div class="col">
+                                <div class="card mt-3 p-3">
+                                    <h4 style="color:#013C5E;font-weight: 550">Rekap Taksasi Estate
+                                    </h4>
+                                    <div class="row">
+
+                                        <div class="col-2">
+                                            <select id="est" class="form-control">
+                                                <option selected disabled>Pilih Estate</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-3">
+                                        <table id="table-afdeling" class="display" style="width: 100%">
+                                            <thead>
+                                                <tr>
+                                                    <th>Afdeling</th>
+                                                    <th>Luas (Ha)</th>
+                                                    <th>Jumlah Blok</th>
+                                                    <th>Ritase</th>
+                                                    <th>AKP (%)</th>
+                                                    <th>Taksasi (Kg)</th>
+                                                    <th>Kebutuhan Pemanen</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
-
-                            <div class="mt-3">
-                                <table id="table-estate" class="display">
-                                    <thead>
-                                        <tr>
-                                            <th>Afdeling</th>
-                                            <th>Luas (Ha)</th>
-                                            <th>Jumlah Blok</th>
-                                            <th>Ritase</th>
-                                            <th>AKP (%)</th>
-                                            <th>Taksasi (Kg)</th>
-                                            <th>Kebutuhan Pemanen</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
+                            <div class="col">
+                                <div class="card mt-3 p-3">
+                                    <h4 style="color:#013C5E;font-weight: 550">Chart Tonase dan AKP Estate Per Afdeling
+                                    </h4>
+                                    <div id="ChartGrafikTonaseAfdeling"></div>
+                                </div>
                             </div>
                         </div>
+
                     </div>
                     {{-- <div id="realisasiTab" class="tab-pane fade in active">
                         <h1>Halaman realisasi</h1>
@@ -213,7 +258,7 @@
 <script>
     $(document).ready(function(){
 
-        $('a[href="#regoinal&WilayahTab"]').click();
+        $('a[href="#regionalTab"]').click();
 
         var options = {
                         series: [
@@ -228,7 +273,7 @@
                         ],
                         chart: {
                             type: 'bar',
-                            height: 550
+                            
                         },
                         plotOptions: {
                             bar: {
@@ -275,14 +320,18 @@
                         }
                     };
 
-        var chartTonaseAKP = new ApexCharts(document.querySelector("#chartTonaseAKP"), options);
-        chartTonaseAKP.render();
+        var chartTonaseAKPWil = new ApexCharts(document.querySelector("#chartTonaseAKPWil"), options);
+        chartTonaseAKPWil.render();
+        var chartTonaseAKPEst = new ApexCharts(document.querySelector("#chartTonaseAKPEst"), options);
+        chartTonaseAKPEst.render();
+        var ChartGrafikTonaseAfdeling = new ApexCharts(document.querySelector("#ChartGrafikTonaseAfdeling"), options);
+        ChartGrafikTonaseAfdeling.render();
         // Set default date to today
         var dateToday = new Date().toISOString().slice(0,10);
         $('#tgl').val(dateToday);
 
         // Function to initialize or reload DataTable
-        function loadDataTableRegionalWilayah(date) {
+        function loadDataTableRegionalWilayah(date, regionalId) {
             var _token = $('input[name="_token"]').val();
             $.ajax({
                 url: "{{ route('get-data-regional-wilayah') }}",
@@ -290,12 +339,14 @@
                 cache: false,
                 data: {
                     _token: _token,
-                    tgl_request: date
+                    tgl_request: date,
+                    id_reg: regionalId,
                 },
                 success: function(result) {
                     var parseResult = JSON.parse(result);      
                     var dataReg = [];
                     var dataWil = [];
+                    var dataEst = [];
 
                     $.each(parseResult['data_reg'], function(regional, values) {
                         dataReg.push({
@@ -321,6 +372,18 @@
                         });
                     });
 
+                    $.each(parseResult['data_est'], function(estate, values) {
+                        dataEst.push({
+                            "estate": estate,
+                            "luas": values.luas,
+                            "jumlahBlok": values.jumlahBlok,
+                            "akp": values.akp,
+                            "taksasi": values.taksasi,
+                            "ritase": values.ritase,
+                            "keb_pemanen": values.keb_pemanen
+                        });
+                    });
+
                     // Initialize or reload DataTable
                     if ($.fn.dataTable.isDataTable('#table-regional')) {
                         // If DataTable already exists, destroy it and create a new one
@@ -332,6 +395,7 @@
                     $('#table-regional').DataTable({
                         "processing": true,
                         "serverSide": false,
+                        scrollX: true,
                         "data": dataReg,
                         "columns": [
                             { "data": "regional", "title": "Regional" },
@@ -353,6 +417,7 @@
                     $('#table-wilayah').DataTable({
                         "processing": true,
                         "serverSide": false,
+                        scrollX: true,
                         "data": dataWil,
                         "pageLength": 25,
                         "columns": [
@@ -365,27 +430,75 @@
                             { "data": "keb_pemanen", "title": "Keb Pemanen" }
                         ]
                     });
-                    var taksasiData = [];
-                    var akpData = [];
-                    var chartCategories = [];
 
-                    $.each(parseResult['data_wil'], function(wilayah, values) {
-                        chartCategories.push(wilayah);
-                        taksasiData.push(values.taksasi === '-' ? 0 : values.taksasi);  // Convert '-' to 0 for the chart
-                        akpData.push(values.akp === '-' ? 0 : values.akp);  // Convert '-' to 0 for the chart
+
+                    if ($.fn.dataTable.isDataTable('#table-estate')) {
+                        // If DataTable already exists, destroy it and create a new one
+                        $('#table-estate').DataTable().clear().destroy();
+                    }
+
+                    $('#table-estate').DataTable({
+                        "processing": true,
+                        "serverSide": false,
+                        scrollX: true,
+                        "data": dataEst,
+                        "pageLength": 10,
+                        "columns": [
+                            { "data": "estate", "title": "Estate" },
+                            { "data": "luas", "title": "Luas" },
+                            { "data": "jumlahBlok", "title": "Jumlah Blok" },
+                            { "data": "akp", "title": "AKP" },
+                            { "data": "taksasi", "title": "Taksasi" },
+                            { "data": "ritase", "title": "Ritase" },
+                            { "data": "keb_pemanen", "title": "Keb Pemanen" }
+                        ]
                     });
 
-                    chartTonaseAKP.updateSeries([{
+                    var taksasiDataWil = [];
+                    var akpDataWil = [];
+                    var chartCategoriesWil = [];
+                    var taksasiDataEst = [];
+                    var akpDataEst = [];
+                    var chartCategoriesEst = [];
+
+                    $.each(parseResult['data_wil'], function(wilayah, values) {
+                        chartCategoriesWil.push(wilayah);
+                        taksasiDataWil.push(values.taksasi === '-' ? 0 : values.taksasi);  // Convert '-' to 0 for the chart
+                        akpDataWil.push(values.akp === '-' ? 0 : values.akp);  // Convert '-' to 0 for the chart
+                    });
+
+                    chartTonaseAKPWil.updateSeries([{
                         name: 'AKP (%)',
-                        data: akpData
+                        data: akpDataWil
                     }, {
                         name: 'Taksasi (Kg)',
-                        data: taksasiData
+                        data: taksasiDataWil
                     }]);
 
-                    chartTonaseAKP.updateOptions({
+                    chartTonaseAKPWil.updateOptions({
                         xaxis: {
-                            categories: chartCategories
+                            categories: chartCategoriesWil
+                        }
+                    });
+
+
+                    $.each(parseResult['data_est'], function(estate, values) {
+                        chartCategoriesEst.push(estate);
+                        taksasiDataEst.push(values.taksasi === '-' ? 0 : values.taksasi);  // Convert '-' to 0 for the chart
+                        akpDataEst.push(values.akp === '-' ? 0 : values.akp);  // Convert '-' to 0 for the chart
+                    });
+
+                    chartTonaseAKPEst.updateSeries([{
+                        name: 'AKP (%)',
+                        data: akpDataEst
+                    }, {
+                        name: 'Taksasi (Kg)',
+                        data: taksasiDataEst
+                    }]);
+
+                    chartTonaseAKPEst.updateOptions({
+                        xaxis: {
+                            categories: chartCategoriesEst
                         }
                     });
                 }
@@ -393,16 +506,15 @@
         }
 
         // Load DataTable for the first time with today's date
-        loadDataTableRegionalWilayah(dateToday);
+        loadDataTableRegionalWilayah(dateToday, $('#reg').val());
 
         // Event listener for date input change
         $('#tgl').on('change', function() {
             var selectedDate = $(this).val();
-            loadDataTableRegionalWilayah(selectedDate);
+            var regionalId =  $('#reg').val()
+            loadDataTableRegionalWilayah(selectedDate, regionalId);
             loadDataTableEstate( $('#est').val(), selectedDate)
         });
-
-
 
         if ($('#reg option:selected').length === 0) {
             $('#reg option:first').prop('selected', true);
@@ -436,6 +548,8 @@
         $('#reg').on('change', function() {
             var selectedRegionalId = $(this).val();
             loadEstateOptions(selectedRegionalId);
+            selectedDate = $('#tgl').val()
+            loadDataTableRegionalWilayah($('#tgl').val(),  selectedRegionalId)
         });
 
         // Load estates for the default selected regional on page load
@@ -471,14 +585,16 @@
                             "keb_pemanen": values.keb_pemanen
                         });
                     });
-                    if ($.fn.dataTable.isDataTable('#table-estate')) {
+                    if ($.fn.dataTable.isDataTable('#table-afdeling')) {
                         // If DataTable already exists, destroy it and create a new one
-                        $('#table-estate').DataTable().clear().destroy();
+                        $('#table-afdeling').DataTable().clear().destroy();
                     }
 
 
-                    $('#table-estate').DataTable({
+                    $('#table-afdeling').DataTable({
                         "processing": true,
+                        "responsive": true,
+                        scrollX: true,
                         "serverSide": false,
                         "data": dataEst,
                         "pageLength": 25,
@@ -491,6 +607,30 @@
                             { "data": "ritase", "title": "Ritase" },
                             { "data": "keb_pemanen", "title": "Keb Pemanen" }
                         ]
+                    });
+
+                    var taksasiDataAfd = [];
+                    var akpDataAfd = [];
+                    var chartCategoriesAfd = [];
+
+                    $.each(parseResult['data_estate'], function(afdeling, values) {
+                        chartCategoriesAfd.push(afdeling);
+                        taksasiDataAfd.push(values.taksasi === '-' ? 0 : values.taksasi);  // Convert '-' to 0 for the chart
+                        akpDataAfd.push(values.akp === '-' ? 0 : values.akp);  // Convert '-' to 0 for the chart
+                    });
+
+                    ChartGrafikTonaseAfdeling.updateSeries([{
+                        name: 'AKP (%)',
+                        data: akpDataAfd
+                    }, {
+                        name: 'Taksasi (Kg)',
+                        data: taksasiDataAfd
+                    }]);
+
+                    ChartGrafikTonaseAfdeling.updateOptions({
+                        xaxis: {
+                            categories: chartCategoriesAfd
+                        }
                     });
                 },
                 error: function(xhr, status, error) {

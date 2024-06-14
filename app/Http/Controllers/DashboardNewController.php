@@ -16,13 +16,20 @@ class DashboardNewController extends Controller
     public function getAllDataRegionalWilayah(Request $request)
     {
         $tglData = $request->get('tgl_request');
-
-        $queryListReg = Regional::select('nama')
-            ->where('nama', '!=', 'Regional V')
-            ->pluck('nama');
+        $idReg = $request->get('id_reg');
+        $reg_all = Regional::all()->toArray();
 
         $queryListWil = Wilayah::select('nama')
+            ->where('regional', $reg_all[$idReg]['id'])
             ->pluck('nama');
+
+        $queryListWilId = Wilayah::select('id')
+            ->where('regional', $reg_all[$idReg]['id'])
+            ->pluck('id');
+
+
+        $queryListEstate = Estate::whereIn('wil', $queryListWilId)
+            ->pluck('est', 'nama')->toArray();
 
         $first = $tglData . ' 00:00:00';
         $last = $tglData . ' 23:59:59';
@@ -36,6 +43,7 @@ class DashboardNewController extends Controller
             ->join('reg', 'wil.regional', '=', 'reg.id')
             ->whereBetween('taksasi.waktu_upload', [$firstData, $lastData])
             ->where('reg.nama', '!=', 'Regional V')
+            ->where('reg.nama', $reg_all[$idReg]['id'])
             ->get()
             ->groupBy('nama_regional');
 
@@ -44,16 +52,38 @@ class DashboardNewController extends Controller
             ->join('estate', 'taksasi.lokasi_kerja', '=', 'estate.est')
             ->join('wil', 'estate.wil', '=', 'wil.id')
             ->whereBetween('taksasi.waktu_upload', [$firstData, $lastData])
+            ->whereIn('wil.nama', $queryListWil)
             ->get()
             ->groupBy('nama_wilayah');
 
 
-        $dataFinalRegional = [];
 
-        foreach ($queryListReg as $reg => $regName) {
+        $queryByDateEstate = DB::connection('mysql2')->table('taksasi')
+            ->select('taksasi.*',  'wil.nama as nama_wilayah')
+            ->join('estate', 'taksasi.lokasi_kerja', '=', 'estate.est')
+            ->join('wil', 'estate.wil', '=', 'wil.id')
+            ->whereBetween('taksasi.waktu_upload', [$firstData, $lastData])
+            ->whereIn('taksasi.lokasi_kerja', $queryListEstate)
+            ->get()
+            ->groupBy('lokasi_kerja');
+
+
+        $dataFinalRegional = [];
+        $dataFinalRegional[$reg_all[$idReg]['nama']] = [
+            'regional' => $reg_all[$idReg]['nama'],
+            'luas' => "-",
+            'jumlahBlok' => "-",
+            'ritase' => "-",
+            'akp' => "-",
+            'taksasi' => "-",
+            'keb_pemanen' => "-"
+        ];
+
+        $dataFinalWilayah = [];
+        foreach ($queryListWil as $key => $value) {
             // Initialize with default values
-            $dataFinalRegional[$regName] = [
-                'regional' => $regName,
+            $dataFinalWilayah[$value] = [
+                'wilayah' => $value,
                 'luas' => "-",
                 'jumlahBlok' => "-",
                 'ritase' => "-",
@@ -63,11 +93,10 @@ class DashboardNewController extends Controller
             ];
         }
 
-        $dataFinalWilayah = [];
-        foreach ($queryListWil as $key => $nama) {
-            // Initialize with default values
-            $dataFinalWilayah[$nama] = [
-                'wilayah' => $nama,
+        $dataFinalEstate = [];
+        foreach ($queryListEstate as $key => $nama) {
+            $dataFinalEstate[$nama] = [
+                'estate' => $nama,
                 'luas' => "-",
                 'jumlahBlok' => "-",
                 'ritase' => "-",
@@ -101,11 +130,11 @@ class DashboardNewController extends Controller
             $akp = round(($jum_janjang / $jum_pokok) * 100, 2);
             $tak =  round(($akp * $luasTotal * $rerata_bjr * $rerata_sph) / 100, 1);
 
-            $dataFinalRegional[$key]['luas'] = number_format(round($luasTotal, 2), 1, ',', '.');
+            $dataFinalRegional[$key]['luas'] = round($luasTotal, 2);
             $dataFinalRegional[$key]['jumlahBlok'] = $jumlahBlok;
             $dataFinalRegional[$key]['ritase'] = ceil($tak / 6500);
             $dataFinalRegional[$key]['akp'] = $akp;
-            $dataFinalRegional[$key]['taksasi'] = number_format($tak, 1, ',', '.');
+            $dataFinalRegional[$key]['taksasi'] = $tak;
             $dataFinalRegional[$key]['keb_pemanen'] = $pemanen;
         }
 
@@ -134,17 +163,49 @@ class DashboardNewController extends Controller
             $akp = round(($jum_janjang / $jum_pokok) * 100, 2);
             $tak =  round(($akp * $luasTotal * $rerata_bjr * $rerata_sph) / 100, 1);
 
-            $dataFinalWilayah[$key]['luas'] = number_format(round($luasTotal, 2), 1, ',', '.');
+            $dataFinalWilayah[$key]['luas'] = round($luasTotal, 2);
             $dataFinalWilayah[$key]['jumlahBlok'] = $jumlahBlok;
             $dataFinalWilayah[$key]['ritase'] = ceil($tak / 6500);
             $dataFinalWilayah[$key]['akp'] = $akp;
-            $dataFinalWilayah[$key]['taksasi'] = number_format($tak, 1, ',', '.');
+            $dataFinalWilayah[$key]['taksasi'] = $tak;
             $dataFinalWilayah[$key]['keb_pemanen'] = $pemanen;
         }
 
+        foreach ($queryByDateEstate as $key => $value) {
+            $jumlahBlok = 0;
+            $luasTotal = 0;
+            $jum_pokok = 0;
+            $jum_janjang = 0;
+            $jum_sph = 0;
+            $jum_bjr = 0;
+            $pemanen = 0;
+
+            foreach ($value as $key2 => $value2) {
+                $luasTotal += $value2->luas;
+                $jum_sph += $value2->sph;
+                $jum_bjr += $value2->bjr;
+                $jum_pokok += $value2->jumlah_pokok;
+                $jum_janjang += $value2->jumlah_janjang;
+                $pemanen += $value2->pemanen;
+                $jumlahBlok += 1;
+            }
+
+            $rerata_sph = round($jum_sph / $jumlahBlok);
+            $rerata_bjr = round($jum_bjr / $jumlahBlok);
+            $akp = round(($jum_janjang / $jum_pokok) * 100, 2);
+            $tak =  round(($akp * $luasTotal * $rerata_bjr * $rerata_sph) / 100, 1);
+
+            $dataFinalEstate[$key]['luas'] = round($luasTotal, 2);
+            $dataFinalEstate[$key]['jumlahBlok'] = $jumlahBlok;
+            $dataFinalEstate[$key]['ritase'] = ceil($tak / 6500);
+            $dataFinalEstate[$key]['akp'] = $akp;
+            $dataFinalEstate[$key]['taksasi'] = $tak;
+            $dataFinalEstate[$key]['keb_pemanen'] = $pemanen;
+        }
 
         $result['data_reg'] = $dataFinalRegional;
         $result['data_wil'] = $dataFinalWilayah;
+        $result['data_est'] = $dataFinalEstate;
 
         echo json_encode($result);
         exit;
