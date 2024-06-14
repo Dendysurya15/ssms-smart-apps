@@ -29,7 +29,19 @@ class DashboardNewController extends Controller
 
 
         $queryListEstate = Estate::whereIn('wil', $queryListWilId)
-            ->pluck('est', 'nama')->toArray();
+            ->where(function ($query) {
+                $query->where(DB::raw('LOWER(nama)'), 'NOT LIKE', '%mill%')
+                    ->where(DB::raw('LOWER(est)'), 'NOT LIKE', '%plasma%')
+                    ->where(DB::raw('LOWER(est)'), 'NOT LIKE', '%cws1%')
+                    ->where(DB::raw('LOWER(est)'), 'NOT LIKE', '%cws2%')
+                    ->where(DB::raw('LOWER(est)'), 'NOT LIKE', '%cws3%')
+                    ->where(DB::raw('LOWER(est)'), 'NOT LIKE', '%reg%')
+                    ->where(DB::raw('LOWER(est)'), 'NOT LIKE', '%srs%')
+                    ->where(DB::raw('LOWER(est)'), 'NOT LIKE', '%sr%')
+                    ->where(DB::raw('LOWER(est)'), 'NOT LIKE', '%tc%');
+            })
+            ->pluck('est', 'nama')
+            ->toArray();
 
         $first = $tglData . ' 00:00:00';
         $last = $tglData . ' 23:59:59';

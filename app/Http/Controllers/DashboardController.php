@@ -677,8 +677,6 @@ class DashboardController extends Controller
         $tgl = $request->get('tgl');
 
 
-
-
         // $tglData = Carbon::parse($tgl);
 
         // $kemarin = $tglData->subDay()->format('Y-m-d') . ' 00:00:00';
@@ -1927,6 +1925,8 @@ class DashboardController extends Controller
     {
         $estate_input = $request->get('est');
         $tgl = $request->get('tgl');
+
+
 
         // $tglData = Carbon::parse($tgl);
 
