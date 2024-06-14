@@ -74,8 +74,8 @@
                     </li>
                     <li class="nav-item"><a data-toggle="tab" href="#estateTab" class="nav-link">Estate</a>
                     </li>
-                    <li class="nav-item"><a data-toggle="tab" href="#realisasiTab" class="nav-link">Realisasi</a>
-                    </li>
+                    {{-- <li class="nav-item"><a data-toggle="tab" href="#realisasiTab" class="nav-link">Realisasi</a>
+                    </li> --}}
                 </ul>
 
                 <div class="tab-content">
@@ -175,9 +175,9 @@
                             </div>
                         </div>
                     </div>
-                    <div id="realisasiTab" class="tab-pane fade in active">
+                    {{-- <div id="realisasiTab" class="tab-pane fade in active">
                         <h1>Halaman realisasi</h1>
-                    </div>
+                    </div> --}}
                 </div>
 
 
@@ -237,6 +237,7 @@
                                 endingShape: 'rounded'
                             },
                         },
+                        colors: ['#ffb400', '#1984c5'],
                         dataLabels: {
                             enabled: false
                         },
@@ -398,6 +399,7 @@
         $('#tgl').on('change', function() {
             var selectedDate = $(this).val();
             loadDataTableRegionalWilayah(selectedDate);
+            loadDataTableEstate( $('#est').val(), selectedDate)
         });
 
 

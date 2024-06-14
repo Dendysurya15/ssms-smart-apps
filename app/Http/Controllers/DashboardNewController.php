@@ -101,11 +101,11 @@ class DashboardNewController extends Controller
             $akp = round(($jum_janjang / $jum_pokok) * 100, 2);
             $tak =  round(($akp * $luasTotal * $rerata_bjr * $rerata_sph) / 100, 1);
 
-            $dataFinalRegional[$key]['luas'] = round($luasTotal, 2);
+            $dataFinalRegional[$key]['luas'] = number_format(round($luasTotal, 2), 1, ',', '.');
             $dataFinalRegional[$key]['jumlahBlok'] = $jumlahBlok;
             $dataFinalRegional[$key]['ritase'] = ceil($tak / 6500);
             $dataFinalRegional[$key]['akp'] = $akp;
-            $dataFinalRegional[$key]['taksasi'] = $tak;
+            $dataFinalRegional[$key]['taksasi'] = number_format($tak, 1, ',', '.');
             $dataFinalRegional[$key]['keb_pemanen'] = $pemanen;
         }
 
@@ -134,11 +134,11 @@ class DashboardNewController extends Controller
             $akp = round(($jum_janjang / $jum_pokok) * 100, 2);
             $tak =  round(($akp * $luasTotal * $rerata_bjr * $rerata_sph) / 100, 1);
 
-            $dataFinalWilayah[$key]['luas'] = round($luasTotal, 2);
+            $dataFinalWilayah[$key]['luas'] = number_format(round($luasTotal, 2), 1, ',', '.');
             $dataFinalWilayah[$key]['jumlahBlok'] = $jumlahBlok;
             $dataFinalWilayah[$key]['ritase'] = ceil($tak / 6500);
             $dataFinalWilayah[$key]['akp'] = $akp;
-            $dataFinalWilayah[$key]['taksasi'] = $tak;
+            $dataFinalWilayah[$key]['taksasi'] = number_format($tak, 1, ',', '.');
             $dataFinalWilayah[$key]['keb_pemanen'] = $pemanen;
         }
 
