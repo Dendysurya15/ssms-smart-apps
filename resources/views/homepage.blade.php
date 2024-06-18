@@ -1026,64 +1026,108 @@ $.ajax({
         $('a[href="#regionalTab"]').click();
 
         var options = {
-                        series: [
-                            {
-                                name: 'Taksasi (Kg)',
-                                data: [1]
-                            },
-                            {
-                                name: 'AKP (%)',
-                                data: [2]
-                            }
-                        ],
-                        chart: {
-                            type: 'bar',
-                            
-                        },
-                        plotOptions: {
-                            bar: {
-                                horizontal: false,
-                                columnWidth: '55%',
-                                endingShape: 'rounded'
-                            },
-                        },
-                        colors: ['#ffb400', '#1984c5'],
-                        dataLabels: {
-                            enabled: false
-                        },
-                        stroke: {
-                            show: true,
-                            width: 2,
-                            colors: ['transparent']
-                        },
-                        xaxis: {
-                            categories: ['Wilayah 1'],
-                        },
-                        yaxis: [{
-                            title: {
-                                text: 'Taksasi (Kg)'
-                            }
-                        }, {
-                            opposite: true,
-                            title: {
-                                text: 'AKP (%)'
-                            }
-                        }],
-                        fill: {
-                            opacity: 1
-                        },
-                        tooltip: {
-                            y: [{
-                                formatter: function (val) {
-                                    return val + " Kg"
-                                }
-                            }, {
-                                formatter: function (val) {
-                                    return val + " %"
-                                }
-                            }]
-                        }
-                    };
+    series: [
+        {
+            name: 'Taksasi (Kg)',
+            data: [
+                { x: 'Wilayah 1', y: 1 },
+                { x: 'Wilayah 2', y: 3 },
+                { x: 'Wilayah 3', y: 5 },
+                { x: 'Wilayah 4', y: 7 },
+                { x: 'Wilayah 5', y: 9 },
+                { x: 'Wilayah 6', y: 11 },
+                { x: 'Wilayah 7', y: 13 },
+                { x: 'Wilayah 8', y: 15 },
+                { x: 'Wilayah 9', y: 17 },
+                { x: 'Wilayah 10', y: 19 }
+            ]
+        },
+        {
+            name: 'AKP (%)',
+            data: [
+                { x: 'Wilayah 1', y: 2 },
+                { x: 'Wilayah 2', y: 4 },
+                { x: 'Wilayah 3', y: 6 },
+                { x: 'Wilayah 4', y: 8 },
+                { x: 'Wilayah 5', y: 10 },
+                { x: 'Wilayah 6', y: 12 },
+                { x: 'Wilayah 7', y: 14 },
+                { x: 'Wilayah 8', y: 16 },
+                { x: 'Wilayah 9', y: 18 },
+                { x: 'Wilayah 10', y: 20 }
+            ]
+        }
+    ],
+    chart: {
+        type: 'bar'
+    },
+    plotOptions: {
+        bar: {
+            horizontal: false,
+            columnWidth: '55%',
+            endingShape: 'rounded',
+            distributed: true // This is important for differentiating the colors
+        }
+    },
+    colors: [
+        '#ff5c7c', '#949494',
+        '#ffbc4c', '#e14cfb',
+        '#4cc8ff', '#949494',
+        '#FF6F00', '#0F9D58',
+        '#8E24AA', '#E53935',
+        '#039BE5', '#8E44AD',
+        '#FDD835', '#FB8C00',
+        '#6A1B9A', '#1B5E20' 
+    ],
+    dataLabels: {
+        enabled: false
+    },
+    stroke: {
+        show: true,
+        width: 2,
+        colors: ['transparent']
+    },
+    xaxis: {
+        categories: [
+            'Wilayah 1', 'Wilayah 2', 'Wilayah 3', 'Wilayah 4', 'Wilayah 5', 
+            'Wilayah 6', 'Wilayah 7', 'Wilayah 8', 'Wilayah 9', 'Wilayah 10'
+        ]
+    },
+    yaxis: [
+        {
+            title: {
+                text: 'Taksasi (Kg)'
+            }
+        },
+        {
+            opposite: true,
+            title: {
+                text: 'AKP (%)'
+            }
+        }
+    ],
+    fill: {
+        opacity: 1
+    },
+    tooltip: {
+        y: [
+            {
+                title: {
+                    formatter: function (val) {
+                        return val + " Kg";
+                    }
+                }
+            },
+            {
+                title: {
+                    formatter: function (val) {
+                        return val + " %";
+                    }
+                }
+            }
+        ]
+    }
+};
 
         var chartTonaseAKPWil = new ApexCharts(document.querySelector("#chartTonaseAKPWil"), options);
         chartTonaseAKPWil.render();
