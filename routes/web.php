@@ -70,6 +70,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('/get-data-regional-wilayah', [DashboardNewController::class, 'getAllDataRegionalWilayah'])->name('get-data-regional-wilayah');
     Route::get('/get-data-estate', [DashboardNewController::class, 'getAllDataEstate'])->name('get-data-estate');
+    Route::post('/import-realisasi-taksasi', [DashboardNewController::class, 'importExcelRealisasiTaksasi'])->name('import-realisasi-taksasi');
 });
 
 Route::get('/dashboard_vehicle_management', function () {

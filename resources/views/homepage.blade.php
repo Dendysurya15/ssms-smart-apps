@@ -157,8 +157,9 @@
                     </li>
                     <li class="nav-item"><a data-toggle="tab" href="#estateTab" class="nav-link">Estate</a>
                     </li>
-                    {{-- <li class="nav-item"><a data-toggle="tab" href="#realisasiTab" class="nav-link">Realisasi</a>
-                    </li> --}}
+                    <li class="nav-item active"><a data-toggle="tab" href="#realisasiTab" class="nav-link ">Realisasi
+                            Taksasi</a>
+                    </li>
                 </ul>
 
                 <div class="tab-content">
@@ -302,9 +303,76 @@
                             </div>
                         </div>
                     </div>
-                    {{-- <div id="realisasiTab" class="tab-pane fade in active">
-                        <h1>Halaman realisasi</h1>
-                    </div> --}}
+                    <div id="realisasiTab" class="tab-pane fade in active">
+                        <form action="{{ route('import-realisasi-taksasi') }}" method="POST"
+                            enctype="multipart/form-data">
+                            @csrf
+                            @if(Session::has('success'))
+                            <div class="alert alert-success">
+                                {{ Session::get('success') }}
+                            </div>
+                            @endif
+
+                            @if(Session::has('errors'))
+                            <div class="alert alert-danger">
+                                @if(is_array(Session::get('errors')))
+                                <ul>
+                                    @foreach(Session::get('errors') as $error)
+                                    <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                                @else
+                                {{ Session::get('errors') }}
+                                @endif
+                            </div>
+                            @endif
+                            <div class="row mt-2">
+                                <div class="col-2">
+                                    <div class="form-group">
+                                        <label>PILIH BULAN EXCEL REALISASI</label>
+                                        <input type="month" name="month" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="form-group">
+                                        <label>PILIH FILE</label>
+                                        <input type="file" name="file" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            {{-- <div class="modal-body">
+                                <div class="form-group">
+                                    <label>PILIH FILE</label>
+                                    <input type="file" name="file" class="form-control" required>
+                                </div> --}}
+                                {{-- @if (session('errors'))
+                                <div class="alert alert-danger">
+                                    <ul>
+                                        @foreach (session('errors')->all() as $error)
+                                        <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                                @endif
+
+                                @if (session('success'))
+                                <div class="alert alert-success">
+                                    <ul>
+                                        @foreach (session('success')->all() as $success)
+                                        <li>{{ $success }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                                @endif --}}
+                                {{--
+                            </div> --}}
+
+                            <button type="submit" class="btn btn-success">IMPORT</button>
+
+                        </form>
+                    </div>
                 </div>
 
 
@@ -587,7 +655,7 @@ function drawBlokPlot(blok) {
 
     var blok = JSON.parse(getPlotStr)
 
-    console.log(blok)
+    
     L.geoJSON(blok, {
             onEachFeature: function(feature, layer) {
 
@@ -897,7 +965,7 @@ $.ajax({
     success: function(result) {
         var estate = JSON.parse(result);
 
-        console.log(estate)
+        
         drawEstatePlot(estate['est'], estate['plot'])
     }
 })
@@ -1022,8 +1090,19 @@ $.ajax({
 
     $(document).ready(function(){
 
+        const currentDate = new Date();
 
-        $('a[href="#regionalTab"]').click();
+        // Format the date as YYYY-MM
+        const year = currentDate.getFullYear();
+        const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+
+        // Set the value of the month input
+        const monthInput = document.querySelector('input[type="month"]');
+        if (monthInput) {
+            monthInput.value = `${year}-${month}`;
+        }
+
+        $('a[href="#realisasiTab"]').click();
 
         var options = {
     series: [

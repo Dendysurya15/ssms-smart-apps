@@ -481,7 +481,7 @@
 
         var blok = JSON.parse(getPlotStr)
 
-        console.log(blok)
+        
         L.geoJSON(blok, {
                 onEachFeature: function(feature, layer) {
 

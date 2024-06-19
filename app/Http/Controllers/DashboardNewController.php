@@ -2,16 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\RealisasiTaksasiImport;
 use App\Models\Estate;
 use App\Models\Regional;
 use App\Models\Wilayah;
+use App\Services\DataServiceImportRealisasi;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
+use Maatwebsite\Excel\Excel;
+use Maatwebsite\Excel\Facades\Excel as FacadesExcel;
 
 class DashboardNewController extends Controller
 {
-    //
+
 
     public function getAllDataRegionalWilayah(Request $request)
     {
@@ -55,7 +60,7 @@ class DashboardNewController extends Controller
             ->join('reg', 'wil.regional', '=', 'reg.id')
             ->whereBetween('taksasi.waktu_upload', [$firstData, $lastData])
             ->where('reg.nama', '!=', 'Regional V')
-            ->where('reg.nama', $reg_all[$idReg]['id'])
+            ->where('reg.nama', $reg_all[$idReg]['nama'])
             ->get()
             ->groupBy('nama_regional');
 
@@ -297,5 +302,41 @@ class DashboardNewController extends Controller
 
         echo json_encode($result);
         exit;
+    }
+
+
+    protected $dataService;
+
+    public function __construct(DataServiceImportRealisasi $dataService)
+    {
+        $this->dataService = $dataService;
+    }
+
+    public function importExcelRealisasiTaksasi(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'file' => 'required|mimes:csv,xls,xlsx|max:20480', // max size in kilobytes (20MB)
+            ]);
+
+            $month = $request->input('month');
+            $file = $request->file('file');
+
+            // Process the Excel file
+            $import = new RealisasiTaksasiImport($this->dataService, $month);
+            FacadesExcel::import($import, $file); // Specify the sheet here
+
+            // Flash success message
+            Session::flash('success', 'Data Realisasi Excel Berhasil Diimport!');
+            return redirect()->back();
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Flash error message
+            Session::flash('errors', $e->validator->getMessageBag());
+            return redirect()->back()->withInput();
+        } catch (\Exception $e) {
+            // Flash general error message
+            Session::flash('errors', 'An error occurred while processing the file.');
+            return redirect()->back()->withInput();
+        }
     }
 }
