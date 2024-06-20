@@ -37,6 +37,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('getDataTakEst15Days', [DashboardController::class, 'getTakEst15Days'])->name('getDataTakEst15Days');
     Route::post('getNameEstate', [DashboardController::class, 'getNameEstate'])->name('getNameEstate');
     Route::post('getNameAfdeling', [DashboardController::class, 'getNameAfdeling'])->name('getNameAfdeling');
+    Route::post('getNameWilayah', [DashboardController::class, 'getNameWilayah'])->name('getNameWilayah');
     Route::post('plotEstate', [DashboardController::class, 'plotEstate'])->name('plotEstate');
     Route::post('plotBlok', [DashboardController::class, 'plotBlok'])->name('plotBlok');
     Route::post('plotLineTaksasi', [DashboardController::class, 'plotLineTaksasi'])->name('plotLineTaksasi');
@@ -70,6 +71,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('/get-data-regional-wilayah', [DashboardNewController::class, 'getAllDataRegionalWilayah'])->name('get-data-regional-wilayah');
     Route::get('/get-data-estate', [DashboardNewController::class, 'getAllDataEstate'])->name('get-data-estate');
+    Route::get('/get-data-realisasi-taksasi-per-regional', [DashboardNewController::class, 'getDataRealisasiTaksasi'])->name('get-data-realisasi-taksasi-per-regional');
     Route::post('/import-realisasi-taksasi', [DashboardNewController::class, 'importExcelRealisasiTaksasi'])->name('import-realisasi-taksasi');
 });
 

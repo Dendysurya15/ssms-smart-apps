@@ -7,6 +7,11 @@
 
     }
 
+    .table-bordered th,
+    .table-bordered td {
+        border: 1px solid black !important;
+    }
+
     @media only screen and (min-width: 1366px) {
 
         .piechart_div {
@@ -325,50 +330,62 @@
                             </div>
 
                             <div class="row mt-2">
-                                <div class="col-2">
-                                    <div class="form-group">
-                                        <label>PILIH BULAN EXCEL REALISASI</label>
-                                        <input type="month" name="month" class="form-control" required>
+                                <div class="card mt-2 p-3  col-12">
+                                    <div class="row">
+
+
+                                        <div class="col-2">
+                                            <div class="form-group">
+                                                <label>PILIH BULAN EXCEL REALISASI</label>
+                                                <input type="month" name="month" class="form-control"
+                                                    id="monthImportRealisasi" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <label>PILIH FILE</label>
+                                                <input type="file" name="file" class="form-control" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-1">
+                                            <label>PILIH FILE</label>
+                                            <br>
+                                            <button type="submit" class="btn btn-success">Import Excel</button>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-3">
-                                    <div class="form-group">
-                                        <label>PILIH FILE</label>
-                                        <input type="file" name="file" class="form-control" required>
-                                    </div>
-                                </div>
+
                             </div>
 
+                            <div class="row">
+                                <div class="card mt-3 p-3 col-12">
+                                    <h4 style="color:#013C5E;font-weight: 550">Rekap Realisasi VS TAKSASI VS VARIAN
+                                    </h4>
 
-                            {{-- <div class="modal-body">
-                                <div class="form-group">
-                                    <label>PILIH FILE</label>
-                                    <input type="file" name="file" class="form-control" required>
-                                </div> --}}
-                                {{-- @if (session('errors'))
-                                <div class="alert alert-danger">
-                                    <ul>
-                                        @foreach (session('errors')->all() as $error)
-                                        <li>{{ $error }}</li>
-                                        @endforeach
-                                    </ul>
+                                    <div class="row">
+
+                                        <div class="col-2">
+                                            <div class="form-group">
+                                                <label>Pilih Bulan</label>
+                                                <input type="month" id="monthRealisasi" name="monthRealisasi"
+                                                    class="form-control" required>
+                                            </div>
+                                        </div>
+                                        {{-- <div class="col-2">
+                                            <label>Pilih Wilayah</label>
+                                            <select id="wilDropdown" class="form-control">
+                                                <option selected disabled>Pilih Wilayah</option>
+                                            </select>
+                                        </div> --}}
+
+                                    </div>
+                                    <div class="row" id="table-realisasi">
+                                    </div>
+
                                 </div>
-                                @endif
 
-                                @if (session('success'))
-                                <div class="alert alert-success">
-                                    <ul>
-                                        @foreach (session('success')->all() as $success)
-                                        <li>{{ $success }}</li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                                @endif --}}
-                                {{--
-                            </div> --}}
 
-                            <button type="submit" class="btn btn-success">Import Excel</button>
-
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -386,23 +403,6 @@
 
 
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-
-{{-- <script src="{{ asset('lottie/93121-no-data-preview.json') }}" type="text/javascript"></script> --}}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.9.4/lottie.min.js"
-    integrity="sha512-ilxj730331yM7NbrJAICVJcRmPFErDqQhXJcn+PLbkXdE031JJbcK87Wt4VbAK+YY6/67L+N8p7KdzGoaRjsTg=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<!-- jQuery -->
-<script src="{{ asset('/public/plugins/jquery/jquery.min.js') }}"></script>
-<!-- Bootstrap 4 -->
-<script src="{{ asset('/public/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-<!-- ChartJS -->
-<script src="{{ asset('/public/plugins/chart.js/Chart.min.js') }}"></script>
-<!-- AdminLTE App -->
-<script src="{{ asset('/public/js/adminlte.min.js') }}"></script>
-<!-- AdminLTE for demo purposes -->
-<script src="{{ asset('/public/js/demo.js') }}"></script>
-
-<script src="{{ asset('/public/js/loader.js') }}"></script>
 
 <script type="text/javascript"
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCzh5V86q6kt8UKJ8YE3oDOW0OexAXmlz8">
@@ -1088,21 +1088,18 @@ $.ajax({
 
     $(document).ready(function(){
 
-        const currentDate = new Date();
 
-        // Format the date as YYYY-MM
-        const year = currentDate.getFullYear();
-        const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-
-        // Set the value of the month input
-        const monthInput = document.querySelector('input[type="month"]');
-        if (monthInput) {
-            monthInput.value = `${year}-${month}`;
-        }
-        ;
-
-        
         $('a[href="#realisasiTab"]').click();
+
+        var currentDate = new Date();
+
+        // Format the date to YYYY-MM for input month value
+        var yearMonth = currentDate.toISOString().slice(0, 7);
+
+        // Set the default value for the input month
+        $('#monthRealisasi').val(yearMonth);
+        $('#monthImportRealisasi').val(yearMonth);
+        monthImportRealisasi
 
         var options = {
     series: [
@@ -1393,9 +1390,146 @@ $.ajax({
             });
         }
 
+        function loadDataTableRealisasi(bulan, regionalId) {
+
+            var _token = $('input[name="_token"]').val();
+            $.ajax({
+                url: "{{ route('get-data-realisasi-taksasi-per-regional') }}",
+                method: "GET",
+                cache: false,
+                data: {
+                    _token: _token,
+                    bulan_request: bulan,
+                    id_reg: regionalId,
+                },
+                success: function(result) {
+                    var parseResult = JSON.parse(result);  
+                    var finalData = parseResult['data']
+                     var listEstate =parseResult['listEstate']
+                    
+                     function destroyDataTable(tableId) {
+                if ($.fn.DataTable.isDataTable(`#table-test-${tableId}`)) {
+                    $(`#table-test-${tableId}`).DataTable().clear().destroy();
+                }
+            }
+                  // Function to create a table
+            function createTable(tableId, data) {
+                destroyDataTable(tableId);
+                var tableHtml = `
+                    <div class="table-container p-4">
+                        <h3>Taksasi Wilayah Vs Aplikasi: ${tableId}</h3>
+                        <table id="table-test-${tableId}" class="stripe hover compact cell-border  mt-1" style="width: 100%">
+                            <thead>
+                                <tr> <th rowspan="2">Tanggal</th>
+                                                <th rowspan="2">AFD</th>
+                                                <th colspan="3">Ha Panen</th>
+                                                <th colspan="3">AKP (%)</th>
+                                                <th colspan="3">Taksasi (Kg)</th>
+                                                <th colspan="3">Kebutuhan HK</th>
+                                            </tr>
+                                            <tr>
+                                                <th>Wilayah</th>
+                                                <th>Aplikasi</th>
+                                                <th>Selisih</th>
+                                                <th>Wilayah</th>
+                                                <th>Aplikasi</th>
+                                                <th></th>
+                                                <th>Wilayah</th>
+                                                <th>Aplikasi</th>
+                                                <th></th>
+                                                <th>Wilayah</th>
+                                                <th>Aplikasi</th>
+                                                <th>Selisih</th>
+                                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="2">EST</th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                `;
+                $('#table-realisasi').append(tableHtml);
+
+                // Initialize DataTable for the newly created table
+                $(`#table-test-${tableId}`).DataTable({
+                    data: data,
+                    columns: [
+                        { title: "Tanggal" },
+                        { title: "AFD" },
+                        { title: "Ha Panen Taksasi" },
+                        { title: "Ha Panen Realisasi" },
+                        { title: "Ha Panen Varian" },
+                        { title: "AKP Taksasi" },
+                        { title: "AKP Realisasi" },
+                        { title: "AKP Varian" },
+                        { title: "Tonase" },
+                        { title: "Tonase Realisasi" },
+                        { title: "Tonase Varian" },
+                        { title: "Kebutuhan HK Taksasi" },
+                        { title: "Kebutuhan HK Realisasi" },
+                        { title: "Keb HK Varian" }
+                    ],
+                    createdRow: function(row, data, dataIndex) {
+                        // Apply yellow background color to rows where "AFD" column matches a value in the listEstate array
+                      
+                                    if (listEstate.includes(data[1])) {
+                            $(row).css({
+                                'color': 'white',
+                                
+                                'background-color': '#B0B7C0' // You can add more CSS attributes as needed
+                            });
+                        }
+                    }
+                });
+            }
+
+            $('#table-realisasi').empty();
+            // Loop to create tables for each estate
+            listEstate.forEach((estate, index) => {
+                var estateData = finalData[estate].map(data => [
+                    data.Tanggal,
+                    data.AFD,
+                    data.ha_panen_taksasi,
+                    data.ha_panen_realisasi,
+                    data.ha_panen_varian,
+                    data.akp_taksasi,
+                    data.akp_realisasi,
+                    data.akp_varian,
+                    data.taksasi_tonase,
+                    data.taksasi_realisasi,
+                    data.taksasi_varian,
+                    data.keb_hk_taksasi,
+                    data.keb_hk_realisasi,
+                    data.keb_hk_varian
+                ]);
+
+                // Create table for the estate
+                createTable(estate, estateData);
+            });
+
+
+                }
+            });
+        }
+
         // Load DataTable for the first time with today's date
         loadDataTableRegionalWilayah(dateToday, $('#reg').val());
-
+        // loadListWilayahDropdown($('#reg').val())
+        loadDataTableRealisasi($('#monthRealisasi').val(),$('#reg').val())
         // Event listener for date input change
         $('#tgl').on('change', function() {
             var selectedDate = $(this).val();
@@ -1412,11 +1546,16 @@ $.ajax({
            
         });
 
+        $('#monthRealisasi').on('change', function() {
+            var selectedMonth = $(this).val();
+            loadDataTableRealisasi(selectedMonth,$('#reg').val())
+        });
+
         if ($('#reg option:selected').length === 0) {
             $('#reg option:first').prop('selected', true);
         }
 
-    function loadEstateOptions(regionalId) {
+    function loadEstateDropdown(regionalId) {
         var _token = $('input[name="_token"]').val();
 
         $.ajax({
@@ -1447,18 +1586,42 @@ $.ajax({
         });
         }
 
+
+        // function loadListWilayahDropdown(regional) {
+            
+        //     var _token = $('input[name="_token"]').val();
+        //     $.ajax({
+        //         url: "{{ route('getNameWilayah') }}",
+        //         method: "POST",
+        //         cache: false,
+        //         data: {
+        //             _token: _token,
+        //             regional: regional,
+        //         },
+        //         success: function(result) {
+                
+        //             $('#wilDropdown').empty().append(result);
+        //             $('#wilDropdown option:first').prop('selected', true);
+                    
+
+        //         }
+        //     });
+        // }
+
         // Event listener for Regional dropdown change
         $('#reg').on('change', function() {
             var selectedRegionalId = $(this).val();
-            loadEstateOptions(selectedRegionalId);
+            loadEstateDropdown(selectedRegionalId);
             selectedDate = $('#tgl').val()
+            loadListWilayahDropdown(selectedRegionalId)
             loadDataTableRegionalWilayah($('#tgl').val(),  selectedRegionalId)
+            loadDataTableRealisasi($('#monthRealisasi').val(),selectedRegionalId)
         });
 
         // Load estates for the default selected regional on page load
         var defaultRegionalId = $('#reg').val();
         if (defaultRegionalId) {
-            loadEstateOptions(defaultRegionalId);
+            loadEstateDropdown(defaultRegionalId);
         }
 
 
@@ -1541,6 +1704,10 @@ $.ajax({
                 }
             });
         }
+
+        // $('#wilDropdown').on('change', function() {
+
+        // })
 
         // Event listener for #est dropdown change
         $('#est').on('change', function() {

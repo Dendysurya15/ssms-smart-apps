@@ -2435,6 +2435,28 @@ class DashboardController extends Controller
         return view('mon_pemupukan.rekom_aplikasi', ['arrResult' => $arrResult, 'est' => $estate_input, 'afd' => $afdeling_input, 'tgl' => $tanggal, 'rot' => $rotasi, 'sm' => $semester]);
     }
 
+
+    public function getNameWilayah(Request $request)
+    {
+
+        $id_reg = $request->get('regional');
+
+        $reg_all = Regional::where('nama', '!=', 'Regional V')->get()->toArray();
+
+        $id_reg = $reg_all[$id_reg]['id'];
+
+        $wil_all = Wilayah::where('regional', $id_reg)->pluck('nama')->toArray();
+
+        $output = '';
+        $inc_est = 1;
+        foreach ($wil_all as $key => $val) {
+            $output .= '<option value="' . $key . '">' . $val . '</option>';
+            $inc_est++;
+        }
+
+        echo $output;
+    }
+
     public function getPdfqc($est, $date)
     {
         // $tgl = $request->get('est');
