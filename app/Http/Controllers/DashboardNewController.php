@@ -331,11 +331,12 @@ class DashboardNewController extends Controller
             return redirect()->back();
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Flash error message
-            Session::flash('errors', $e->validator->getMessageBag());
+            $errorMessage = implode(' ', $e->validator->getMessageBag()->all());
+            Session::flash('errors', $errorMessage);
             return redirect()->back()->withInput();
         } catch (\Exception $e) {
             // Flash general error message
-            Session::flash('errors', 'An error occurred while processing the file.');
+            Session::flash('errors', 'An error occurred while processing the file. ' . $e);
             return redirect()->back()->withInput();
         }
     }

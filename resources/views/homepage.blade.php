@@ -163,7 +163,7 @@
                 </ul>
 
                 <div class="tab-content">
-                    <div id="regionalTab" class="tab-pane fade in active">
+                    <div id="regionalTab" class="tab-pane fade in">
                         <div class="card mt-3 p-3">
                             <h4 style="color:#013C5E;font-weight: 550">Rekap Taksasi Regional
                             </h4>
@@ -250,7 +250,7 @@
                         </div>
 
                     </div>
-                    <div id="estateTab" class="tab-pane fade in active">
+                    <div id="estateTab" class="tab-pane fade in">
                         <div class="row">
                             <div class="col">
                                 <div class="card mt-3 p-3">
@@ -303,29 +303,27 @@
                             </div>
                         </div>
                     </div>
-                    <div id="realisasiTab" class="tab-pane fade in active">
+                    <div id="realisasiTab" class="tab-pane fade in">
                         <form action="{{ route('import-realisasi-taksasi') }}" method="POST"
                             enctype="multipart/form-data">
                             @csrf
-                            @if(Session::has('success'))
-                            <div class="alert alert-success">
-                                {{ Session::get('success') }}
-                            </div>
-                            @endif
 
-                            @if(Session::has('errors'))
-                            <div class="alert alert-danger">
-                                @if(is_array(Session::get('errors')))
-                                <ul>
-                                    @foreach(Session::get('errors') as $error)
-                                    <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                                @else
-                                {{ Session::get('errors') }}
-                                @endif
+                            <div class="mt-3">
+                                <div class="mt-3">
+                                    @if(Session::has('success'))
+                                    <div class="alert alert-success">
+                                        {{ Session::get('success') }}
+                                    </div>
+                                    @endif
+
+                                    @if(Session::has('errors'))
+                                    <div class="alert alert-danger">
+                                        {{ Session::get('errors') }}
+                                    </div>
+                                    @endif
+                                </div>
                             </div>
-                            @endif
+
                             <div class="row mt-2">
                                 <div class="col-2">
                                     <div class="form-group">
@@ -369,7 +367,7 @@
                                 {{--
                             </div> --}}
 
-                            <button type="submit" class="btn btn-success">IMPORT</button>
+                            <button type="submit" class="btn btn-success">Import Excel</button>
 
                         </form>
                     </div>
@@ -1101,7 +1099,9 @@ $.ajax({
         if (monthInput) {
             monthInput.value = `${year}-${month}`;
         }
+        ;
 
+        
         $('a[href="#realisasiTab"]').click();
 
         var options = {

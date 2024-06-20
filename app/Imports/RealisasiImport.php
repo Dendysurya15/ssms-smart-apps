@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use DateTime;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToCollection;
 
 class RealisasiImport implements ToCollection
@@ -211,12 +212,12 @@ class RealisasiImport implements ToCollection
             }
 
             DB::connection('mysql2')->transaction(function () use ($groupedDataFinal) {
-                $records = [];
+                $insertRecords = [];
 
                 foreach ($groupedDataFinal as $date => $estates) {
                     foreach ($estates as $estateName => $afdelings) {
                         foreach ($afdelings as $afdelingName => $data) {
-                            $records[] = [
+                            $record = [
                                 'tanggal_realisasi' => $date . ' 00:00:00',
                                 'est' => $estateName,
                                 'afd' => $afdelingName,
@@ -230,17 +231,30 @@ class RealisasiImport implements ToCollection
                                 'hk' => $data['HK'],
                                 'akp' => $data['AKP']
                             ];
+
+                            $existingRecord = DB::connection('mysql2')->table('realisasi_taksasi')
+                                ->where('tanggal_realisasi', $record['tanggal_realisasi'])
+                                ->where('est', $record['est'])
+                                ->where('afd', $record['afd'])
+                                ->first();
+
+                            if (!$existingRecord) {
+                                $insertRecords[] = $record;
+                            } else {
+                                DB::connection('mysql2')->table('realisasi_taksasi')
+                                    ->where('id', $existingRecord->id)
+                                    ->update($record);
+                            }
                         }
                     }
                 }
 
 
-                foreach (array_chunk($records, 50) as $chunk) {
-                    DB::connection('mysql2')->table('realisasi_taksasi')->upsert(
-                        $chunk,
-                        ['tanggal_realisasi', 'est', 'afd'],
-                        ['ha_panen', 'pokok', 'janjang', 'tonase', 'restan_hi', 'total_tonase', 'bjr', 'hk', 'akp']
-                    );
+
+                if (!empty($insertRecords)) {
+                    foreach (array_chunk($insertRecords, 50) as $chunk) {
+                        DB::connection('mysql2')->table('realisasi_taksasi')->insert($chunk);
+                    }
                 }
             });
         }
