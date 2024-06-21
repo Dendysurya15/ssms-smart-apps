@@ -7,11 +7,6 @@
 
     }
 
-    .table-bordered th,
-    .table-bordered td {
-        border: 1px solid black !important;
-    }
-
     @media only screen and (min-width: 1366px) {
 
         .piechart_div {
@@ -22,6 +17,16 @@
 
     #map {
         height: 800px;
+    }
+
+    th {
+        border-top: 1px solid #dddddd;
+        border-bottom: 1px solid #dddddd;
+        border-right: 1px solid #dddddd;
+    }
+
+    th:first-child {
+        border-left: 1px solid #dddddd;
     }
 
     .legend {
@@ -332,11 +337,9 @@
                             <div class="row mt-2">
                                 <div class="card mt-2 p-3  col-12">
                                     <div class="row">
-
-
                                         <div class="col-2">
                                             <div class="form-group">
-                                                <label>PILIH BULAN EXCEL REALISASI</label>
+                                                <label>Pilih Bulan Import Excel Realisasi</label>
                                                 <input type="month" name="month" class="form-control"
                                                     id="monthImportRealisasi" required>
                                             </div>
@@ -359,18 +362,12 @@
 
                             <div class="row">
                                 <div class="card mt-3 p-3 col-12">
-                                    <h4 style="color:#013C5E;font-weight: 550">Rekap Realisasi VS TAKSASI VS VARIAN
-                                    </h4>
+
 
                                     <div class="row">
 
-                                        <div class="col-2">
-                                            <div class="form-group">
-                                                <label>Pilih Bulan</label>
-                                                <input type="month" id="monthRealisasi" name="monthRealisasi"
-                                                    class="form-control" required>
-                                            </div>
-                                        </div>
+
+
                                         {{-- <div class="col-2">
                                             <label>Pilih Wilayah</label>
                                             <select id="wilDropdown" class="form-control">
@@ -1097,7 +1094,7 @@ $.ajax({
         var yearMonth = currentDate.toISOString().slice(0, 7);
 
         // Set the default value for the input month
-        $('#monthRealisasi').val(yearMonth);
+        // $('#monthRealisasi').val(yearMonth);
         $('#monthImportRealisasi').val(yearMonth);
         monthImportRealisasi
 
@@ -1390,8 +1387,7 @@ $.ajax({
             });
         }
 
-        function loadDataTableRealisasi(bulan, regionalId) {
-
+        function loadDataTableRealisasi(dateToday, regionalId) {
             var _token = $('input[name="_token"]').val();
             $.ajax({
                 url: "{{ route('get-data-realisasi-taksasi-per-regional') }}",
@@ -1399,128 +1395,211 @@ $.ajax({
                 cache: false,
                 data: {
                     _token: _token,
-                    bulan_request: bulan,
+                    date_request: dateToday,
                     id_reg: regionalId,
+                    // est_req : estateRequest,
                 },
                 success: function(result) {
                     var parseResult = JSON.parse(result);  
-                    var finalData = parseResult['data']
-                     var listEstate =parseResult['listEstate']
+                    var finalDataEst = parseResult['dataEst']
+                    var finalDataWil = parseResult['dataWil']
+                    var finalDataReg = parseResult['dataReg']
+
+
+                    console.log(finalDataReg)
+                     var listEstate = parseResult['listEstate']
                     
                      function destroyDataTable(tableId) {
-                if ($.fn.DataTable.isDataTable(`#table-test-${tableId}`)) {
-                    $(`#table-test-${tableId}`).DataTable().clear().destroy();
-                }
-            }
-                  // Function to create a table
-            function createTable(tableId, data) {
-                destroyDataTable(tableId);
-                var tableHtml = `
-                    <div class="table-container p-4">
-                        <h3>Taksasi Wilayah Vs Aplikasi: ${tableId}</h3>
-                        <table id="table-test-${tableId}" class="stripe hover compact cell-border  mt-1" style="width: 100%">
-                            <thead>
-                                <tr> <th rowspan="2">Tanggal</th>
-                                                <th rowspan="2">AFD</th>
-                                                <th colspan="3">Ha Panen</th>
-                                                <th colspan="3">AKP (%)</th>
-                                                <th colspan="3">Taksasi (Kg)</th>
-                                                <th colspan="3">Kebutuhan HK</th>
-                                            </tr>
-                                            <tr>
-                                                <th>Wilayah</th>
-                                                <th>Aplikasi</th>
-                                                <th>Selisih</th>
-                                                <th>Wilayah</th>
-                                                <th>Aplikasi</th>
-                                                <th></th>
-                                                <th>Wilayah</th>
-                                                <th>Aplikasi</th>
-                                                <th></th>
-                                                <th>Wilayah</th>
-                                                <th>Aplikasi</th>
-                                                <th>Selisih</th>
-                                            </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <th colspan="2">EST</th>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                `;
-                $('#table-realisasi').append(tableHtml);
+        if ($.fn.DataTable.isDataTable(`#table-test-${tableId}`)) {
+            $(`#table-test-${tableId}`).DataTable().clear().destroy();
+        }
+    }
 
-                // Initialize DataTable for the newly created table
-                $(`#table-test-${tableId}`).DataTable({
-                    data: data,
-                    columns: [
-                        { title: "Tanggal" },
-                        { title: "AFD" },
-                        { title: "Ha Panen Taksasi" },
-                        { title: "Ha Panen Realisasi" },
-                        { title: "Ha Panen Varian" },
-                        { title: "AKP Taksasi" },
-                        { title: "AKP Realisasi" },
-                        { title: "AKP Varian" },
-                        { title: "Tonase" },
-                        { title: "Tonase Realisasi" },
-                        { title: "Tonase Varian" },
-                        { title: "Kebutuhan HK Taksasi" },
-                        { title: "Kebutuhan HK Realisasi" },
-                        { title: "Keb HK Varian" }
-                    ],
-                    createdRow: function(row, data, dataIndex) {
-                        // Apply yellow background color to rows where "AFD" column matches a value in the listEstate array
-                      
-                                    if (listEstate.includes(data[1])) {
-                            $(row).css({
-                                'color': 'white',
-                                
-                                'background-color': '#B0B7C0' // You can add more CSS attributes as needed
-                            });
-                        }
-                    }
-                });
-            }
+    
+    function createTable(tableId, data) {
+        destroyDataTable(tableId);
+        var tableHtml = `
+        <h4 class="pl-4 pt-4" style="color:#013C5E;font-weight: 550">Realisasi Vs Taksasi Vs Varian: ${tableId}</h4>
+            <div class="table-container p-4 overflow-auto">
+              
+                <table id="table-test-${tableId}" class="stripe hover compact cell-border mt-1" style="width: 100%">
+                    <thead>
+                        <tr><th colspan="23"> HI </th></tr>
+                                        <th rowspan="2">AFD</th>
+                                        <th colspan="3">Ha Panen</th>
+                                        <th colspan="3">AKP (%)</th>
+                                        <th colspan="3">Taksasi (Kg)</th>
+                                        <th colspan="3">HK</th>
+                                        <th colspan="3">Janjang</th>
+                                        <th colspan="2">Total Tonase</th>
+                                        <th colspan="2">Restan</th>
+                                        <th colspan="3">BJR</th>
+                                    </tr>
+                                    <tr>
+                                        <th>panen  Wilayah</th>
+                                        <th>panen Aplikasi</th>
+                                        <th>panen Selisih</th>
+                                        <th>akp Wilayah</th>
+                                        <th>akp Aplikasi</th>
+                                        <th>akp </th>
+                                        <th>taksasi Wilayah</th>
+                                        <th>taksasiAplikasi</th>
+                                        <th>taksasi</th>
+                                        <th>hk Wilayah</th>
+                                        <th>hk Aplikasi</th>
+                                        <th>hk Selisih</th>
+                                        <th>janjang Wilayah</th>
+                                        <th>janjang Aplikasi</th>
+                                        <th>janjang Selisih</th>
+                                        <th>total tonase Wilayah</th>
+                                        <th>total tonase Aplikasi</th>
+                                        <th>Restan Kemarin</th>
+                                        <th>Restan HI</th>
+                                        <th>bjr Wilayah</th>
+                                        <th>bjr Aplikasi</th>
+                                        <th>bjr Selisih</th>
+                                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
 
-            $('#table-realisasi').empty();
+                </table>
+            </div>
+        `;
+        $('#table-realisasi').append(tableHtml);
+
+        // Initialize DataTable for the newly created table
+        $(`#table-test-${tableId}`).DataTable({
+            data: data,
+            columns: [
+                { title: "AFD" },
+                { title: "Taksasi" },
+                { title: "Realisasi" },
+                { title: "Varian" },
+                { title: " Taksasi" },
+                { title: " Realisasi" },
+                { title: " Varian" },
+                { title: "Taksasi" },
+                { title: "Realisasi" },
+                { title: "Varian" },
+                { title: "Taksasi" },
+                { title: "Realisasi" },
+                { title: " Varian" },
+                { title: "Taksasi" },
+                { title: "Realisasi" },
+                { title: " Varian" },
+                { title: "Taksasi" },
+                { title: "Realisasi" },
+                { title: "Taksasi" },
+                { title: "Realisasi" },
+                { title: "Taksasi" },
+                { title: "Realisasi" },
+                { title: " Varian" },
+            ],
+            createdRow: function(row, data, dataIndex) {
+                // if (listEstate.includes(data[1])) {
+                //     $(row).css({
+                //         'color': 'white',
+                //         'background-color': '#B0B7C0' // You can add more CSS attributes as needed
+                //     });
+                // }
+            },
+            headerCallback: function(thead, data, start, end, display) {
+                $(thead).find('th').css('text-align', 'center');
+            }
+        });
+    }
+
+     $('#table-realisasi').empty();
             // Loop to create tables for each estate
-            listEstate.forEach((estate, index) => {
-                var estateData = finalData[estate].map(data => [
-                    data.Tanggal,
-                    data.AFD,
-                    data.ha_panen_taksasi,
-                    data.ha_panen_realisasi,
-                    data.ha_panen_varian,
-                    data.akp_taksasi,
-                    data.akp_realisasi,
-                    data.akp_varian,
-                    data.taksasi_tonase,
-                    data.taksasi_realisasi,
-                    data.taksasi_varian,
-                    data.keb_hk_taksasi,
-                    data.keb_hk_realisasi,
-                    data.keb_hk_varian
-                ]);
+             // Data for Regional
+            var finalDataRegFormatted = finalDataReg.map(data => [
+                data.key,
+                data.ha_panen_taksasi,
+                data.ha_panen_realisasi,
+                data.ha_panen_varian,
+                data.akp_taksasi,
+                data.akp_realisasi,
+                data.akp_varian,
+                data.taksasi_tonase,
+                data.taksasi_realisasi,
+                data.taksasi_varian,
+                data.keb_hk_taksasi,
+                data.keb_hk_realisasi,
+                data.keb_hk_varian,
+                data.janjang_taksasi,
+                data.janjang_realisasi,
+                data.janjang_varian,
+                data.total_tonase_taksasi,
+                data.total_tonase_realisasi,
+                data.restan_kemarin,
+                data.restan_hi,
+                data.bjr_taksasi,
+                data.bjr_realisasi,
+                data.bjr_varian,
+                
+            ]);
 
-                // Create table for the estate
-                createTable(estate, estateData);
-            });
+            // Create table for the Regional data
+            createTable('Regional', finalDataRegFormatted);
 
+            var mappedData = finalDataWil.map(data => [
+                data.key,
+                data.ha_panen_taksasi,
+                data.ha_panen_realisasi,
+                data.ha_panen_varian,
+                data.akp_taksasi,
+                data.akp_realisasi,
+                data.akp_varian,
+                data.taksasi_tonase,
+                data.taksasi_realisasi,
+                data.taksasi_varian,
+                data.keb_hk_taksasi,
+                data.keb_hk_realisasi,
+                data.keb_hk_varian,
+                data.janjang_taksasi,
+                data.janjang_realisasi,
+                data.janjang_varian,
+                data.total_tonase_taksasi,
+                data.total_tonase_realisasi,
+                data.restan_kemarin,
+                data.restan_hi,
+                data.bjr_taksasi,
+                data.bjr_realisasi,
+                data.bjr_varian,
+        ]);
+
+        // Call createTable function once with all the mapped data
+        createTable("Wilayah", mappedData);
+
+
+        var mappedData = finalDataEst.map(data => [
+            data.key,
+                data.ha_panen_taksasi,
+                data.ha_panen_realisasi,
+                data.ha_panen_varian,
+                data.akp_taksasi,
+                data.akp_realisasi,
+                data.akp_varian,
+                data.taksasi_tonase,
+                data.taksasi_realisasi,
+                data.taksasi_varian,
+                data.keb_hk_taksasi,
+                data.keb_hk_realisasi,
+                data.keb_hk_varian,
+                data.janjang_taksasi,
+                data.janjang_realisasi,
+                data.janjang_varian,
+                data.total_tonase_taksasi,
+                data.total_tonase_realisasi,
+                data.restan_kemarin,
+                data.restan_hi,
+                data.bjr_taksasi,
+                data.bjr_realisasi,
+                data.bjr_varian,
+        ]);
+
+        createTable("Estate", mappedData);
 
                 }
             });
@@ -1529,13 +1608,16 @@ $.ajax({
         // Load DataTable for the first time with today's date
         loadDataTableRegionalWilayah(dateToday, $('#reg').val());
         // loadListWilayahDropdown($('#reg').val())
-        loadDataTableRealisasi($('#monthRealisasi').val(),$('#reg').val())
+
+        
+        loadDataTableRealisasi(dateToday,$('#reg').val())
         // Event listener for date input change
         $('#tgl').on('change', function() {
             var selectedDate = $(this).val();
             var regionalId =  $('#reg').val()
             loadDataTableRegionalWilayah(selectedDate, regionalId);
             loadDataTableEstate( $('#est').val(), selectedDate)
+            loadDataTableRealisasi(selectedDate,regionalId)
             removeMarkers();
             markerDelAgain()
             getPlotEstate($('#est').val(), selectedDate)
@@ -1569,11 +1651,13 @@ $.ajax({
 
                 $('#est').empty().append(result);
                 $('#est option:first').prop('selected', true);
+                // $('#estRealisasi').empty().append(result);
+                // $('#estRealisasi option:first').prop('selected', true);
                 var selectedEstateId = $('#est').val();
                 var selectedDate = $('#tgl').val();
                 loadDataTableEstate(selectedEstateId, selectedDate);
-           
-                 getPlotEstate(selectedEstateId, selectedDate)
+                // loadDataTableRealisasi($('#monthRealisasi').val(),$('#reg').val(), $('#estRealisasi').val())
+            getPlotEstate(selectedEstateId, selectedDate)
             getPlotBlok(selectedEstateId, selectedDate)
             getlineTaksasi(selectedEstateId, selectedDate)
             getMarkerMan(selectedEstateId, selectedDate)
@@ -1613,10 +1697,15 @@ $.ajax({
             var selectedRegionalId = $(this).val();
             loadEstateDropdown(selectedRegionalId);
             selectedDate = $('#tgl').val()
-            loadListWilayahDropdown(selectedRegionalId)
             loadDataTableRegionalWilayah($('#tgl').val(),  selectedRegionalId)
-            loadDataTableRealisasi($('#monthRealisasi').val(),selectedRegionalId)
+            loadDataTableRealisasi(selectedDate,selectedRegionalId)
         });
+
+        // $('#estRealisasi').on('change', function() {
+        //     var selectedEstate = $(this).val();
+        //     var selectedReg = $('#reg').val()
+        //     loadDataTableRealisasi($('#monthRealisasi').val(),selectedReg, selectedEstate)
+        // });
 
         // Load estates for the default selected regional on page load
         var defaultRegionalId = $('#reg').val();
