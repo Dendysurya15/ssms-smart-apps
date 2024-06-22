@@ -14,6 +14,16 @@
         }
     }
 
+    /* Ensure that the demo table scrolls */
+    th,
+    td {
+        white-space: nowrap;
+    }
+
+    div.dataTables_wrapper {
+        width: 100%;
+        margin: 0 auto;
+    }
 
     #map {
         height: 800px;
@@ -376,9 +386,38 @@
                                         </div> --}}
 
                                     </div>
-                                    <div class="row" id="table-realisasi">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div id="table-realisasi">
+                                            </div>
+                                        </div>
                                     </div>
 
+
+                                    {{-- <h4 style="color:#013C5E;font-weight: 550">Grafik
+                                    </h4> --}}
+                                    {{-- <div class="row">
+                                        <div class="col">
+
+                                            <select id="est" class="form-control col-3">
+                                                <option>Chart Ha Panen</option>
+                                                <option>Chart Tonase</option>
+                                                <option>Chart HK</option>
+                                                <option>Chart Janjang</option>
+                                            </select>
+
+                                            <div class="chartRealisasi1"></div>
+                                        </div>
+                                        <div class="col">
+                                            <select id="est" class="form-control col-3">
+                                                <option>Chart BJR</option>
+                                                <option>Chart Restan</option>
+                                                <option>Chart Total Tonase</option>
+
+                                            </select>
+                                            <div class="chartRealisasi2"></div>
+                                        </div>
+                                    </div> --}}
                                 </div>
 
 
@@ -987,7 +1026,6 @@ $.ajax({
     success: function(result) {
         
         var blok = JSON.parse(result);
-
         
         drawBlokPlot(blok)
     }
@@ -1099,108 +1137,63 @@ $.ajax({
         monthImportRealisasi
 
         var options = {
-    series: [
-        {
-            name: 'Taksasi (Kg)',
-            data: [
-                { x: 'Wilayah 1', y: 1 },
-                { x: 'Wilayah 2', y: 3 },
-                { x: 'Wilayah 3', y: 5 },
-                { x: 'Wilayah 4', y: 7 },
-                { x: 'Wilayah 5', y: 9 },
-                { x: 'Wilayah 6', y: 11 },
-                { x: 'Wilayah 7', y: 13 },
-                { x: 'Wilayah 8', y: 15 },
-                { x: 'Wilayah 9', y: 17 },
-                { x: 'Wilayah 10', y: 19 }
-            ]
-        },
-        {
-            name: 'AKP (%)',
-            data: [
-                { x: 'Wilayah 1', y: 2 },
-                { x: 'Wilayah 2', y: 4 },
-                { x: 'Wilayah 3', y: 6 },
-                { x: 'Wilayah 4', y: 8 },
-                { x: 'Wilayah 5', y: 10 },
-                { x: 'Wilayah 6', y: 12 },
-                { x: 'Wilayah 7', y: 14 },
-                { x: 'Wilayah 8', y: 16 },
-                { x: 'Wilayah 9', y: 18 },
-                { x: 'Wilayah 10', y: 20 }
-            ]
-        }
-    ],
-    chart: {
-        type: 'bar'
-    },
-    plotOptions: {
-        bar: {
-            horizontal: false,
-            columnWidth: '55%',
-            endingShape: 'rounded',
-            distributed: true // This is important for differentiating the colors
-        }
-    },
-    colors: [
-        '#ff5c7c', '#949494',
-        '#ffbc4c', '#e14cfb',
-        '#4cc8ff', '#949494',
-        '#FF6F00', '#0F9D58',
-        '#8E24AA', '#E53935',
-        '#039BE5', '#8E44AD',
-        '#FDD835', '#FB8C00',
-        '#6A1B9A', '#1B5E20' 
-    ],
-    dataLabels: {
-        enabled: false
-    },
-    stroke: {
-        show: true,
-        width: 2,
-        colors: ['transparent']
-    },
-    xaxis: {
-        categories: [
-            'Wilayah 1', 'Wilayah 2', 'Wilayah 3', 'Wilayah 4', 'Wilayah 5', 
-            'Wilayah 6', 'Wilayah 7', 'Wilayah 8', 'Wilayah 9', 'Wilayah 10'
-        ]
-    },
-    yaxis: [
-        {
-            title: {
-                text: 'Taksasi (Kg)'
-            }
-        },
-        {
-            opposite: true,
-            title: {
-                text: 'AKP (%)'
-            }
-        }
-    ],
-    fill: {
-        opacity: 1
-    },
-    tooltip: {
-        y: [
-            {
-                title: {
-                    formatter: function (val) {
-                        return val + " Kg";
-                    }
-                }
-            },
-            {
-                title: {
-                    formatter: function (val) {
-                        return val + " %";
-                    }
-                }
-            }
-        ]
-    }
-};
+                        series: [
+                            {
+                                name: 'Taksasi (Kg)',
+                                data: [1]
+                            },
+                            {
+                                name: 'AKP (%)',
+                                data: [2]
+                            }
+                        ],
+                        chart: {
+                            type: 'bar',
+                            height: 350
+                        },
+                        plotOptions: {
+                            bar: {
+                                horizontal: false,
+                                columnWidth: '55%',
+                                endingShape: 'rounded'
+                            },
+                        },
+                        dataLabels: {
+                            enabled: false
+                        },
+                        stroke: {
+                            show: true,
+                            width: 2,
+                            colors: ['transparent']
+                        },
+                        xaxis: {
+                            categories: ['Wilayah 1'],
+                        },
+                        yaxis: [{
+                            title: {
+                                text: 'Taksasi (Kg)'
+                            }
+                        }, {
+                            opposite: true,
+                            title: {
+                                text: 'AKP (%)'
+                            }
+                        }],
+                        fill: {
+                            opacity: 1
+                        },
+                        tooltip: {
+                            y: [{
+                                formatter: function (val) {
+                                    return val + " Kg"
+                                }
+                            }, {
+                                formatter: function (val) {
+                                    return val + " %"
+                                }
+                            }]
+                        }
+                    };
 
         var chartTonaseAKPWil = new ApexCharts(document.querySelector("#chartTonaseAKPWil"), options);
         chartTonaseAKPWil.render();
@@ -1405,9 +1398,7 @@ $.ajax({
                     var finalDataWil = parseResult['dataWil']
                     var finalDataReg = parseResult['dataReg']
 
-
                     console.log(finalDataReg)
-                     var listEstate = parseResult['listEstate']
                     
                      function destroyDataTable(tableId) {
         if ($.fn.DataTable.isDataTable(`#table-test-${tableId}`)) {
@@ -1420,15 +1411,18 @@ $.ajax({
         destroyDataTable(tableId);
         var tableHtml = `
         <h4 class="pl-4 pt-4" style="color:#013C5E;font-weight: 550">Realisasi Vs Taksasi Vs Varian: ${tableId}</h4>
-            <div class="table-container p-4 overflow-auto">
+            <div class="table-container p-4">
               
                 <table id="table-test-${tableId}" class="stripe hover compact cell-border mt-1" style="width: 100%">
-                    <thead>
-                        <tr><th colspan="23"> HI </th></tr>
+                    <thead >
+                        <tr>
+                            <th colspan="23"> HI </th>
+                            </tr>
+                            <tr>
                                         <th rowspan="2">AFD</th>
                                         <th colspan="3">Ha Panen</th>
                                         <th colspan="3">AKP (%)</th>
-                                        <th colspan="3">Taksasi (Kg)</th>
+                                        <th colspan="3">Tonase (Kg)</th>
                                         <th colspan="3">HK</th>
                                         <th colspan="3">Janjang</th>
                                         <th colspan="2">Total Tonase</th>
@@ -1471,6 +1465,11 @@ $.ajax({
         // Initialize DataTable for the newly created table
         $(`#table-test-${tableId}`).DataTable({
             data: data,
+            fixedColumns: {
+        start: 1
+    },    
+    scrollX: true,
+
             columns: [
                 { title: "AFD" },
                 { title: "Taksasi" },
