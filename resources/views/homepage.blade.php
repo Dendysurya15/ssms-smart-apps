@@ -1417,6 +1417,7 @@ $.ajax({
                     <thead >
                         <tr>
                             <th colspan="23"> HI </th>
+                            <th colspan="14"> SHI </th>
                             </tr>
                             <tr>
                                         <th rowspan="2">AFD</th>
@@ -1428,6 +1429,13 @@ $.ajax({
                                         <th colspan="2">Total Tonase</th>
                                         <th colspan="2">Restan</th>
                                         <th colspan="3">BJR</th>
+                                        <th colspan="2">Ha Panen</th>
+                                        <th colspan="2">AKP</th>
+                                        <th colspan="2">Tonase</th>
+                                        <th colspan="2">HK</th>
+                                        <th colspan="2">Janjang</th>
+                                        <th colspan="2">Total Tonase</th>
+                                        <th colspan="2">BJR</th>
                                     </tr>
                                     <tr>
                                         <th>panen  Wilayah</th>
@@ -1452,6 +1460,20 @@ $.ajax({
                                         <th>bjr Wilayah</th>
                                         <th>bjr Aplikasi</th>
                                         <th>bjr Selisih</th>
+                                        <th>Ha Panen SHI</th>
+                                        <th>Ha Panen SHI</th>
+                                        <th>AKP SHI</th>
+                                        <th>AKP SHI</th>
+                                        <th>Tonase SHI</th>
+                                        <th>Tonase SHI</th>
+                                        <th>HK SHI</th>
+                                        <th>HK SHI</th>
+                                        <th>Janjang SHI</th>
+                                        <th>Janjang SHI</th>
+                                        <th>Total Tonase SHI</th>
+                                        <th>Total Tonase SHI</th>
+                                        <th>BJR SHI</th>
+                                        <th>BJR SHI</th>
                                     </tr>
                     </thead>
                     <tbody>
@@ -1493,7 +1515,21 @@ $.ajax({
                 { title: "Realisasi" },
                 { title: "Taksasi" },
                 { title: "Realisasi" },
-                { title: " Varian" },
+                { title: " Varian" }
+                { title: "Taksasi" },
+                { title: "Realisasi" },
+                { title: "Taksasi" },
+                { title: "Realisasi" },
+                { title: "Taksasi" },
+                { title: "Realisasi" },
+                { title: "Taksasi" },
+                { title: "Realisasi" },
+                { title: "Taksasi" },
+                { title: "Realisasi" },
+                { title: "Taksasi" },
+                { title: "Realisasi" },
+                { title: "Taksasi" },
+                { title: "Realisasi" },
             ],
             createdRow: function(row, data, dataIndex) {
                 // if (listEstate.includes(data[1])) {
@@ -1536,69 +1572,82 @@ $.ajax({
                 data.bjr_taksasi,
                 data.bjr_realisasi,
                 data.bjr_varian,
-                
+                data.ha_panen_taksasi_shi,
+                data.ha_panen_realisasi_shi,
+                data.pokok_taksasi_shi,
+                data.pokok_realisasi_shi,
+                data.janjang_taksasi_shi,
+                data.janjang_realisasi_shi,
+                data.bjr_taksasi_shi,
+                data.bjr_realisasi_shi,
+                data.akp_taksasi_shi,
+                data.akp_realisasi_shi,
+                data.tonase_taksasi_shi,
+                data.tonase_realisasi_shi,
+                data.keb_hk_taksasi_shi,
+                data.keb_hk_realisasi_shi,
             ]);
 
             // Create table for the Regional data
             createTable('Regional', finalDataRegFormatted);
 
-            var mappedData = finalDataWil.map(data => [
-                data.key,
-                data.ha_panen_taksasi,
-                data.ha_panen_realisasi,
-                data.ha_panen_varian,
-                data.akp_taksasi,
-                data.akp_realisasi,
-                data.akp_varian,
-                data.taksasi_tonase,
-                data.taksasi_realisasi,
-                data.taksasi_varian,
-                data.keb_hk_taksasi,
-                data.keb_hk_realisasi,
-                data.keb_hk_varian,
-                data.janjang_taksasi,
-                data.janjang_realisasi,
-                data.janjang_varian,
-                data.total_tonase_taksasi,
-                data.total_tonase_realisasi,
-                data.restan_kemarin,
-                data.restan_hi,
-                data.bjr_taksasi,
-                data.bjr_realisasi,
-                data.bjr_varian,
-        ]);
+        //     var mappedData = finalDataWil.map(data => [
+        //         data.key,
+        //         data.ha_panen_taksasi,
+        //         data.ha_panen_realisasi,
+        //         data.ha_panen_varian,
+        //         data.akp_taksasi,
+        //         data.akp_realisasi,
+        //         data.akp_varian,
+        //         data.taksasi_tonase,
+        //         data.taksasi_realisasi,
+        //         data.taksasi_varian,
+        //         data.keb_hk_taksasi,
+        //         data.keb_hk_realisasi,
+        //         data.keb_hk_varian,
+        //         data.janjang_taksasi,
+        //         data.janjang_realisasi,
+        //         data.janjang_varian,
+        //         data.total_tonase_taksasi,
+        //         data.total_tonase_realisasi,
+        //         data.restan_kemarin,
+        //         data.restan_hi,
+        //         data.bjr_taksasi,
+        //         data.bjr_realisasi,
+        //         data.bjr_varian,
+        // ]);
 
-        // Call createTable function once with all the mapped data
-        createTable("Wilayah", mappedData);
+        // // Call createTable function once with all the mapped data
+        // createTable("Wilayah", mappedData);
 
 
-        var mappedData = finalDataEst.map(data => [
-            data.key,
-                data.ha_panen_taksasi,
-                data.ha_panen_realisasi,
-                data.ha_panen_varian,
-                data.akp_taksasi,
-                data.akp_realisasi,
-                data.akp_varian,
-                data.taksasi_tonase,
-                data.taksasi_realisasi,
-                data.taksasi_varian,
-                data.keb_hk_taksasi,
-                data.keb_hk_realisasi,
-                data.keb_hk_varian,
-                data.janjang_taksasi,
-                data.janjang_realisasi,
-                data.janjang_varian,
-                data.total_tonase_taksasi,
-                data.total_tonase_realisasi,
-                data.restan_kemarin,
-                data.restan_hi,
-                data.bjr_taksasi,
-                data.bjr_realisasi,
-                data.bjr_varian,
-        ]);
+        // var mappedData = finalDataEst.map(data => [
+        //     data.key,
+        //         data.ha_panen_taksasi,
+        //         data.ha_panen_realisasi,
+        //         data.ha_panen_varian,
+        //         data.akp_taksasi,
+        //         data.akp_realisasi,
+        //         data.akp_varian,
+        //         data.taksasi_tonase,
+        //         data.taksasi_realisasi,
+        //         data.taksasi_varian,
+        //         data.keb_hk_taksasi,
+        //         data.keb_hk_realisasi,
+        //         data.keb_hk_varian,
+        //         data.janjang_taksasi,
+        //         data.janjang_realisasi,
+        //         data.janjang_varian,
+        //         data.total_tonase_taksasi,
+        //         data.total_tonase_realisasi,
+        //         data.restan_kemarin,
+        //         data.restan_hi,
+        //         data.bjr_taksasi,
+        //         data.bjr_realisasi,
+        //         data.bjr_varian,
+        // ]);
 
-        createTable("Estate", mappedData);
+        // createTable("Estate", mappedData);
 
                 }
             });
