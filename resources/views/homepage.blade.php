@@ -188,13 +188,13 @@
                 <ul class="nav nav-tabs mt-3">
                     <li class="nav-item active"><a data-toggle="tab" href="#regionalTab" class="nav-link ">Regional </a>
                     </li>
-                    <li class="nav-item"><a data-toggle="tab" href="#wilayahTab" class="nav-link">Wilayah</a>
+                    <li class="nav-item"><a href="#wilayahTab" class="nav-link">Wilayah</a>
                     </li>
-                    <li class="nav-item"><a data-toggle="tab" href="#estateTab" class="nav-link">Estate</a>
+                    <li class="nav-item"><a href="#estateTab" class="nav-link">Estate</a>
                     </li>
-                    <li class="nav-item"><a data-toggle="tab" href="#blokTab" class="nav-link">Blok</a>
-                    </li>
-                    <li class="nav-item active"><a data-toggle="tab" href="#realisasiTab" class="nav-link ">Realisasi
+                    {{-- <li class="nav-item"><a data-toggle="tab" href="#blokTab" class="nav-link">Blok</a>
+                    </li> --}}
+                    <li class="nav-item active"><a href="#realisasiTab" class="nav-link ">Realisasi
                             Taksasi</a>
                     </li>
                 </ul>
@@ -206,7 +206,7 @@
                                 <div class="card mt-3 p-3">
                                     <h4 style="color:#013C5E;font-weight: 550">Rekap Taksasi Regional
                                     </h4>
-                                    <table id="table-regional" class="display" style="width: 100%">
+                                    <table id="table-regional" class="display hover" style="width: 100%">
                                         <thead>
                                             <tr>
                                                 <th>Regional</th>
@@ -346,13 +346,13 @@
                             </div>
                         </div>
                     </div>
-                    <div id="blokTab" class="tab-pane fade in">
+                    {{-- <div id="blokTab" class="tab-pane fade in">
 
 
 
 
                         <h1>Belum Tersedia</h1>
-                    </div>
+                    </div> --}}
                     <div id="realisasiTab" class="tab-pane fade in">
                         <form action="{{ route('import-realisasi-taksasi') }}" method="POST"
                             enctype="multipart/form-data">
@@ -1122,31 +1122,6 @@ function getUserTaksasi(est, date) {
         $('#est').hide();
         $('a[href="#regionalTab"]').click();
 
-    //     $('a[data-toggle="tab"]').on('click', function(e) {
-    //     var targetTab = $(this).attr('href');
-
-    //     if (targetTab === '#regionalTab') {
-    //         $('#reg').hide();
-    //         $('#wilDropdown').hide();
-    //         $('#est').hide();
-    //     }
-    //     else if(targetTab ==='#wilayahTab'){
-    //         $('#reg').show();
-    //         $('#wilDropdown').hide();
-    //         $('#est').hide();
-    //     }
-    //     else if(targetTab ==='#realisasiTab'){
-    //         $('#wilDropdown').hide();
-    //         $('#est').hide();
-    //     }
-    //     else {
-    //         // Show the select element for all other tabs
-    //         $('#reg').show();
-    //         $('#wilDropdown').show();
-    //         $('#est').show();
-    //     }
-    // });
-
              $('.nav-link').click(function(event) {
                 event.preventDefault(); // Prevent default tab behavior
                 var targetTab = $(this).attr('href'); // Get the target tab
@@ -1174,6 +1149,7 @@ function getUserTaksasi(est, date) {
                 else if(tab ==='realisasiTab'){
                     $('#wilDropdown').hide();
                     $('#est').hide();
+                    $('#reg').show();
                 }
                 else {
                     $('#reg').show();
@@ -1194,63 +1170,73 @@ function getUserTaksasi(est, date) {
         monthImportRealisasi
 
         var options = {
-                        series: [
-                            {
-                                name: 'Taksasi (Kg)',
-                                data: [1]
-                            },
-                            {
-                                name: 'AKP (%)',
-                                data: [2]
-                            }
-                        ],
-                        chart: {
-                            type: 'bar',
-                            height: 350
-                        },
-                        plotOptions: {
-                            bar: {
-                                horizontal: false,
-                                columnWidth: '55%',
-                                endingShape: 'rounded'
-                            },
-                        },
-                        dataLabels: {
-                            enabled: false
-                        },
-                        stroke: {
-                            show: true,
-                            width: 2,
-                            colors: ['transparent']
-                        },
-                        xaxis: {
-                            categories: ['Wilayah 1'],
-                        },
-                        yaxis: [{
-                            title: {
-                                text: 'Taksasi (Kg)'
-                            }
-                        }, {
-                            opposite: true,
-                            title: {
-                                text: 'AKP (%)'
-                            }
-                        }],
-                        fill: {
-                            opacity: 1
-                        },
-                        tooltip: {
-                            y: [{
-                                formatter: function (val) {
-                                    return val + " Kg"
-                                }
-                            }, {
-                                formatter: function (val) {
-                                    return val + " %"
-                                }
-                            }]
-                        }
-                    };
+    series: [
+        {
+            name: 'Taksasi (Kg): ',
+            data: [1]
+        },
+        {
+            name: 'AKP (%): ',
+            data: [2]
+        }
+    ],
+    chart: {
+        type: 'area', // Changed to area chart type
+        height: 350
+    },
+    colors: ['#ffff00', '#1f4d89'],
+    plotOptions: {
+        area: {  // Use area-specific plot options
+            markers: {
+                size: 5 // Adjust marker size if needed
+            }
+        }
+    },
+    dataLabels: {
+        enabled: false
+    },
+    stroke: {
+        curve: 'smooth' // Use smooth curve for area chart
+    },
+    xaxis: {
+        categories: ['Wilayah 1'],
+    },
+    yaxis: [
+        {
+            title: {
+                text: 'Taksasi (Kg): '
+            }
+        },
+        {
+            opposite: true,
+            title: {
+                text: 'AKP (%): '
+            }
+        }
+    ],
+    fill: {
+        opacity: 0.5 // Adjust fill opacity if needed
+    },
+    tooltip: {
+        y: [
+            {
+                formatter: function (val) {
+                    return val + " %"
+                }
+            },
+            {
+                formatter: function (val) {
+                    return val + " Kg"
+                }
+            }
+        ]
+    }
+};
+
+// Initialize the chart with the options
+var chart = new ApexCharts(document.querySelector("#chart"), options);
+chart.render();
+
 
         var chartTonaseAKPReg = new ApexCharts(document.querySelector("#chartTonaseAKPReg"), options);
         chartTonaseAKPReg.render();
@@ -1336,22 +1322,26 @@ function getUserTaksasi(est, date) {
                         scrollX: true,
                         "data": dataReg,
                         "columns": [
-                            { "data": "regional", "title": "Regional" },
-                            { "data": "luas", "title": "Luas" },
-                            { "data": "jumlahBlok", "title": "Jumlah Blok" },
-                            { "data": "akp", "title": "AKP" },
-                            { "data": "taksasi", "title": "Taksasi" },
-                            { "data": "ritase", "title": "Ritase" },
-                            { "data": "keb_pemanen", "title": "Keb Pemanen" }
-                        ]
+                            { "data": "regional", "title": "REGIONAL" },
+                            { "data": "luas", "title": "LUAS (Ha)" },
+                            { "data": "jumlahBlok", "title": "JUMLAH BLOK" },
+                            { "data": "akp", "title": "AKP (%)" },
+                            { "data": "taksasi", "title": "TAKSASI (Kg)" },
+                            { "data": "ritase", "title": "RITASE" },
+                            { "data": "keb_pemanen", "title": "KEB. PEMANEN" }
+                        ],
+                        "createdRow": function(row, data, dataIndex) {
+                            $('td', row).eq(0).css({
+                            'background-color': '#fbd4b4',  // Change this to the desired background color
+                            'color': 'black'              // Change this to the desired text color
+                        });
+                        }
                     });
 
                     if ($.fn.dataTable.isDataTable('#table-wilayah')) {
                         // If DataTable already exists, destroy it and create a new one
                         $('#table-wilayah').DataTable().clear().destroy();
                     }
-
-
                     $('#table-wilayah').DataTable({
                         "processing": true,
                         "serverSide": false,
@@ -1359,14 +1349,20 @@ function getUserTaksasi(est, date) {
                         "data": dataWil,
                         "pageLength": 25,
                         "columns": [
-                            { "data": "wilayah", "title": "Wilayah" },
-                            { "data": "luas", "title": "Luas" },
-                            { "data": "jumlahBlok", "title": "Jumlah Blok" },
-                            { "data": "akp", "title": "AKP" },
-                            { "data": "taksasi", "title": "Taksasi" },
-                            { "data": "ritase", "title": "Ritase" },
-                            { "data": "keb_pemanen", "title": "Keb Pemanen" }
-                        ]
+                            { "data": "wilayah", "title": "WILAYAH" },
+                            { "data": "luas", "title": "LUAS (Ha)" },
+                            { "data": "jumlahBlok", "title": "JUMLAH BLOK" },
+                            { "data": "akp", "title": "AKP (%)" },
+                            { "data": "taksasi", "title": "TAKSASI (Kg)" },
+                            { "data": "ritase", "title": "RITASE" },
+                            { "data": "keb_pemanen", "title": "KEB. PEMANEN" }
+                        ],
+                        "createdRow": function(row, data, dataIndex) {
+                            $('td', row).eq(0).css({
+                            'background-color': '#fbd4b4',  // Change this to the desired background color
+                            'color': 'black'              // Change this to the desired text color
+                        });
+                        }
                     });
 
 
@@ -1382,14 +1378,20 @@ function getUserTaksasi(est, date) {
                         "data": dataEst,
                         "pageLength": 10,
                         "columns": [
-                            { "data": "estate", "title": "Estate" },
-                            { "data": "luas", "title": "Luas" },
-                            { "data": "jumlahBlok", "title": "Jumlah Blok" },
-                            { "data": "akp", "title": "AKP" },
-                            { "data": "taksasi", "title": "Taksasi" },
-                            { "data": "ritase", "title": "Ritase" },
-                            { "data": "keb_pemanen", "title": "Keb Pemanen" }
-                        ]
+                            { "data": "estate", "title": "ESTATE" },
+                            { "data": "luas", "title": "LUAS (Ha)" },
+                            { "data": "jumlahBlok", "title": "JUMLAH BLOK" },
+                            { "data": "akp", "title": "AKP (%)" },
+                            { "data": "taksasi", "title": "TAKSASI (Kg)" },
+                            { "data": "ritase", "title": "RITASE" },
+                            { "data": "keb_pemanen", "title": "KEB. PEMANEN" }
+                        ],
+                        "createdRow": function(row, data, dataIndex) {
+                            $('td', row).eq(0).css({
+                            'background-color': '#fbd4b4',  // Change this to the desired background color
+                            'color': 'black'              // Change this to the desired text color
+                        });
+                        }
                     });
 
                     var taksasiDataReg = [];
@@ -1410,10 +1412,10 @@ function getUserTaksasi(est, date) {
                     });
 
                     chartTonaseAKPReg.updateSeries([{
-                        name: 'AKP (%)',
+                        name: 'AKP (%): ',
                         data: akpDataReg
                     }, {
-                        name: 'Taksasi (Kg)',
+                        name: 'Taksasi (Kg): ',
                         data: taksasiDataReg
                     }]);
 
@@ -1430,10 +1432,10 @@ function getUserTaksasi(est, date) {
                     });
 
                     chartTonaseAKPWil.updateSeries([{
-                        name: 'AKP (%)',
+                        name: 'AKP (%): ',
                         data: akpDataWil
                     }, {
-                        name: 'Taksasi (Kg)',
+                        name: 'Taksasi (Kg): ',
                         data: taksasiDataWil
                     }]);
 
@@ -1451,10 +1453,10 @@ function getUserTaksasi(est, date) {
                     });
 
                     chartTonaseAKPEst.updateSeries([{
-                        name: 'AKP (%)',
+                        name: 'AKP (%): ',
                         data: akpDataEst
                     }, {
-                        name: 'Taksasi (Kg)',
+                        name: 'Taksasi (Kg): ',
                         data: taksasiDataEst
                     }]);
 
@@ -1572,6 +1574,7 @@ function getUserTaksasi(est, date) {
         // Initialize DataTable for the newly created table
         $(`#table-test-${tableId}`).DataTable({
             data: data,
+            
             fixedColumns: {
         start: 1
     },    
@@ -1616,14 +1619,12 @@ function getUserTaksasi(est, date) {
                 { title: "Taksasi" },
                 { title: "Realisasi" },
             ],
-            createdRow: function(row, data, dataIndex) {
-                // if (listEstate.includes(data[1])) {
-                //     $(row).css({
-                //         'color': 'white',
-                //         'background-color': '#B0B7C0' // You can add more CSS attributes as needed
-                //     });
-                // }
-            },
+            "createdRow": function(row, data, dataIndex) {
+                            $('td', row).eq(0).css({
+                            'background-color': '#fbd4b4',  // Change this to the desired background color
+                            'color': 'black'              // Change this to the desired text color
+                        });
+                        },
             headerCallback: function(thead, data, start, end, display) {
                 $(thead).find('th').css('text-align', 'center');
             }
@@ -1819,6 +1820,7 @@ function getUserTaksasi(est, date) {
                 var selectedDate = $('#tgl').val();
                 loadDataTableEstate(selectedEstateId, selectedDate);
                 // loadDataTableRealisasi($('#monthRealisasi').val(),$('#reg').val(), $('#estRealisasi').val())
+                
             getPlotEstate(selectedEstateId, selectedDate)   
             getPlotBlok(selectedEstateId, selectedDate)
             getlineTaksasi(selectedEstateId, selectedDate)
@@ -1846,6 +1848,8 @@ function getUserTaksasi(est, date) {
                         
                             $('#wilDropdown').empty().append(result);
                             $('#wilDropdown option:first').prop('selected', true);
+
+                            loadEstateDropdown(regional, $('#wilDropdown').val());
                         }
                     });
                 }
@@ -1914,14 +1918,20 @@ function getUserTaksasi(est, date) {
                         "data": dataEst,
                         "pageLength": 25,
                         "columns": [
-                            { "data": "afdeling", "title": "Afdeling" },
-                            { "data": "luas", "title": "Luas" },
-                            { "data": "jumlahBlok", "title": "Jumlah Blok" },
-                            { "data": "akp", "title": "AKP" },
-                            { "data": "taksasi", "title": "Taksasi" },
-                            { "data": "ritase", "title": "Ritase" },
-                            { "data": "keb_pemanen", "title": "Keb Pemanen" }
-                        ]
+                            { "data": "afdeling", "title": "AFDELING" },
+                            { "data": "luas", "title": "LUAS (Ha)" },
+                            { "data": "jumlahBlok", "title": "JUMLAH BLOK" },
+                            { "data": "akp", "title": "AKP (%)" },
+                            { "data": "taksasi", "title": "TAKSASI (Kg)" },
+                            { "data": "ritase", "title": "RITASE" },
+                            { "data": "keb_pemanen", "title": "KEB. PEMANEN" }
+                        ],
+                        "createdRow": function(row, data, dataIndex) {
+                            $('td', row).eq(0).css({
+                            'background-color': '#fbd4b4',  // Change this to the desired background color
+                            'color': 'black'              // Change this to the desired text color
+                        });
+                        }
                     });
 
                     var taksasiDataAfd = [];
@@ -1935,10 +1945,10 @@ function getUserTaksasi(est, date) {
                     });
 
                     ChartGrafikTonaseAfdeling.updateSeries([{
-                        name: 'AKP (%)',
+                        name: 'AKP (%): ',
                         data: akpDataAfd
                     }, {
-                        name: 'Taksasi (Kg)',
+                        name: 'Taksasi (Kg): ',
                         data: taksasiDataAfd
                     }]);
 

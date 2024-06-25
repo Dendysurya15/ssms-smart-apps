@@ -160,15 +160,16 @@ class DashboardNewController extends Controller
             $akp = round(($jum_janjang / $jum_pokok) * 100, 2);
             $tak =  round(($akp * $luasTotal * $rerata_bjr * $rerata_sph) / 100, 2);
 
-            $dataFinalRegional[$key]['luas'] = round($luasTotal, 2);
-            $dataFinalRegional[$key]['jumlahBlok'] = $jumlahBlok;
-            $dataFinalRegional[$key]['ritase'] = ceil($tak / 6500);
-            $dataFinalRegional[$key]['akp'] = $akp;
-            $dataFinalRegional[$key]['taksasi'] = $tak;
-            $dataFinalRegional[$key]['keb_pemanen'] = $pemanen;
+            $dataFinalRegional[$key]['luas'] = $this->custom_number_format(round($luasTotal, 2));
+            $dataFinalRegional[$key]['jumlahBlok'] = $this->custom_number_format($jumlahBlok);
+            $dataFinalRegional[$key]['ritase'] = $this->custom_number_format(round($tak / 6500, 2));
+            $dataFinalRegional[$key]['akp'] = $this->custom_number_format($akp);
+            $dataFinalRegional[$key]['taksasi'] = $this->custom_number_format($tak);
+            $dataFinalRegional[$key]['keb_pemanen'] = $this->custom_number_format($pemanen);
         }
 
 
+        // dd($dataFinalRegional);
         foreach ($queryByDateWilayah as $key => $value) {
             $jumlahBlok = 0;
             $luasTotal = 0;
@@ -193,12 +194,12 @@ class DashboardNewController extends Controller
             $akp = round(($jum_janjang / $jum_pokok) * 100, 2);
             $tak =  round(($akp * $luasTotal * $rerata_bjr * $rerata_sph) / 100, 1);
 
-            $dataFinalWilayah[$key]['luas'] = round($luasTotal, 2);
-            $dataFinalWilayah[$key]['jumlahBlok'] = $jumlahBlok;
-            $dataFinalWilayah[$key]['ritase'] = ceil($tak / 6500);
-            $dataFinalWilayah[$key]['akp'] = $akp;
-            $dataFinalWilayah[$key]['taksasi'] = $tak;
-            $dataFinalWilayah[$key]['keb_pemanen'] = $pemanen;
+            $dataFinalWilayah[$key]['luas'] = $this->custom_number_format(round($luasTotal, 2));
+            $dataFinalWilayah[$key]['jumlahBlok'] = $this->custom_number_format($jumlahBlok);
+            $dataFinalWilayah[$key]['ritase'] = $this->custom_number_format(round($tak / 6500, 2));
+            $dataFinalWilayah[$key]['akp'] = $this->custom_number_format($akp);
+            $dataFinalWilayah[$key]['taksasi'] = $this->custom_number_format($tak);
+            $dataFinalWilayah[$key]['keb_pemanen'] = $this->custom_number_format($pemanen);
         }
 
         foreach ($queryByDateEstate as $key => $value) {
@@ -225,11 +226,11 @@ class DashboardNewController extends Controller
             $akp = round(($jum_janjang / $jum_pokok) * 100, 2);
             $tak =  round(($akp * $luasTotal * $rerata_bjr * $rerata_sph) / 100, 1);
 
-            $dataFinalEstate[$key]['luas'] = round($luasTotal, 2);
+            $dataFinalEstate[$key]['luas'] = $this->custom_number_format(round($luasTotal, 2));
             $dataFinalEstate[$key]['jumlahBlok'] = $jumlahBlok;
-            $dataFinalEstate[$key]['ritase'] = ceil($tak / 6500);
-            $dataFinalEstate[$key]['akp'] = $akp;
-            $dataFinalEstate[$key]['taksasi'] = $tak;
+            $dataFinalEstate[$key]['ritase'] = $this->custom_number_format(round($tak / 6500, 2));
+            $dataFinalEstate[$key]['akp'] = $this->custom_number_format($akp);
+            $dataFinalEstate[$key]['taksasi'] =  $this->custom_number_format($tak);
             $dataFinalEstate[$key]['keb_pemanen'] = $pemanen;
         }
 
@@ -307,12 +308,12 @@ class DashboardNewController extends Controller
             $akp = round(($jum_janjang / $jum_pokok) * 100, 2);
             $tak =  round(($akp * $luasTotal * $rerata_bjr * $rerata_sph) / 100, 1);
 
-            $dataFinalEstate[$key]['luas'] = round($luasTotal, 2);
-            $dataFinalEstate[$key]['jumlahBlok'] = $jumlahBlok;
-            $dataFinalEstate[$key]['ritase'] = ceil($tak / 6500);
-            $dataFinalEstate[$key]['akp'] = $akp;
-            $dataFinalEstate[$key]['taksasi'] = $tak;
-            $dataFinalEstate[$key]['keb_pemanen'] = $pemanen;
+            $dataFinalEstate[$key]['luas'] =  $this->custom_number_format(round($luasTotal, 2));
+            $dataFinalEstate[$key]['jumlahBlok'] =  $this->custom_number_format($jumlahBlok);
+            $dataFinalEstate[$key]['ritase'] =  $this->custom_number_format(round($tak / 6500, 2));
+            $dataFinalEstate[$key]['akp'] =  $this->custom_number_format($akp);
+            $dataFinalEstate[$key]['taksasi'] =  $this->custom_number_format($tak);
+            $dataFinalEstate[$key]['keb_pemanen'] =  $this->custom_number_format($pemanen);
         }
 
         $result['data_estate'] = $dataFinalEstate;
@@ -1022,23 +1023,23 @@ class DashboardNewController extends Controller
                     $ha_panen += $item['ha_panen_taksasi'];
                     $ha_panen_taksasi_est_shi += (int)$item['ha_panen_taksasi_shi'];
                     $ha_panen_realisasi_wil += $item['ha_panen_realisasi'];
-                    $ha_panen_realisasi_wil_shi += $item['ha_panen_realisasi_shi'];
+                    $ha_panen_realisasi_wil_shi += (float)$item['ha_panen_realisasi_shi'];
                     $bjr_taksasi_est_shi += (int)$item['bjr_taksasi_shi'];
                     $sph_taksasi_est_shi += (int)$item['sph_taksasi_shi'];
                     $keb_hk_wil_tak += $item['keb_hk_taksasi'];
                     $keb_hk_wil_tak_shi += (int)$item['keb_hk_taksasi_shi'];
-                    $keb_hk_wil_realisasi_shi += $item['keb_hk_realisasi_shi'];
+                    $keb_hk_wil_realisasi_shi += (int)$item['keb_hk_realisasi_shi'];
                     $pokok_realisasi_wil += $item['pokok_realisasi'];
-                    $pokok_realisasi_wil_shi += $item['pokok_realisasi_shi'];
+                    $pokok_realisasi_wil_shi += (int)$item['pokok_realisasi_shi'];
                     $janjang_realisasi_wil += $item['janjang_realisasi'];
-                    $janjang_realisasi_wil_shi += $item['janjang_realisasi_shi'];
+                    $janjang_realisasi_wil_shi += (int)$item['janjang_realisasi_shi'];
                     $tonase_realisasi_wil += $item['taksasi_realisasi'];
-                    $tonase_realisasi_wil_shi += $item['tonase_realisasi_shi'];
-                    $total_tonase_realisasi_shi += $item['total_tonase_realisasi_shi'];
+                    $tonase_realisasi_wil_shi += (float)$item['tonase_realisasi_shi'];
+                    $total_tonase_realisasi_shi += (float)$item['total_tonase_realisasi_shi'];
                     $keb_hk_wil_realisasi += $item['keb_hk_realisasi'];
                     $restan_hi_realisasi_wil += $item['restan_hi'];
                     $restan_kemarin_wil += $item['restan_kemarin'];
-                    $restan_hi_realisasi_est_shi += $item['restan_hi_realisasi_shi'];
+                    $restan_hi_realisasi_est_shi += (float)$item['restan_hi_realisasi_shi'];
                     $inc++;
                 }
             }
@@ -1225,8 +1226,8 @@ class DashboardNewController extends Controller
             'key' => $name_reg,
             'ha_panen_taksasi_shi' => round((float)$ha_panen_taksasi_wil_shi, 2),
             'ha_panen_realisasi_shi' => round((float)$ha_panen_realisasi_wil_shi, 2),
-            'ha_panen_taksasi' => number_format($ha_panen, 2),
-            'ha_panen_realisasi' => number_format($ha_panen_realisasi_reg, 2),
+            'ha_panen_taksasi' => $ha_panen,
+            'ha_panen_realisasi' => $ha_panen_realisasi_reg,
             'ha_panen_varian' => $ha_panen_reg_varian,
             'pokok_taksasi_shi' => $sum_pkk_tak_shi,
             'pokok_realisasi_shi' => $pokok_realisasi_wil_shi,
@@ -1250,7 +1251,7 @@ class DashboardNewController extends Controller
             'akp_taksasi_shi' => $akp_taksasi_shi_reg,
             'akp_realisasi_shi' => $akp_realisasi_reg_shi,
             'akp_taksasi' => $akp_reg,
-            'akp_realisasi' => number_format((float)$akp_realisasi_reg, 2),
+            'akp_realisasi' => $akp_realisasi_reg,
             'akp_varian' => $akp_reg_varian,
             'tonase_taksasi_shi' => $temp_taksasi_shi_reg,
             'tonase_realisasi_shi' => $tonase_realisasi_wil_shi,
@@ -1264,6 +1265,28 @@ class DashboardNewController extends Controller
             'keb_hk_varian' => $keb_hk_reg_varian,
         ];
 
+
+        foreach ($dataReg as &$record) {
+            foreach ($record as $key => $value) {
+                if (is_numeric($value)) {
+                    $record[$key] = $this->custom_number_format($value);
+                }
+            }
+        }
+        foreach ($dataWil as &$subArray) {
+            foreach ($subArray as $key => $value) {
+                if (is_numeric($value)) {
+                    $subArray[$key] = $this->custom_number_format($value);
+                }
+            }
+        }
+        foreach ($dataEst as &$subArray) {
+            foreach ($subArray as $key => $value) {
+                if (is_numeric($value)) {
+                    $subArray[$key] = $this->custom_number_format($value);
+                }
+            }
+        }
 
         $finalData = [
             'dataEst' => $dataEst,
@@ -1301,5 +1324,25 @@ class DashboardNewController extends Controller
             Session::flash('errors', 'An error occurred while processing the file. ' . $e);
             return redirect()->back()->withInput();
         }
+    }
+
+    function custom_number_format($number)
+    {
+        // Separate the integer part and the decimal part
+        $parts = explode('.', str_replace(',', '.', strval($number)));
+
+        // Format the integer part with a period as the thousands separator
+        $integer_part = number_format($parts[0], 0, ',', '.');
+
+        // Check if there is a decimal part
+        if (isset($parts[1])) {
+            // Combine the formatted integer part with the original decimal part
+            $formatted_number = $integer_part . ',' . $parts[1];
+        } else {
+            // No decimal part, just return the formatted integer part
+            $formatted_number = $integer_part;
+        }
+
+        return $formatted_number;
     }
 }

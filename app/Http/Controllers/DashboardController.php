@@ -327,8 +327,17 @@ class DashboardController extends Controller
     public function getNameEstate(Request $request)
     {
 
+
+        $id_reg = $request->get('id_reg');
         $id_wil = $request->get('id_wil');
-        $wil_list = Wilayah::get()->pluck('id');
+
+        $reg_all = Regional::get()->toArray();
+
+        $reg = $reg_all[$id_reg];
+
+        $wil_list = Wilayah::where('regional', $reg['id'])->get()->pluck('id');
+
+
 
         $id_wil_pil = $wil_list[$id_wil];
         $est_wil_reg = Estate::where('wil', $id_wil_pil)
