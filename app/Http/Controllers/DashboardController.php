@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Yajra\DataTables\DataTables;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
 
 class DashboardController extends Controller
 {
@@ -1582,6 +1583,8 @@ class DashboardController extends Controller
         $queryDataNew = json_decode($queryDataNew, true);
 
         $Taksasi = array();
+
+        // dd($queryDataNew);
         foreach ($queryDataNew as $key => $value) {
             foreach ($value as $key1 => $value1) {
                 $jumlahpk = 0;
@@ -1591,35 +1594,40 @@ class DashboardController extends Controller
                 $br_kiri = '';
                 $br_kanan = '';
                 $nama_ancak = '';
+                $rotasi = '';
+                $merge_baris = '';
                 foreach ($value1 as $key2 => $value2) {
+
                     // dd($value2);
 
                     $sum_janjang += $value2['jumlah_janjang'];
                     $sum_pokok += $value2['jumlah_pokok'];
                     $pemanen += $value2['pemanen'];
-                    $br_kiri .= $value2['br_kiri'] . ', ';
-                    $br_kanan .= $value2['br_kanan'] . ', ';
+                    $merge_baris .= '(' . $value2['br_kiri'] . ',' . $value2['br_kanan'] . '), ';
+                    $br_kiri .= $value2['br_kiri'];
+                    $br_kanan .= $value2['br_kanan'];
                     $nama_ancak .= $value2['ancak'] . ', ';
-
-
-                    // dd($value2);
+                    $rotasi .= $value2['rotasi'] . ', ';
                 }
-                $br_kiri_values = array_unique(array_filter(explode(', ', rtrim($br_kiri, ', '))));
-                $unique_br_kiri = implode(', ', $br_kiri_values);
 
-                $br_kanan_values = array_unique(array_filter(explode(', ', rtrim($br_kanan, ', '))));
-                $unique_br_kanan = implode(', ', $br_kanan_values);
+                $merge_baris = rtrim($merge_baris, ", ");
+                $rotasi = rtrim($rotasi, ", ");
+                $elements = explode(", ", $merge_baris);
+                $uniqueElements = array_unique($elements);
+                $merge_baris = implode(", ", $uniqueElements);
 
                 $nama_ancak_values = array_unique(array_filter(explode(', ', rtrim($nama_ancak, ', '))));
                 $unique_nama_ancak = implode(', ', $nama_ancak_values);
 
                 $akp = round(($sum_janjang / $sum_pokok) * 100, 2);
+                $jjg_taksasi = $akp * $value2['luas'] * $value2['sph'];
                 $tak = round(($akp * $value2['luas'] * $value2['bjr'] * $value2['sph']) / 100, 1);
                 // $sum_sph = round($sum_sph / $inc, 2);
                 $Taksasi[$key][$key1]['luas'] = $value2['luas'];
                 $Taksasi[$key][$key1]['bjr'] = $value2['bjr'];
-                $Taksasi[$key][$key1]['br_kiri'] = $unique_br_kiri;
-                $Taksasi[$key][$key1]['br_kanan'] = $unique_br_kanan;
+                $Taksasi[$key][$key1]['br_kiri'] = $merge_baris;
+
+                $Taksasi[$key][$key1]['jjg_taksasi'] = round($jjg_taksasi, 2);
                 $Taksasi[$key][$key1]['nama_ancak'] = $unique_nama_ancak;
                 $Taksasi[$key][$key1]['sph'] = $value2['sph'];
                 $Taksasi[$key][$key1]['jumlah_path'] = count($value1);
@@ -1628,7 +1636,8 @@ class DashboardController extends Controller
                 $Taksasi[$key][$key1]['pemanen'] = $pemanen;
                 $Taksasi[$key][$key1]['akp'] = $akp;
                 $Taksasi[$key][$key1]['taksasi'] = $tak;
-                $Taksasi[$key][$key1]['ritase'] = ceil($tak / 6500);
+                $Taksasi[$key][$key1]['interval_panen'] = $rotasi;
+                $Taksasi[$key][$key1]['ritase'] = round(($tak / 6500), 2);
             }
         }
         // dd($Taksasi, $queryDataNew);
@@ -1666,7 +1675,7 @@ class DashboardController extends Controller
             $takafd[$key]['jumlah_janjang'] = $jumlah_janjang;
             $takafd[$key]['akp'] = $akp;
             $takafd[$key]['taksasi'] = $tak;
-            $takafd[$key]['ritase'] = ceil($tak / 6500);
+            $takafd[$key]['ritase'] = round($tak / 6500, 2);
             $takafd[$key]['pemanenx'] = $pemanen;
         }
 
@@ -1701,7 +1710,7 @@ class DashboardController extends Controller
         $takest['jumlah_janjang'] = $jumlah_janjang;
         $takest['akp'] = $akp;
         $takest['taksasi'] = $tak;
-        $takest['ritase'] = ceil($tak / 6500);
+        $takest['ritase'] = round($tak / 6500, 2);
         $takest['pemanenx'] = $pemanen;
         // dd($takafd, $takest);
 
@@ -1912,13 +1921,14 @@ class DashboardController extends Controller
             return $result;
         }
         $romanNumeral = convertToRoman2($rom[0]);
-        // dd($arr);
+
         $pdf = pdf::loadview('taksasi.cetak', ['est' => $estate_input, 'tgl' => $tgl, 'data' => $arr, 'dataAfd' => $dataAfd, 'rekap' => $arrEstate, 'namaEstate' => strtoupper($queryEstate->nama), 'wil' => $romanNumeral, 'today' => $todayFormatted, 'besok' => $besokFormatted, 'new_tak' => $Taksasi, 'afd_tak' => $takafd, 'takest' => $takest]);
         $customPaper = array(360, 360, 360, 360);
-        $pdf->set_paper('A3', 'potrait');
+        $pdf->set_paper('A3', 'landscape');
 
-        $filename = 'QC-taksasi.pdf';
+        $filename = 'Taksasi-' . $estate_input . '-' . $tgl . '.pdf';
         return $pdf->stream($filename);
+        // Storage::disk('public')->put($filename, $pdf->output());
     }
 
     public function getDataTable(Request $request)

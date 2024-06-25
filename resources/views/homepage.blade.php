@@ -440,21 +440,34 @@
 
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
+<script src="{{ asset('/public/plugins/jquery/jquery.min.js') }}"></script>
+<!-- Bootstrap 4 -->
+<script src="{{ asset('/public/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<!-- ChartJS -->
+<script src="{{ asset('/public/plugins/chart.js/Chart.min.js') }}"></script>
+<!-- AdminLTE App -->
+<script src="{{ asset('/public/js/adminlte.min.js') }}"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="{{ asset('/public/js/demo.js') }}"></script>
+
+<script src="{{ asset('/public/js/loader.js') }}"></script>
 <script type="text/javascript"
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCzh5V86q6kt8UKJ8YE3oDOW0OexAXmlz8">
 </script>
 
 <script>
     date = new Date().toISOString().slice(0, 10)
+    
     var map = L.map('map').setView([-2.27462005615234, 111.61400604248], 13);
 
-    // satelite
-    const googleSat = L.tileLayer(
-        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-    ).addTo(map);
+// satelite
+const googleSat = L.tileLayer(
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+).addTo(map);
 
 
-    var legendVar = ''
+
+var legendVar = ''
 
 function drawUserTaksasi(arrData) {
     var legendMaps = L.control({
@@ -862,21 +875,21 @@ function drawLineTaksasi(line) {
         .addTo(map);
 }
 
-function removeMarkers() {
-        map.eachLayer(function(layer) {
-            if (layer.myTag && (layer.myTag === "EstateMarker" || layer.myTag === "BlokMarker" || layer.myTag === "LineMarker")) {
-                map.removeLayer(layer);
-            }
-        });
-    }
 
-    function markerDelAgain() {
-        titleBlok.forEach(layer => map.removeLayer(layer));
-        titleEstate.forEach(layer => map.removeLayer(layer));
-        layerMarkerMan.forEach(layer => map.removeLayer(layer));
-        map.removeControl(legendVar);
-    }
+var removeMarkers = function() {
+    map.eachLayer(function(layer) {
 
+        if (layer.myTag && layer.myTag === "EstateMarker") {
+            map.removeLayer(layer)
+        }
+        if (layer.myTag && layer.myTag === "BlokMarker") {
+            map.removeLayer(layer)
+        }
+        if (layer.myTag && layer.myTag === "LineMarker") {
+            map.removeLayer(layer)
+        }
+    });
+}
 
 
 var marker = ''
@@ -958,168 +971,154 @@ function drawMarkerMan(arrData) {
         layerMarkerMan.push(marker)
     }
 
+}
 
-    //     console.log(line)
-    //     var greenIcon = L.icon({
-    //     iconUrl: "https://srs-ssms.com/man.svg",
-    //     // shadowUrl: 'https://srs-ssms.com/man.svg',
-    //     className: "man-marker",
-    //     iconSize:     [32,32], // size of the icon
-    //     shadowSize:   [32, 32], // size of the shadow
-    //     iconAnchor:   [16, 16], // point of the icon which will correspond to marker's location
-    //     shadowAnchor: [0, 0],  // the same for the shadow
-    //     popupAnchor:  [0, 0] // point from which the popup should open relative to the iconAnchor
-    // });
+function markerDelAgain() {
+    for (i = 0; i < titleBlok.length; i++) {
+        map.removeLayer(titleBlok[i]);
+    }
+    for (i = 0; i < titleEstate.length; i++) {
+        map.removeLayer(titleEstate[i]);
+    }
+    for (let i = 0; i < layerMarkerMan.length; i++) {
+        map.removeLayer(layerMarkerMan[i]);
+    }
 
-    //     for (let i = 0; i < line.length; i++) {
-    //                 marker = L.marker(JSON.parse(line[i]), {icon: greenIcon}).addTo(map);
-    //                 layerMarkerMan.push(marker)
-    //         }
+    map.removeControl(legendVar)
 }
 
 
 function getPlotEstate(est, date) {
 
-var _token = $('input[name="_token"]').val();
+    var _token = $('input[name="_token"]').val();
 
-const params = new URLSearchParams(window.location.search)
-var paramArr = [];
-for (const param of params) {
-    paramArr = param
-}
-
-$.ajax({
-    url: "{{ route('plotEstate') }}",
-    method: "POST",
-    data: {
-        est: est,
-        _token: _token,
-        tgl: date
-    },
-    success: function(result) {
-        var estate = JSON.parse(result);
-
-        
-        drawEstatePlot(estate['est'], estate['plot'])
+    const params = new URLSearchParams(window.location.search)
+    var paramArr = [];
+    for (const param of params) {
+        paramArr = param
     }
-})
+
+    $.ajax({
+        url: "{{ route('plotEstate') }}",
+        method: "POST",
+        data: {
+            est: est,
+            _token: _token,
+            tgl: date
+        },
+        success: function(result) {
+            var estate = JSON.parse(result);
+
+            drawEstatePlot(estate['est'], estate['plot'])
+        }
+    })
 }
 
 function getPlotBlok(est, date) {
 
-var _token = $('input[name="_token"]').val();
+    var _token = $('input[name="_token"]').val();
 
-const params = new URLSearchParams(window.location.search)
-var paramArr = [];
-for (const param of params) {
-    paramArr = param
-}
-
-$.ajax({
-    url: "{{ route('plotBlok') }}",
-    method: "POST",
-    data: {
-        est: est,
-        _token: _token,
-        tgl: date
-    },
-    success: function(result) {
-        
-        var blok = JSON.parse(result);
-        
-        drawBlokPlot(blok)
+    const params = new URLSearchParams(window.location.search)
+    var paramArr = [];
+    for (const param of params) {
+        paramArr = param
     }
-})
+
+    $.ajax({
+        url: "{{ route('plotBlok') }}",
+        method: "POST",
+        data: {
+            est: est,
+            _token: _token,
+            tgl: date
+        },
+        success: function(result) {
+            
+            var blok = JSON.parse(result);
+
+            
+            drawBlokPlot(blok)
+        }
+    })
 }
 
-function exportPDF(date, est) {
-
-var _token = $('input[name="_token"]').val();
-
-var url = '/exportPdfTaksasi/' + est + '/' + date;
-window.open(
-    url,
-    '_blank' // <- This is what makes it open in a new window.
-);
-}
 
 function getlineTaksasi(est, date) {
-var _token = $('input[name="_token"]').val();
+    var _token = $('input[name="_token"]').val();
 
-const params = new URLSearchParams(window.location.search)
-var paramArr = [];
-for (const param of params) {
-    paramArr = param
-}
-
-$.ajax({
-    url: "{{ route('plotLineTaksasi') }}",
-    method: "POST",
-    data: {
-        est: est,
-        _token: _token,
-        tgl: date
-    },
-    success: function(result) {
-        var line = JSON.parse(result);
-        drawLineTaksasi(line)
+    const params = new URLSearchParams(window.location.search)
+    var paramArr = [];
+    for (const param of params) {
+        paramArr = param
     }
-})
+
+    $.ajax({
+        url: "{{ route('plotLineTaksasi') }}",
+        method: "POST",
+        data: {
+            est: est,
+            _token: _token,
+            tgl: date
+        },
+        success: function(result) {
+            var line = JSON.parse(result);
+            drawLineTaksasi(line)
+        }
+    })
 }
 
 function getMarkerMan(est, date) {
 
-var _token = $('input[name="_token"]').val();
+    var _token = $('input[name="_token"]').val();
 
-const params = new URLSearchParams(window.location.search)
-var paramArr = [];
-for (const param of params) {
-    paramArr = param
-}
-
-$.ajax({
-    url: "{{ route('plotMarkerMan') }}",
-    method: "POST",
-    data: {
-        est: est,
-        _token: _token,
-        tgl: date
-    },
-    success: function(result) {
-        var marker = JSON.parse(result);
-        drawMarkerMan(marker)
-
+    const params = new URLSearchParams(window.location.search)
+    var paramArr = [];
+    for (const param of params) {
+        paramArr = param
     }
-})
+
+    $.ajax({
+        url: "{{ route('plotMarkerMan') }}",
+        method: "POST",
+        data: {
+            est: est,
+            _token: _token,
+            tgl: date
+        },
+        success: function(result) {
+            var marker = JSON.parse(result);
+            drawMarkerMan(marker)
+
+        }
+    })
 }
 
 function getUserTaksasi(est, date) {
 
-var _token = $('input[name="_token"]').val();
+    var _token = $('input[name="_token"]').val();
 
-const params = new URLSearchParams(window.location.search)
-var paramArr = [];
-for (const param of params) {
-    paramArr = param
-}
-
-$.ajax({
-    url: "{{ route('plotUserTaksasi') }}",
-    method: "POST",
-    data: {
-        est: est,
-        _token: _token,
-        tgl: date
-    },
-    success: function(result) {
-        var marker = JSON.parse(result);
-
-        drawUserTaksasi(marker)
-
+    const params = new URLSearchParams(window.location.search)
+    var paramArr = [];
+    for (const param of params) {
+        paramArr = param
     }
-})
-}
 
+    $.ajax({
+        url: "{{ route('plotUserTaksasi') }}",
+        method: "POST",
+        data: {
+            est: est,
+            _token: _token,
+            tgl: date
+        },
+        success: function(result) {
+            var marker = JSON.parse(result);
+
+            drawUserTaksasi(marker)
+
+        }
+    })
+}
 
     $(document).ready(function(){
 
@@ -1397,8 +1396,6 @@ $.ajax({
                     var finalDataEst = parseResult['dataEst']
                     var finalDataWil = parseResult['dataWil']
                     var finalDataReg = parseResult['dataReg']
-
-                    console.log(finalDataReg)
                     
                      function destroyDataTable(tableId) {
         if ($.fn.DataTable.isDataTable(`#table-test-${tableId}`)) {
@@ -1733,7 +1730,7 @@ $.ajax({
                 var selectedDate = $('#tgl').val();
                 loadDataTableEstate(selectedEstateId, selectedDate);
                 // loadDataTableRealisasi($('#monthRealisasi').val(),$('#reg').val(), $('#estRealisasi').val())
-            getPlotEstate(selectedEstateId, selectedDate)
+            getPlotEstate(selectedEstateId, selectedDate)   
             getPlotBlok(selectedEstateId, selectedDate)
             getlineTaksasi(selectedEstateId, selectedDate)
             getMarkerMan(selectedEstateId, selectedDate)
@@ -1747,27 +1744,7 @@ $.ajax({
         }
 
 
-        // function loadListWilayahDropdown(regional) {
-            
-        //     var _token = $('input[name="_token"]').val();
-        //     $.ajax({
-        //         url: "{{ route('getNameWilayah') }}",
-        //         method: "POST",
-        //         cache: false,
-        //         data: {
-        //             _token: _token,
-        //             regional: regional,
-        //         },
-        //         success: function(result) {
-                
-        //             $('#wilDropdown').empty().append(result);
-        //             $('#wilDropdown option:first').prop('selected', true);
-                    
-
-        //         }
-        //     });
-        // }
-
+    
         // Event listener for Regional dropdown change
         $('#reg').on('change', function() {
             var selectedRegionalId = $(this).val();
