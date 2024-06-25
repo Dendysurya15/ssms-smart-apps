@@ -168,14 +168,31 @@
                             @endforeach
                         </select>
                     </div>
+                    <div class="col-2">
+                        {{csrf_field()}}
+                        <select id="wilDropdown" class="form-control">
+                            <option selected disabled>Pilih Wilayah</option>
+                            @foreach($reg as $key => $value)
+                            <option value="{{$key}}" {{ $key==0 ? 'selected' : '' }}>{{$value}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-2">
+                        <select id="est" class="form-control">
+                            <option selected disabled>Pilih Estate</option>
+                        </select>
+                    </div>
                 </div>
 
 
                 <ul class="nav nav-tabs mt-3">
-                    <li class="nav-item active"><a data-toggle="tab" href="#regionalTab" class="nav-link ">Regional &
-                            Wilayah</a>
+                    <li class="nav-item active"><a data-toggle="tab" href="#regionalTab" class="nav-link ">Regional </a>
+                    </li>
+                    <li class="nav-item"><a data-toggle="tab" href="#wilayahTab" class="nav-link">Wilayah</a>
                     </li>
                     <li class="nav-item"><a data-toggle="tab" href="#estateTab" class="nav-link">Estate</a>
+                    </li>
+                    <li class="nav-item"><a data-toggle="tab" href="#blokTab" class="nav-link">Blok</a>
                     </li>
                     <li class="nav-item active"><a data-toggle="tab" href="#realisasiTab" class="nav-link ">Realisasi
                             Taksasi</a>
@@ -184,27 +201,42 @@
 
                 <div class="tab-content">
                     <div id="regionalTab" class="tab-pane fade in">
-                        <div class="card mt-3 p-3">
-                            <h4 style="color:#013C5E;font-weight: 550">Rekap Taksasi Regional
-                            </h4>
-                            <table id="table-regional" class="display" style="width: 100%">
-                                <thead>
-                                    <tr>
-                                        <th>Regional</th>
-                                        <th>Luas (Ha)</th>
-                                        <th>Jumlah Blok</th>
-                                        <th>Ritase</th>
-                                        <th>AKP (%)</th>
-                                        <th>Taksasi (Kg)</th>
-                                        <th>Kebutuhan Pemanen</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="card mt-3 p-3">
+                                    <h4 style="color:#013C5E;font-weight: 550">Rekap Taksasi Regional
+                                    </h4>
+                                    <table id="table-regional" class="display" style="width: 100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Regional</th>
+                                                <th>Luas (Ha)</th>
+                                                <th>Jumlah Blok</th>
+                                                <th>Ritase</th>
+                                                <th>AKP (%)</th>
+                                                <th>Taksasi (Kg)</th>
+                                                <th>Kebutuhan Pemanen</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
 
-                                </tbody>
-                            </table>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card mt-3 p-3">
+                                    <h4 style="color:#013C5E;font-weight: 550">Grafik Tonase dan AKP Regional
+                                    </h4>
+                                    <div id="chartTonaseAKPReg"></div>
+                                </div>
+                            </div>
                         </div>
 
+
+
+                    </div>
+                    <div id="wilayahTab" class="tab-pane fade in">
                         <div class="row">
                             <div class="col-6">
                                 <div class="card mt-3 p-3">
@@ -236,7 +268,8 @@
                                 </div>
                             </div>
                         </div>
-
+                    </div>
+                    <div id="estateTab" class="tab-pane fade in">
                         <div class="row">
                             <div class="col-6">
                                 <div class="card mt-3 p-3">
@@ -268,22 +301,12 @@
                                 </div>
                             </div>
                         </div>
-
-                    </div>
-                    <div id="estateTab" class="tab-pane fade in">
                         <div class="row">
-                            <div class="col">
+                            <div class="col-6">
                                 <div class="card mt-3 p-3">
-                                    <h4 style="color:#013C5E;font-weight: 550">Rekap Taksasi Estate
+                                    <h4 style="color:#013C5E;font-weight: 550">Rekap Taksasi Afdeling
                                     </h4>
-                                    <div class="row">
 
-                                        <div class="col-2">
-                                            <select id="est" class="form-control">
-                                                <option selected disabled>Pilih Estate</option>
-                                            </select>
-                                        </div>
-                                    </div>
 
                                     <div class="mt-3">
                                         <table id="table-afdeling" class="display" style="width: 100%">
@@ -304,7 +327,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col">
+                            <div class="col-6">
                                 <div class="card mt-3 p-3">
                                     <h4 style="color:#013C5E;font-weight: 550">Chart Tonase dan AKP Estate Per Afdeling
                                     </h4>
@@ -322,6 +345,13 @@
                                 <div id="map"></div>
                             </div>
                         </div>
+                    </div>
+                    <div id="blokTab" class="tab-pane fade in">
+
+
+
+
+                        <h1>Belum Tersedia</h1>
                     </div>
                     <div id="realisasiTab" class="tab-pane fade in">
                         <form action="{{ route('import-realisasi-taksasi') }}" method="POST"
@@ -376,15 +406,6 @@
 
                                     <div class="row">
 
-
-
-                                        {{-- <div class="col-2">
-                                            <label>Pilih Wilayah</label>
-                                            <select id="wilDropdown" class="form-control">
-                                                <option selected disabled>Pilih Wilayah</option>
-                                            </select>
-                                        </div> --}}
-
                                     </div>
                                     <div class="row">
                                         <div class="col-12">
@@ -392,32 +413,6 @@
                                             </div>
                                         </div>
                                     </div>
-
-
-                                    {{-- <h4 style="color:#013C5E;font-weight: 550">Grafik
-                                    </h4> --}}
-                                    {{-- <div class="row">
-                                        <div class="col">
-
-                                            <select id="est" class="form-control col-3">
-                                                <option>Chart Ha Panen</option>
-                                                <option>Chart Tonase</option>
-                                                <option>Chart HK</option>
-                                                <option>Chart Janjang</option>
-                                            </select>
-
-                                            <div class="chartRealisasi1"></div>
-                                        </div>
-                                        <div class="col">
-                                            <select id="est" class="form-control col-3">
-                                                <option>Chart BJR</option>
-                                                <option>Chart Restan</option>
-                                                <option>Chart Total Tonase</option>
-
-                                            </select>
-                                            <div class="chartRealisasi2"></div>
-                                        </div>
-                                    </div> --}}
                                 </div>
 
 
@@ -1122,8 +1117,71 @@ function getUserTaksasi(est, date) {
 
     $(document).ready(function(){
 
+        $('#reg').hide();
+        $('#wilDropdown').hide();
+        $('#est').hide();
+        $('a[href="#regionalTab"]').click();
 
-        $('a[href="#realisasiTab"]').click();
+    //     $('a[data-toggle="tab"]').on('click', function(e) {
+    //     var targetTab = $(this).attr('href');
+
+    //     if (targetTab === '#regionalTab') {
+    //         $('#reg').hide();
+    //         $('#wilDropdown').hide();
+    //         $('#est').hide();
+    //     }
+    //     else if(targetTab ==='#wilayahTab'){
+    //         $('#reg').show();
+    //         $('#wilDropdown').hide();
+    //         $('#est').hide();
+    //     }
+    //     else if(targetTab ==='#realisasiTab'){
+    //         $('#wilDropdown').hide();
+    //         $('#est').hide();
+    //     }
+    //     else {
+    //         // Show the select element for all other tabs
+    //         $('#reg').show();
+    //         $('#wilDropdown').show();
+    //         $('#est').show();
+    //     }
+    // });
+
+             $('.nav-link').click(function(event) {
+                event.preventDefault(); // Prevent default tab behavior
+                var targetTab = $(this).attr('href'); // Get the target tab
+
+              
+                var url = window.location.origin + window.location.pathname + '?tab=' + targetTab.substring(1); // Construct the URL
+                window.open(url, '_blank'); // Open the new tab
+            });
+
+            // Check if a tab parameter is present in the URL
+            var urlParams = new URLSearchParams(window.location.search);
+            var tab = urlParams.get('tab');
+            if (tab) {
+                $('.nav-link[href="#' + tab + '"]').tab('show'); // Show the tab based on the URL parameter
+                if (tab === 'regionalTab') {
+                    $('#reg').hide();
+                    $('#wilDropdown').hide();
+                    $('#est').hide();
+                }
+                else if(tab ==='wilayahTab'){
+                    $('#reg').show();
+                    $('#wilDropdown').hide();
+                    $('#est').hide();
+                }
+                else if(tab ==='realisasiTab'){
+                    $('#wilDropdown').hide();
+                    $('#est').hide();
+                }
+                else {
+                    $('#reg').show();
+                    $('#wilDropdown').show();
+                    $('#est').show();
+                }
+            }
+
 
         var currentDate = new Date();
 
@@ -1194,6 +1252,8 @@ function getUserTaksasi(est, date) {
                         }
                     };
 
+        var chartTonaseAKPReg = new ApexCharts(document.querySelector("#chartTonaseAKPReg"), options);
+        chartTonaseAKPReg.render();
         var chartTonaseAKPWil = new ApexCharts(document.querySelector("#chartTonaseAKPWil"), options);
         chartTonaseAKPWil.render();
         var chartTonaseAKPEst = new ApexCharts(document.querySelector("#chartTonaseAKPEst"), options);
@@ -1257,6 +1317,10 @@ function getUserTaksasi(est, date) {
                             "keb_pemanen": values.keb_pemanen
                         });
                     });
+
+
+                  
+
 
                     // Initialize or reload DataTable
                     if ($.fn.dataTable.isDataTable('#table-regional')) {
@@ -1328,12 +1392,36 @@ function getUserTaksasi(est, date) {
                         ]
                     });
 
+                    var taksasiDataReg = [];
+                    var akpDataReg = [];
+                    var chartCategoriesReg = [];
                     var taksasiDataWil = [];
                     var akpDataWil = [];
                     var chartCategoriesWil = [];
                     var taksasiDataEst = [];
                     var akpDataEst = [];
                     var chartCategoriesEst = [];
+
+
+                    $.each(parseResult['data_reg'], function(regional, values) {
+                        chartCategoriesReg.push(regional);
+                        taksasiDataReg.push(values.taksasi === '-' ? 0 : values.taksasi);  // Convert '-' to 0 for the chart
+                        akpDataReg.push(values.akp === '-' ? 0 : values.akp);  // Convert '-' to 0 for the chart
+                    });
+
+                    chartTonaseAKPReg.updateSeries([{
+                        name: 'AKP (%)',
+                        data: akpDataReg
+                    }, {
+                        name: 'Taksasi (Kg)',
+                        data: taksasiDataReg
+                    }]);
+
+                    chartTonaseAKPReg.updateOptions({
+                        xaxis: {
+                            categories: chartCategoriesReg
+                        }
+                    });
 
                     $.each(parseResult['data_wil'], function(wilayah, values) {
                         chartCategoriesWil.push(wilayah);
@@ -1680,7 +1768,7 @@ function getUserTaksasi(est, date) {
 
         // Load DataTable for the first time with today's date
         loadDataTableRegionalWilayah(dateToday, $('#reg').val());
-        // loadListWilayahDropdown($('#reg').val())
+        loadListWilayahDropdown($('#reg').val())
 
         
         loadDataTableRealisasi(dateToday,$('#reg').val())
@@ -1710,7 +1798,7 @@ function getUserTaksasi(est, date) {
             $('#reg option:first').prop('selected', true);
         }
 
-    function loadEstateDropdown(regionalId) {
+    function loadEstateDropdown(regionalId, wilId) {
         var _token = $('input[name="_token"]').val();
 
         $.ajax({
@@ -1718,7 +1806,8 @@ function getUserTaksasi(est, date) {
             method: "POST",
             data: {
                 _token: _token,
-                id_reg: regionalId
+                id_reg: regionalId,
+                id_wil : wilId, 
             },
             success: function(result) {
 
@@ -1743,15 +1832,33 @@ function getUserTaksasi(est, date) {
         });
         }
 
-
-    
+        function loadListWilayahDropdown(regional) {
+                    var _token = $('input[name="_token"]').val();
+                    $.ajax({
+                        url: "{{ route('getNameWilayah') }}",
+                        method: "POST",
+                        cache: false,
+                        data: {
+                            _token: _token,
+                            regional: regional,
+                        },
+                        success: function(result) {
+                        
+                            $('#wilDropdown').empty().append(result);
+                            $('#wilDropdown option:first').prop('selected', true);
+                        }
+                    });
+                }
+            
         // Event listener for Regional dropdown change
         $('#reg').on('change', function() {
             var selectedRegionalId = $(this).val();
-            loadEstateDropdown(selectedRegionalId);
+            
             selectedDate = $('#tgl').val()
             loadDataTableRegionalWilayah($('#tgl').val(),  selectedRegionalId)
             loadDataTableRealisasi(selectedDate,selectedRegionalId)
+            loadListWilayahDropdown(selectedRegionalId)
+            loadEstateDropdown(selectedRegionalId, $('#wilDropdown').val());
         });
 
         // $('#estRealisasi').on('change', function() {
@@ -1763,7 +1870,7 @@ function getUserTaksasi(est, date) {
         // Load estates for the default selected regional on page load
         var defaultRegionalId = $('#reg').val();
         if (defaultRegionalId) {
-            loadEstateDropdown(defaultRegionalId);
+            loadEstateDropdown(defaultRegionalId, $('#wilDropdown').val());
         }
 
 
@@ -1847,9 +1954,9 @@ function getUserTaksasi(est, date) {
             });
         }
 
-        // $('#wilDropdown').on('change', function() {
-
-        // })
+        $('#wilDropdown').on('change', function() {
+            loadEstateDropdown($('#reg').val(), $('#wilDropdown').val());
+        })
 
         // Event listener for #est dropdown change
         $('#est').on('change', function() {

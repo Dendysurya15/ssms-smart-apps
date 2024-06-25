@@ -327,33 +327,28 @@ class DashboardController extends Controller
     public function getNameEstate(Request $request)
     {
 
-        $id_reg = $request->get('id_reg');
+        $id_wil = $request->get('id_wil');
+        $wil_list = Wilayah::get()->pluck('id');
 
-        $reg_all = Regional::all()->pluck('nama', 'id');
-        $reg_all = json_decode($reg_all);
-
-        $reg = Regional::with("wilayah")->get();
-        $reg_arr = array();
-
-        foreach ($reg as $key => $value) {
-            foreach ($value->wilayah as $key2 => $data) {
-                $reg_arr[$key][$data->nama] =  Wilayah::with("estate")->find($data->id)->estate->pluck('nama', 'est');
-            }
-        }
-
-        $est_wil_reg = array();
-        foreach ($reg_arr as $key => $value) {
-            foreach ($value as $key2 => $data) {
-                foreach ($data as $key3 => $datas) {
-                    $est_wil_reg[$key][$key3] = $datas;
-                }
-            }
-        }
+        $id_wil_pil = $wil_list[$id_wil];
+        $est_wil_reg = Estate::where('wil', $id_wil_pil)
+            ->where(function ($query) {
+                $query->where(DB::raw('LOWER(estate.nama)'), 'NOT LIKE', '%mill%')
+                    ->where(DB::raw('LOWER(estate.est)'), 'NOT LIKE', '%plasma%')
+                    ->where(DB::raw('LOWER(estate.est)'), 'NOT LIKE', '%cws1%')
+                    ->where(DB::raw('LOWER(estate.est)'), 'NOT LIKE', '%cws2%')
+                    ->where(DB::raw('LOWER(estate.est)'), 'NOT LIKE', '%cws3%')
+                    ->where(DB::raw('LOWER(estate.est)'), 'NOT LIKE', '%reg%')
+                    ->where(DB::raw('LOWER(estate.est)'), 'NOT LIKE', '%srs%')
+                    ->where(DB::raw('LOWER(estate.est)'), 'NOT LIKE', '%sr%')
+                    ->where(DB::raw('LOWER(estate.est)'), 'NOT LIKE', '%tc%');
+            })
+            ->get()->toArray();
 
         $output = '';
         $inc_est = 1;
-        foreach ($est_wil_reg[$id_reg] as $key => $val) {
-            $output .= '<option value="' . $key . '">' . $val . '</option>';
+        foreach ($est_wil_reg as $key => $val) {
+            $output .= '<option value="' . $val['est'] . '">' . $val['nama'] . '</option>';
             $inc_est++;
         }
         echo $output;
