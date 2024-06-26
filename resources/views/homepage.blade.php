@@ -2034,7 +2034,17 @@
                         "columns": [
                             { "data": "afdeling", "title": "AFDELING" },
                             { "data": "luas", "title": "LUAS (Ha)" },
-                            { "data": "jumlahBlok", "title": "JUMLAH BLOK" },
+                            // {
+                            //     "data": "luas",
+                            //     "title": "LUAS (Ha)",
+                            //     "render": function(data, type, row, meta) {
+                            //         if (type === 'display' && data !== '-' && data !== 0) {
+                            //             return '<a href="your-link-here" style="color:blue; text-decoration: underline">' + data + '</a>';
+                            //         }
+                            //         return data;
+                            //     }
+                            // },
+                                                { "data": "jumlahBlok", "title": "JUMLAH BLOK" },
                             { "data": "akp", "title": "AKP (%)" },
                             { "data": "taksasi", "title": "TAKSASI (Kg)" },
                             { "data": "ritase", "title": "RITASE" },

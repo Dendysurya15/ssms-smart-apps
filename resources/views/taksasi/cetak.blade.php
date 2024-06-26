@@ -21,6 +21,21 @@
         border: 1px solid rgb(0, 0, 0);
     }
 
+    /* Centering the image */
+    .image-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        /* Adjust as needed */
+    }
+
+    .image-container img {
+        max-width: 100%;
+        /* Ensure the image does not exceed its container */
+        height: auto;
+        /* Maintain aspect ratio */
+    }
+
     table.table-bordered>tbody>tr>td {
         border: 1px solid rgb(0, 0, 0);
     }
@@ -263,11 +278,10 @@
 
     <h2 class="text-center">Maps User Taksasi</h2>
     <br>
-
-    <div style="
-    width: 100%;">
-        <img src="https://mobilepro.srs-ssms.com/storage/app/public/taksasi/{{$est}}_{{$tgl}}.png" style="width:100%">
+    <div class="image-container">
+        <img src="https://mobilepro.srs-ssms.com/storage/app/public/taksasi/{{$est}}_{{$tgl}}.png">
     </div>
+
 
 </body>
 
