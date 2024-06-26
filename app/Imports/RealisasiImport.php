@@ -60,7 +60,7 @@ class RealisasiImport implements ToCollection
         $inc = 1;
         foreach ($collection as $key => $row) {
 
-            if ($findWil == False) {
+            if ($findWil == false) {
                 foreach ($row as $value) {
                     if (strtolower($value) === 'wilayah iii') {
                         $nama_wilayah = $this->namaWilayahRow($value);
@@ -69,29 +69,26 @@ class RealisasiImport implements ToCollection
                 }
 
                 if ($nama_wilayah != '') {
-                    foreach ($listAllEstate as $key => $row) {
-                        if (isset($row['wil']) && $row['wil'] == $nama_wilayah) {
-                            //set status untuk cek apakah sudah selesai di baca atau belum 
-                            $filteredRowsEstate[$row['est']] = false;
+                    foreach ($listAllEstate as $estateKey => $estateRow) {
+                        if (isset($estateRow['wil']) && $estateRow['wil'] == $nama_wilayah) {
+                            // Set status to check if it has been read or not
+                            $filteredRowsEstate[$estateRow['est']] = false;
                         }
                     }
 
-
                     if ($filteredRowsEstate != []) {
-                        $findWil = True; // untuk stop branching ini di setiap perulangan rows
-
+                        $findWil = true; // Stop branching this in each row iteration
                     }
                 }
             }
 
-
-            foreach ($row as $key => $value) {
+            foreach ($row as $subKey => $value) {
                 if ($value === 'REALISASI') {
-                    $indexStartRealisasi = $key;
+                    $indexStartRealisasi = $subKey;
                 }
 
                 if ($value === "AFDELING") {
-                    $indexAfdeling = $key;
+                    $indexAfdeling = $subKey;
                 }
 
                 if ($value === 'HA PANEN') {
@@ -101,57 +98,23 @@ class RealisasiImport implements ToCollection
                 }
             }
 
-
-
-
-
             if ($filteredRowsEstate != [] && $indexStartRealisasi != '' && $arrKeyRealisasi != []) {
-
-
-                // $allChecked = true;
-                // foreach ($filteredRowsEstate as $value) {
-                //     if ($value === false) {
-                //         $allChecked = false;
-                //         break;
-                //     }
-                // }
-
-                // if ($allChecked == false) {
-
-
-
-
-                foreach ($row as $key => $value) {
-                    if (array_key_exists($value, $filteredRowsEstate)) {
-                        $filteredRowsEstate[$value] = true;
-                        $tempEstateCheckedName = $value;
-                        $tanggal_row = '2024-06-' . $this->formatNumberTanggal($increment_date);
-                        $inc++;
-                        $increment_date++;
+                foreach ($row as $subKey => $value) {
+                    // Check if $value is a valid key type before using it in array_key_exists
+                    if (is_string($value) || is_int($value)) {
+                        if (array_key_exists($value, $filteredRowsEstate)) {
+                            $filteredRowsEstate[$value] = true;
+                            $tempEstateCheckedName = $value;
+                            $tanggal_row = $month . '-' . $this->formatNumberTanggal($increment_date);
+                            $inc++;
+                            $increment_date++;
+                        }
                     }
                 }
-                // $existOb = False;
-                // foreach ($row as $key => $value) {
-                //     if ($value === 'OB') {
-                //         $existOb = True;
-                //     }
-                // }
-
-                // if ($existOb) {
-                //     dd($row);
-                // }
 
                 if ($tempEstateCheckedName != '') {
                     $listEstateSheet[] = $tempEstateCheckedName;
                     foreach ($arrKeyRealisasi as $key => $title) {
-
-                        // $existOD = False;
-                        // foreach ($row as $key => $value) {
-                        //     if ($value === 'OD') {
-                        //         $existOD = True;
-                        //     }
-                        // }
-
                         if (is_numeric($row[$key])) {
                             $dataRaw[$inc][$tempEstateCheckedName][$row[$indexAfdeling]][$title] = $row[$key];
                         } else {
@@ -159,14 +122,8 @@ class RealisasiImport implements ToCollection
                         }
                     }
                 }
-
-
-                // }
-
-
             }
         }
-
 
         if ($dataRaw != []) {
             $dataRaw = $this->removeEmptyKeys($dataRaw);

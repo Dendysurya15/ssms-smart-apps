@@ -2293,40 +2293,43 @@
                         categories: chartCategoriesXWil
                     },
                     tooltip: {
-                y: [{
-                    formatter: function (val) {
-                        if (pilihanChart === 'akp_taksasi') {
-                            return val + " %"
-                        } else if (pilihanChart === 'taksasi_tonase') {
-                            return val + " Kg";
-                        } else if (pilihanChart === 'ha_panen_taksasi') {
-                            return val + " Ha";
-                        } else if (pilihanChart === 'bjr_taksasi') {
-                            return val + " %";
-                        } else if (pilihanChart === 'keb_hk_taksasi') {
-                            return val + " org";
-                        } else {
-                            return val;
+                    y: [{
+                        formatter: function (val) {
+                            let formattedVal = formatNumberForChart(val);
+                            if (pilihanChart === 'akp_taksasi') {
+                                return formattedVal + " %";
+                            } else if (pilihanChart === 'taksasi_tonase') {
+                                return formattedVal + " Kg";
+                            } else if (pilihanChart === 'ha_panen_taksasi') {
+                                return formattedVal + " Ha";
+                            } else if (pilihanChart === 'bjr_taksasi') {
+                                return formattedVal + " %";
+                            } else if (pilihanChart === 'keb_hk_taksasi') {
+                                return formattedVal + " org";
+                            } else {
+                                return formattedVal;
+                            }
                         }
-                    }
-                }, {
-                    formatter: function (val) {
-                        if (pilihanChart === 'akp_taksasi') {
-                            return val + " %"
-                        } else if (pilihanChart === 'taksasi_tonase') {
-                            return val + " Kg";
-                        } else if (pilihanChart === 'ha_panen_taksasi') {
-                            return val + " Ha";
-                        } else if (pilihanChart === 'bjr_taksasi') {
-                            return val + " %";
-                        } else if (pilihanChart === 'keb_hk_taksasi') {
-                            return val + " org";
-                        } else {
-                            return val;
+                    }, {
+                        formatter: function (val) {
+                            let formattedVal = formatNumberForChart(val);
+                            if (pilihanChart === 'akp_taksasi') {
+                                return formattedVal + " %";
+                            } else if (pilihanChart === 'taksasi_tonase') {
+                                return formattedVal + " Kg";
+                            } else if (pilihanChart === 'ha_panen_taksasi') {
+                                return formattedVal + " Ha";
+                            } else if (pilihanChart === 'bjr_taksasi') {
+                                return formattedVal + " %";
+                            } else if (pilihanChart === 'keb_hk_taksasi') {
+                                return formattedVal + " org";
+                            } else {
+                                return formattedVal;
+                            }
                         }
-                    }
-                }]
-            }
+                    }]
+                }
+              
                 });
 
                 chartRealisasiEstate.updateSeries([{
@@ -2351,40 +2354,43 @@
                         categories: chartCategoriesXEst
                     },
                     tooltip: {
-                y: [{
-                    formatter: function (val) {
-                        if (pilihanChart === 'akp_taksasi') {
-                            return val + " %"
-                        } else if (pilihanChart === 'taksasi_tonase') {
-                            return val + " Kg";
-                        } else if (pilihanChart === 'ha_panen_taksasi') {
-                            return val + " Ha";
-                        } else if (pilihanChart === 'bjr_taksasi') {
-                            return val + " %";
-                        } else if (pilihanChart === 'keb_hk_taksasi') {
-                            return val + " org";
-                        } else {
-                            return val;
+                    y: [{
+                        formatter: function (val) {
+                            let formattedVal = formatNumberForChart(val);
+                            if (pilihanChart === 'akp_taksasi') {
+                                return formattedVal + " %";
+                            } else if (pilihanChart === 'taksasi_tonase') {
+                                return formattedVal + " Kg";
+                            } else if (pilihanChart === 'ha_panen_taksasi') {
+                                return formattedVal + " Ha";
+                            } else if (pilihanChart === 'bjr_taksasi') {
+                                return formattedVal + " %";
+                            } else if (pilihanChart === 'keb_hk_taksasi') {
+                                return formattedVal + " org";
+                            } else {
+                                return formattedVal;
+                            }
                         }
-                    }
-                }, {
-                    formatter: function (val) {
-                        if (pilihanChart === 'akp_taksasi') {
-                            return val + " %"
-                        } else if (pilihanChart === 'taksasi_tonase') {
-                            return val + " Kg";
-                        } else if (pilihanChart === 'ha_panen_taksasi') {
-                            return val + " Ha";
-                        } else if (pilihanChart === 'bjr_taksasi') {
-                            return val + " %";
-                        } else if (pilihanChart === 'keb_hk_taksasi') {
-                            return val + " org";
-                        } else {
-                            return val;
+                    }, {
+                        formatter: function (val) {
+                            let formattedVal = formatNumberForChart(val);
+                            if (pilihanChart === 'akp_taksasi') {
+                                return formattedVal + " %";
+                            } else if (pilihanChart === 'taksasi_tonase') {
+                                return formattedVal + " Kg";
+                            } else if (pilihanChart === 'ha_panen_taksasi') {
+                                return formattedVal + " Ha";
+                            } else if (pilihanChart === 'bjr_taksasi') {
+                                return formattedVal + " %";
+                            } else if (pilihanChart === 'keb_hk_taksasi') {
+                                return formattedVal + " org";
+                            } else {
+                                return formattedVal;
+                            }
                         }
-                    }
-                }]
-            }
+                    }]
+                }
+                
                 });
             }
             });

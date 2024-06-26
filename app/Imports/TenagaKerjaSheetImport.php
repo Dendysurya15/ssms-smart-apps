@@ -39,18 +39,12 @@ class TenagaKerjaSheetImport implements ToCollection
         $listAllEstate = Estate::select('id', 'nama', 'est', 'wil')->where(DB::raw('LOWER(nama)'), 'NOT LIKE', '%mill%')->pluck('est')->toArray();
 
         foreach ($collection as $key => $row) {
-
-
-
             foreach ($row as $key => $value) {
                 if (in_array($value, $afdelingToCheck)) {
                     $dataRaw[$inc][$value] = $row[$id_hk_karyawan];
                 }
-
-
                 if (in_array($row[$id_afd_atau_est], $listAllEstate)) {
                     $dataRaw[$inc][$row[$id_afd_atau_est]] = $row[$id_hk_karyawan];
-
                     $tempListEstate[] = $row[$id_afd_atau_est];
                 }
             }
@@ -58,6 +52,13 @@ class TenagaKerjaSheetImport implements ToCollection
             $inc++;
         }
 
+        foreach ($dataRaw as $outerKey => $innerArray) {
+            foreach ($innerArray as $innerKey => $innerValue) {
+                if (is_numeric($innerKey)) {
+                    unset($dataRaw[$outerKey][$innerKey]);
+                }
+            }
+        }
 
         $listEstateSheet = array_unique($tempListEstate);
         $listEstateSheet = array_values($listEstateSheet);
@@ -77,7 +78,11 @@ class TenagaKerjaSheetImport implements ToCollection
         }
 
 
+
         $dataNew = $this->normalizeData($dataNew);
+
+
+
         $startDate = (new DateTime($month . '-01'))->format('Y-m-01');
         $endDate = (new DateTime($month . '-01'))->format('Y-m-t');
 
