@@ -186,15 +186,16 @@
 
 
                 <ul class="nav nav-tabs mt-3">
-                    <li class="nav-item active"><a data-toggle="tab" href="#regionalTab" class="nav-link ">Regional </a>
+                    <li class="nav-item active"><a data-toggle="tab" href="#regionalTab"
+                            class="nav-link tabDashboard">Regional </a>
                     </li>
-                    <li class="nav-item"><a href="#wilayahTab" class="nav-link">Wilayah</a>
+                    <li class="nav-item"><a href="#wilayahTab" class="nav-link tabDashboard">Wilayah</a>
                     </li>
-                    <li class="nav-item"><a href="#estateTab" class="nav-link">Estate</a>
+                    <li class="nav-item"><a href="#estateTab" class="nav-link tabDashboard">Estate</a>
                     </li>
                     {{-- <li class="nav-item"><a data-toggle="tab" href="#blokTab" class="nav-link">Blok</a>
                     </li> --}}
-                    <li class="nav-item active"><a href="#realisasiTab" class="nav-link ">Realisasi
+                    <li class="nav-item active"><a href="#realisasiTab" class="nav-link tabDashboard">Realisasi
                             Taksasi</a>
                     </li>
                 </ul>
@@ -1146,11 +1147,9 @@ function getUserTaksasi(est, date) {
         $('#est').hide();
         $('a[href="#regionalTab"]').click();
 
-             $('.nav-link').click(function(event) {
+             $('.tabDashboard').click(function(event) {
                 event.preventDefault(); // Prevent default tab behavior
                 var targetTab = $(this).attr('href'); // Get the target tab
-
-              
                 var url = window.location.origin + window.location.pathname + '?tab=' + targetTab.substring(1); // Construct the URL
                 window.open(url, '_blank'); // Open the new tab
             });
@@ -1159,7 +1158,7 @@ function getUserTaksasi(est, date) {
             var urlParams = new URLSearchParams(window.location.search);
             var tab = urlParams.get('tab');
             if (tab) {
-                $('.nav-link[href="#' + tab + '"]').tab('show'); // Show the tab based on the URL parameter
+                $('.tabDashboard[href="#' + tab + '"]').tab('show'); // Show the tab based on the URL parameter
                 if (tab === 'regionalTab') {
                     $('#reg').hide();
                     $('#wilDropdown').hide();
