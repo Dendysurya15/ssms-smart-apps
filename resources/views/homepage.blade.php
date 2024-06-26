@@ -128,17 +128,13 @@
         color: inherit;
     }
 </style>
-
 <div class="content-wrapper">
 
     <section class="content-header">
     </section>
 
     <section class="content">
-
-        <div class="container-fluid pb-4">
-
-
+        <div class="container-fluid">
             <div class="container-fluid pl-3 pr-3">
                 <div class="row">
                     <div class="col-12 col-lg mb-1 dashboard_div">
@@ -271,7 +267,7 @@
                         </div>
                     </div>
                     <div id="estateTab" class="tab-pane fade in">
-                        <div id="map"></div>
+
                         <div class="row">
                             <div class="col-6">
                                 <div class="card mt-3 p-3">
@@ -339,14 +335,14 @@
                         </div>
 
 
-                        <div class="row">
-                            <div class="card mt-3 p-3 col-12">
 
-                                <h4 style="color:#013C5E;font-weight: 550">Tracking Plot User Taksasi
-                                </h4>
+                        <div class="card mt-3 p-3">
 
-                            </div>
+                            <h4 style="color:#013C5E;font-weight: 550">Tracking Plot User Taksasi
+                            </h4>
+
                         </div>
+
                     </div>
                     {{-- <div id="blokTab" class="tab-pane fade in">
 
@@ -451,15 +447,21 @@
 
             </div>
 
-        </div><!-- /.container-fluid -->
+
+            <div id="map"></div>
+
+        </div>
     </section>
 
 </div>
 @include('layout.footer')
 
-
+{{-- <script src="{{ asset('lottie/93121-no-data-preview.json') }}" type="text/javascript"></script> --}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.9.4/lottie.min.js"
+    integrity="sha512-ilxj730331yM7NbrJAICVJcRmPFErDqQhXJcn+PLbkXdE031JJbcK87Wt4VbAK+YY6/67L+N8p7KdzGoaRjsTg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- jQuery -->
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-
 <script src="{{ asset('/public/plugins/jquery/jquery.min.js') }}"></script>
 <!-- Bootstrap 4 -->
 <script src="{{ asset('/public/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
@@ -471,664 +473,687 @@
 <script src="{{ asset('/public/js/demo.js') }}"></script>
 
 <script src="{{ asset('/public/js/loader.js') }}"></script>
-{{-- <script type="text/javascript"
+
+<script type="text/javascript"
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCzh5V86q6kt8UKJ8YE3oDOW0OexAXmlz8">
-</script> --}}
+</script>
 
 <script>
     date = new Date().toISOString().slice(0, 10)
-    
-    var map = L.map('map').setView([51.505, -0.09], 13);
+    var map = L.map('map').setView([-2.27462005615234, 111.61400604248], 13);
 
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map);
+    // satelite
+    const googleSat = L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+    ).addTo(map);
 
 
-var legendVar = ''
 
-function drawUserTaksasi(arrData) {
-    var legendMaps = L.control({
-        position: "bottomright"
-    });
+    var legendVar = ''
 
-    const newUserTaksasi = Object.entries(arrData);
+    function drawUserTaksasi(arrData) {
+        var legendMaps = L.control({
+            position: "bottomright"
+        });
 
-    legendMaps.onAdd = function(map) {
+        const newUserTaksasi = Object.entries(arrData);
 
-        var div = L.DomUtil.create("div", "legend");
-        div.innerHTML += "<h4>Keterangan :</h4>";
-        div.innerHTML += '<div >';
+        legendMaps.onAdd = function(map) {
 
-        var colorAfd = ''
-        newUserTaksasi.forEach(element => {
-            switch (element[0]) {
+            var div = L.DomUtil.create("div", "legend");
+            div.innerHTML += "<h4>Keterangan :</h4>";
+            div.innerHTML += '<div >';
+
+            var colorAfd = ''
+            newUserTaksasi.forEach(element => {
+                switch (element[0]) {
+                    case 'OA':
+                        colorAfd = '#ff1744'
+                        break;
+                    case 'OB':
+                        colorAfd = '#d500f9'
+                        break;
+                    case 'OC':
+                        colorAfd = '#ffa000'
+                        break;
+                    case 'OD':
+                        colorAfd = '#00b0ff'
+                        break;
+                    case 'OE':
+                        colorAfd = '#ff1744'
+                        break;
+                        case 'OF':
+                        colorAfd = '#666666'
+                        break;
+                    case 'OG':
+                        colorAfd = '#666666'
+                        break;
+                        case 'OH':
+                        colorAfd = '#666666'
+                        break;
+                        case 'OI':
+                        colorAfd = '#ba9355'
+                        break;
+                        case 'OJ':
+                        colorAfd = '#ccff00'
+                        break;
+                        case 'OK':
+                        colorAfd = '#8f9e8a'
+                        break;
+                        case 'OL':
+                        colorAfd = '#14011c'
+                        break;
+                        case 'OM':
+                        colorAfd = '#01b9c5'
+                        break;
+                    default:
+                        // code block
+                }
+                div.innerHTML += '<i style="background: ' + colorAfd + '"></i><span style="font-weight:bold">' + element[0] + '</span>';
+                div.innerHTML += '<span> (';
+                if (element[1].length != 1) {
+                    var inc = 1;
+                    var size = element[1].length
+                    element[1].forEach(userName => {
+                        if (inc == size) {
+                            div.innerHTML += '<span > ' + userName + ' </span>';
+                        } else {
+                            div.innerHTML += '<span > ' + userName + ', </span>';
+                        }
+                        inc++
+                    });
+                } else {
+                    element[1].forEach(userName => {
+                        div.innerHTML += '<span> ' + userName + '</span>';
+                    });
+                }
+
+                div.innerHTML += '<span> )<br></span>';
+            });
+
+            // div.innerHTML += '<br>';
+            // div.innerHTML += '<i style="background: #FFFFFF"></i><span>Ice</span><br>';
+            // div.innerHTML += '      <img src="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png" alt="" style="width:13px"><span>    Titik Start Taksasi</span><br>';
+            // div.innerHTML += '      <img src="remove.png" alt="" style="width:15px"><span> Jalur Taksasi</span><br>';
+            div.innerHTML += '</div>';
+
+
+
+            return div;
+        };
+
+        legendMaps.addTo(map);
+
+
+        legendVar = legendMaps
+    }
+
+
+    var titleEstate = new Array();
+
+    function drawEstatePlot(est, plot) {
+        var geoJsonEst = '{"type"'
+        geoJsonEst += ":"
+        geoJsonEst += '"FeatureCollection",'
+        geoJsonEst += '"features"'
+        geoJsonEst += ":"
+        geoJsonEst += '['
+
+        geoJsonEst += '{"type"'
+        geoJsonEst += ":"
+        geoJsonEst += '"Feature",'
+        geoJsonEst += '"properties"'
+        geoJsonEst += ":"
+        geoJsonEst += '{"estate"'
+        geoJsonEst += ":"
+        geoJsonEst += '"' + est + '"},'
+        geoJsonEst += '"geometry"'
+        geoJsonEst += ":"
+        geoJsonEst += '{"coordinates"'
+        geoJsonEst += ":"
+        geoJsonEst += '[['
+        geoJsonEst += plot
+        geoJsonEst += ']],"type"'
+        geoJsonEst += ":"
+        geoJsonEst += '"Polygon"'
+        geoJsonEst += '}},'
+
+        geoJsonEst = geoJsonEst.substring(0, geoJsonEst.length - 1);
+        geoJsonEst += ']}'
+
+        var estate = JSON.parse(geoJsonEst)
+
+        var estateObj = L.geoJSON(estate, {
+                onEachFeature: function(feature, layer) {
+                    layer.myTag = 'EstateMarker'
+                    var label = L.marker(layer.getBounds().getCenter(), {
+                        icon: L.divIcon({
+                            className: 'label-estate',
+                            html: feature.properties.estate,
+                            iconSize: [100, 20]
+                        })
+                    }).addTo(map);
+                    titleEstate.push(label)
+                    layer.addTo(map);
+                },
+                style: function(feature) {
+                    switch (feature.properties.estate) {
+                        case 'Sulung Estate':
+                            return {
+                                color: "#003B73",
+                                    opacity: 1,
+                                    fillOpacity: 0.2,
+
+                            };
+                        case 'Rangda Estate':
+                            return {
+                                color: "#003B73",
+                                    opacity: 1,
+                                    fillOpacity: 0.4,
+
+                            };
+                        case 'Kenambui Estate':
+                            return {
+                                color: "#003B73",
+                                    opacity: 1,
+                                    fillOpacity: 0.2,
+
+                            };
+                        case 'Pulau Estate':
+                            return {
+                                color: "#003B73",
+                                    opacity: 1,
+                                    fillOpacity: 0.4,
+
+                            };
+                            default:
+                            return {    
+                                color: "#003B73",
+                                    opacity: 1,
+                                    fillOpacity: 0.4,
+                            };
+                    }
+                }
+            })
+            .addTo(map);
+
+        map.fitBounds(estateObj.getBounds());
+    }
+
+
+
+    var titleBlok = new Array();
+
+    function drawBlokPlot(blok) {
+        var getPlotStr = '{"type"'
+        getPlotStr += ":"
+        getPlotStr += '"FeatureCollection",'
+        getPlotStr += '"features"'
+        getPlotStr += ":"
+        getPlotStr += '['
+        for (let i = 0; i < blok.length; i++) {
+            getPlotStr += '{"type"'
+            getPlotStr += ":"
+            getPlotStr += '"Feature",'
+            getPlotStr += '"properties"'
+            getPlotStr += ":"
+            getPlotStr += '{"blok"'
+            getPlotStr += ":"
+            getPlotStr += '"' + blok[i]['blok'] + '",'
+            getPlotStr += '"estate"'
+            getPlotStr += ":"
+            getPlotStr += '"' + blok[i]['estate'] + '",'
+            getPlotStr += '"afdeling"'
+            getPlotStr += ":"
+            getPlotStr += '"' + blok[i]['afdeling'] + '"'
+            getPlotStr += '},'
+            getPlotStr += '"geometry"'
+            getPlotStr += ":"
+            getPlotStr += '{"coordinates"'
+            getPlotStr += ":"
+            getPlotStr += '[['
+            getPlotStr += blok[i]['latln']
+            getPlotStr += ']],"type"'
+            getPlotStr += ":"
+            getPlotStr += '"Polygon"'
+            getPlotStr += '}},'
+        }
+        getPlotStr = getPlotStr.substring(0, getPlotStr.length - 1);
+        getPlotStr += ']}'
+
+
+        var blok = JSON.parse(getPlotStr)
+
+        
+        L.geoJSON(blok, {
+                onEachFeature: function(feature, layer) {
+
+                    layer.myTag = 'BlokMarker'
+                    var label = L.marker(layer.getBounds().getCenter(), {
+                        icon: L.divIcon({
+                            className: 'label-bidang',
+                            html: feature.properties.blok,
+                            iconSize: [50, 10]
+                        })
+                    }).addTo(map);
+
+                    titleBlok.push(label)
+                    layer.addTo(map);
+                },
+                style: function(feature) {
+                    switch (feature.properties.afdeling) {
+                        case 'OA':
+                            return {
+                                fillColor: "#ff1744",
+                                    color: 'white',
+                                    fillOpacity: 0.4,
+                                    opacity: 0.4,
+                            };
+                        case 'OB':
+                            return {
+                                fillColor: "#d500f9",
+                                    color: 'white',
+                                    fillOpacity: 0.4,
+                                    opacity: 0.4,
+                            };
+                        case 'OC':
+                            return {
+                                fillColor: "#ffa000",
+                                    color: 'white',
+                                    fillOpacity: 0.4,
+                                    opacity: 0.4,
+                            };
+                        case 'OD':
+                            return {
+                                fillColor: "#00b0ff",
+                                    color: 'white',
+                                    fillOpacity: 0.4,
+                                    opacity: 0.4,
+                            };
+
+                        case 'OE':
+                            return {
+                                fillColor: "#67D98A",
+                                    color: 'white',
+                                    fillOpacity: 0.4,
+                                    opacity: 0.4,
+
+                            };
+                        case 'OF':
+                            return {
+                                fillColor: "#666666",
+                                    color: 'white',
+                                    fillOpacity: 0.4,
+                                    opacity: 0.4,
+
+                            };
+                        case 'OG':
+                            return {
+                                fillColor: "#666666",
+                                    color: 'white',
+                                    fillOpacity: 0.4,
+                                    opacity: 0.4,
+
+                            };
+                            case 'OH':
+                            return {
+                                fillColor: "#666666",
+                                    color: 'white',
+                                    fillOpacity: 0.4,
+                                    opacity: 0.4,
+
+                            };
+                            case 'OI':
+                            return {
+                                fillColor: "#ba9355",
+                                    color: 'white',
+                                    fillOpacity: 0.4,
+                                    opacity: 0.4,
+
+                            };
+                            case 'OJ':
+                            return {
+                                fillColor: "#ccff00",
+                                    color: 'white',
+                                    fillOpacity: 0.4,
+                                    opacity: 0.4,
+
+                            };
+                            case 'OK':
+                            return {
+                                fillColor: "#8f9e8a",
+                                    color: 'white',
+                                    fillOpacity: 0.4,
+                                    opacity: 0.4,
+
+                            };
+                            case 'OL':
+                            return {
+                                fillColor: "#14011c",
+                                    color: 'white',
+                                    fillOpacity: 0.4,
+                                    opacity: 0.4,
+
+                            };
+                            case 'OM':
+                            return {
+                                fillColor: "#01b9c5",
+                                    color: 'white',
+                                    fillOpacity: 0.4,
+                                    opacity: 0.4,
+
+                            };
+                    }
+                }
+            })
+            ;
+    }
+
+    function drawLineTaksasi(line) {
+        var getLineStr = '{"type"'
+        getLineStr += ":"
+        getLineStr += '"FeatureCollection",'
+        getLineStr += '"features"'
+        getLineStr += ":"
+        getLineStr += '['
+
+        for (let i = 0; i < line.length; i++) {
+            getLineStr += '{"type"'
+            getLineStr += ":"
+            getLineStr += '"Feature",'
+            getLineStr += '"properties"'
+            getLineStr += ":"
+            getLineStr += '{},'
+            getLineStr += '"geometry"'
+            getLineStr += ":"
+            getLineStr += '{"coordinates"'
+            getLineStr += ":"
+            getLineStr += '['
+            getLineStr += line[i]
+            getLineStr += '],"type"'
+            getLineStr += ":"
+            getLineStr += '"LineString"'
+            getLineStr += '}},'
+        }
+        getLineStr = getLineStr.substring(0, getLineStr.length - 1);
+        getLineStr += ']}'
+
+        var line = JSON.parse(getLineStr)
+
+        L.geoJSON(line, {
+                onEachFeature: function(feature, layer) {
+                    layer.myTag = 'LineMarker'
+                    layer.addTo(map);
+                },
+                style: function(feature) {
+                    return {
+                        weight: 2,
+                        opacity: 1,
+                        color: 'yellow',
+                        fillOpacity: 0.7
+                    };
+                }
+            })
+            .addTo(map);
+    }
+
+
+    var removeMarkers = function() {
+        map.eachLayer(function(layer) {
+
+            if (layer.myTag && layer.myTag === "EstateMarker") {
+                map.removeLayer(layer)
+            }
+            if (layer.myTag && layer.myTag === "BlokMarker") {
+                map.removeLayer(layer)
+            }
+            if (layer.myTag && layer.myTag === "LineMarker") {
+                map.removeLayer(layer)
+            }
+        });
+    }
+
+
+    var marker = ''
+    var layerMarkerMan = new Array();
+
+    function drawMarkerMan(arrData) {
+
+        for (let i = 0; i < arrData.length; i++) {
+
+            switch (arrData[i]['afdeling']) {
                 case 'OA':
-                    colorAfd = '#ff1744'
+                    marker = 'manMarkerOA'
+                    colorMarker = 'red'
                     break;
                 case 'OB':
-                    colorAfd = '#d500f9'
+                    marker = 'manMarkerOB'
+                    colorMarker = 'violet'
                     break;
                 case 'OC':
-                    colorAfd = '#ffa000'
+                    marker = 'manMarkerOC'
+                    colorMarker = 'gold'
                     break;
                 case 'OD':
-                    colorAfd = '#00b0ff'
+                    marker = 'manMarkerOD'
+                    colorMarker = 'blue'
                     break;
                 case 'OE':
-                    colorAfd = '#ff1744'
+                    marker = 'manMarkerOE'
                     break;
-                    case 'OF':
-                    colorAfd = '#666666'
+                case 'OF':
+                    marker = 'manMarkerOF'
                     break;
-                case 'OG':
-                    colorAfd = '#666666'
+                    case 'OG':
+                    marker = 'manMarkerOF'
+                    colorMarker = 'grey'
                     break;
                     case 'OH':
-                    colorAfd = '#666666'
+                    marker = 'manMarkerOF'
+                    colorMarker = 'gold'
                     break;
                     case 'OI':
-                    colorAfd = '#ba9355'
+                    marker = 'manMarkerOF'
+                    colorMarker = 'violet'
                     break;
                     case 'OJ':
-                    colorAfd = '#ccff00'
+                    marker = 'manMarkerOF'
+                    colorMarker = 'grey'
                     break;
                     case 'OK':
-                    colorAfd = '#8f9e8a'
+                    marker = 'manMarkerOF'
+                    colorMarker = 'red'
                     break;
                     case 'OL':
-                    colorAfd = '#14011c'
+                    marker = 'manMarkerOF'
+                    colorMarker = 'blue'
                     break;
                     case 'OM':
-                    colorAfd = '#01b9c5'
+                    marker = 'manMarkerOF'
+                    colorMarker = 'grey'
                     break;
                 default:
                     // code block
             }
-            div.innerHTML += '<i style="background: ' + colorAfd + '"></i><span style="font-weight:bold">' + element[0] + '</span>';
-            div.innerHTML += '<span> (';
-            if (element[1].length != 1) {
-                var inc = 1;
-                var size = element[1].length
-                element[1].forEach(userName => {
-                    if (inc == size) {
-                        div.innerHTML += '<span > ' + userName + ' </span>';
-                    } else {
-                        div.innerHTML += '<span > ' + userName + ', </span>';
-                    }
-                    inc++
-                });
-            } else {
-                element[1].forEach(userName => {
-                    div.innerHTML += '<span> ' + userName + '</span>';
-                });
-            }
 
-            div.innerHTML += '<span> )<br></span>';
-        });
+            let start = new L.Icon({
+                iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-" + colorMarker + ".png",
+                shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+                iconSize: [14, 21],
+                iconAnchor: [7, 22],
+                popupAnchor: [1, -34],
+                shadowSize: [28, 20],
+            });
 
-        // div.innerHTML += '<br>';
-        // div.innerHTML += '<i style="background: #FFFFFF"></i><span>Ice</span><br>';
-        // div.innerHTML += '      <img src="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png" alt="" style="width:13px"><span>    Titik Start Taksasi</span><br>';
-        // div.innerHTML += '      <img src="remove.png" alt="" style="width:15px"><span> Jalur Taksasi</span><br>';
-        div.innerHTML += '</div>';
+            var latlonFinish = JSON.parse(arrData[i]['plotAwal'])
+            marker = L.marker(latlonFinish, {
+                icon: start
+            }).addTo(map);
+
+            layerMarkerMan.push(marker)
+        }
 
 
-
-        return div;
-    };
-
-    legendMaps.addTo(map);
-
-
-    legendVar = legendMaps
-}
-
-var titleEstate = new Array();
-
-function drawEstatePlot(est, plot) {
-    var geoJsonEst = '{"type"'
-    geoJsonEst += ":"
-    geoJsonEst += '"FeatureCollection",'
-    geoJsonEst += '"features"'
-    geoJsonEst += ":"
-    geoJsonEst += '['
-
-    geoJsonEst += '{"type"'
-    geoJsonEst += ":"
-    geoJsonEst += '"Feature",'
-    geoJsonEst += '"properties"'
-    geoJsonEst += ":"
-    geoJsonEst += '{"estate"'
-    geoJsonEst += ":"
-    geoJsonEst += '"' + est + '"},'
-    geoJsonEst += '"geometry"'
-    geoJsonEst += ":"
-    geoJsonEst += '{"coordinates"'
-    geoJsonEst += ":"
-    geoJsonEst += '[['
-    geoJsonEst += plot
-    geoJsonEst += ']],"type"'
-    geoJsonEst += ":"
-    geoJsonEst += '"Polygon"'
-    geoJsonEst += '}},'
-
-    geoJsonEst = geoJsonEst.substring(0, geoJsonEst.length - 1);
-    geoJsonEst += ']}'
-
-    var estate = JSON.parse(geoJsonEst)
-
-    var estateObj = L.geoJSON(estate, {
-            onEachFeature: function(feature, layer) {
-                layer.myTag = 'EstateMarker'
-                var label = L.marker(layer.getBounds().getCenter(), {
-                    icon: L.divIcon({
-                        className: 'label-estate',
-                        html: feature.properties.estate,
-                        iconSize: [100, 20]
-                    })
-                }).addTo(map);
-                titleEstate.push(label)
-                layer.addTo(map);
-            },
-            style: function(feature) {
-                switch (feature.properties.estate) {
-                    case 'Sulung Estate':
-                        return {
-                            color: "#003B73",
-                                opacity: 1,
-                                fillOpacity: 0.2,
-
-                        };
-                    case 'Rangda Estate':
-                        return {
-                            color: "#003B73",
-                                opacity: 1,
-                                fillOpacity: 0.4,
-
-                        };
-                    case 'Kenambui Estate':
-                        return {
-                            color: "#003B73",
-                                opacity: 1,
-                                fillOpacity: 0.2,
-
-                        };
-                    case 'Pulau Estate':
-                        return {
-                            color: "#003B73",
-                                opacity: 1,
-                                fillOpacity: 0.4,
-
-                        };
-                        default:
-                        return {    
-                            color: "#003B73",
-                                opacity: 1,
-                                fillOpacity: 0.4,
-                        };
-                }
-            }
-        })
-        .addTo(map);
-
-    map.fitBounds(estateObj.getBounds());
-}
-
-var titleBlok = new Array();
-
-function drawBlokPlot(blok) {
-    var getPlotStr = '{"type"'
-    getPlotStr += ":"
-    getPlotStr += '"FeatureCollection",'
-    getPlotStr += '"features"'
-    getPlotStr += ":"
-    getPlotStr += '['
-    for (let i = 0; i < blok.length; i++) {
-        getPlotStr += '{"type"'
-        getPlotStr += ":"
-        getPlotStr += '"Feature",'
-        getPlotStr += '"properties"'
-        getPlotStr += ":"
-        getPlotStr += '{"blok"'
-        getPlotStr += ":"
-        getPlotStr += '"' + blok[i]['blok'] + '",'
-        getPlotStr += '"estate"'
-        getPlotStr += ":"
-        getPlotStr += '"' + blok[i]['estate'] + '",'
-        getPlotStr += '"afdeling"'
-        getPlotStr += ":"
-        getPlotStr += '"' + blok[i]['afdeling'] + '"'
-        getPlotStr += '},'
-        getPlotStr += '"geometry"'
-        getPlotStr += ":"
-        getPlotStr += '{"coordinates"'
-        getPlotStr += ":"
-        getPlotStr += '[['
-        getPlotStr += blok[i]['latln']
-        getPlotStr += ']],"type"'
-        getPlotStr += ":"
-        getPlotStr += '"Polygon"'
-        getPlotStr += '}},'
     }
-    getPlotStr = getPlotStr.substring(0, getPlotStr.length - 1);
-    getPlotStr += ']}'
 
+    function markerDelAgain() {
+        for (i = 0; i < titleBlok.length; i++) {
+            map.removeLayer(titleBlok[i]);
+        }
+        for (i = 0; i < titleEstate.length; i++) {
+            map.removeLayer(titleEstate[i]);
+        }
+        for (let i = 0; i < layerMarkerMan.length; i++) {
+            map.removeLayer(layerMarkerMan[i]);
+        }
 
-    var blok = JSON.parse(getPlotStr)
+        map.removeControl(legendVar)
+        legendVar = null;
+    }
 
     
-    L.geoJSON(blok, {
-            onEachFeature: function(feature, layer) {
 
-                layer.myTag = 'BlokMarker'
-                var label = L.marker(layer.getBounds().getCenter(), {
-                    icon: L.divIcon({
-                        className: 'label-bidang',
-                        html: feature.properties.blok,
-                        iconSize: [50, 10]
-                    })
-                }).addTo(map);
 
-                titleBlok.push(label)
-                layer.addTo(map);
+
+
+
+
+  
+
+    function getPlotEstate(est, date) {
+
+        var _token = $('input[name="_token"]').val();
+
+        const params = new URLSearchParams(window.location.search)
+        var paramArr = [];
+        for (const param of params) {
+            paramArr = param
+        }
+
+        $.ajax({
+            url: "{{ route('plotEstate') }}",
+            method: "POST",
+            data: {
+                est: est,
+                _token: _token,
+                tgl: date
             },
-            style: function(feature) {
-                switch (feature.properties.afdeling) {
-                    case 'OA':
-                        return {
-                            fillColor: "#ff1744",
-                                color: 'white',
-                                fillOpacity: 0.4,
-                                opacity: 0.4,
-                        };
-                    case 'OB':
-                        return {
-                            fillColor: "#d500f9",
-                                color: 'white',
-                                fillOpacity: 0.4,
-                                opacity: 0.4,
-                        };
-                    case 'OC':
-                        return {
-                            fillColor: "#ffa000",
-                                color: 'white',
-                                fillOpacity: 0.4,
-                                opacity: 0.4,
-                        };
-                    case 'OD':
-                        return {
-                            fillColor: "#00b0ff",
-                                color: 'white',
-                                fillOpacity: 0.4,
-                                opacity: 0.4,
-                        };
+            success: function(result) {
+                var estate = JSON.parse(result);
 
-                    case 'OE':
-                        return {
-                            fillColor: "#67D98A",
-                                color: 'white',
-                                fillOpacity: 0.4,
-                                opacity: 0.4,
-
-                        };
-                    case 'OF':
-                        return {
-                            fillColor: "#666666",
-                                color: 'white',
-                                fillOpacity: 0.4,
-                                opacity: 0.4,
-
-                        };
-                    case 'OG':
-                        return {
-                            fillColor: "#666666",
-                                color: 'white',
-                                fillOpacity: 0.4,
-                                opacity: 0.4,
-
-                        };
-                        case 'OH':
-                        return {
-                            fillColor: "#666666",
-                                color: 'white',
-                                fillOpacity: 0.4,
-                                opacity: 0.4,
-
-                        };
-                        case 'OI':
-                        return {
-                            fillColor: "#ba9355",
-                                color: 'white',
-                                fillOpacity: 0.4,
-                                opacity: 0.4,
-
-                        };
-                        case 'OJ':
-                        return {
-                            fillColor: "#ccff00",
-                                color: 'white',
-                                fillOpacity: 0.4,
-                                opacity: 0.4,
-
-                        };
-                        case 'OK':
-                        return {
-                            fillColor: "#8f9e8a",
-                                color: 'white',
-                                fillOpacity: 0.4,
-                                opacity: 0.4,
-
-                        };
-                        case 'OL':
-                        return {
-                            fillColor: "#14011c",
-                                color: 'white',
-                                fillOpacity: 0.4,
-                                opacity: 0.4,
-
-                        };
-                        case 'OM':
-                        return {
-                            fillColor: "#01b9c5",
-                                color: 'white',
-                                fillOpacity: 0.4,
-                                opacity: 0.4,
-
-                        };
-                }
+                console.log(estate)
+                drawEstatePlot(estate['est'], estate['plot'])
             }
         })
-        ;
-}
-
-function drawLineTaksasi(line) {
-    var getLineStr = '{"type"'
-    getLineStr += ":"
-    getLineStr += '"FeatureCollection",'
-    getLineStr += '"features"'
-    getLineStr += ":"
-    getLineStr += '['
-
-    for (let i = 0; i < line.length; i++) {
-        getLineStr += '{"type"'
-        getLineStr += ":"
-        getLineStr += '"Feature",'
-        getLineStr += '"properties"'
-        getLineStr += ":"
-        getLineStr += '{},'
-        getLineStr += '"geometry"'
-        getLineStr += ":"
-        getLineStr += '{"coordinates"'
-        getLineStr += ":"
-        getLineStr += '['
-        getLineStr += line[i]
-        getLineStr += '],"type"'
-        getLineStr += ":"
-        getLineStr += '"LineString"'
-        getLineStr += '}},'
     }
-    getLineStr = getLineStr.substring(0, getLineStr.length - 1);
-    getLineStr += ']}'
 
-    var line = JSON.parse(getLineStr)
+    function getPlotBlok(est, date) {
 
-    L.geoJSON(line, {
-            onEachFeature: function(feature, layer) {
-                layer.myTag = 'LineMarker'
-                layer.addTo(map);
+        var _token = $('input[name="_token"]').val();
+
+        const params = new URLSearchParams(window.location.search)
+        var paramArr = [];
+        for (const param of params) {
+            paramArr = param
+        }
+
+        $.ajax({
+            url: "{{ route('plotBlok') }}",
+            method: "POST",
+            data: {
+                est: est,
+                _token: _token,
+                tgl: date
             },
-            style: function(feature) {
-                return {
-                    weight: 2,
-                    opacity: 1,
-                    color: 'yellow',
-                    fillOpacity: 0.7
-                };
+            success: function(result) {
+                
+                var blok = JSON.parse(result);
+
+                
+                drawBlokPlot(blok)
             }
         })
-        .addTo(map);
-}
-
-
-var removeMarkers = function() {
-    map.eachLayer(function(layer) {
-
-        if (layer.myTag && layer.myTag === "EstateMarker") {
-            map.removeLayer(layer)
-        }
-        if (layer.myTag && layer.myTag === "BlokMarker") {
-            map.removeLayer(layer)
-        }
-        if (layer.myTag && layer.myTag === "LineMarker") {
-            map.removeLayer(layer)
-        }
-    });
-}
-
-var marker = ''
-var layerMarkerMan = new Array();
-
-function drawMarkerMan(arrData) {
-
-    for (let i = 0; i < arrData.length; i++) {
-
-        switch (arrData[i]['afdeling']) {
-            case 'OA':
-                marker = 'manMarkerOA'
-                colorMarker = 'red'
-                break;
-            case 'OB':
-                marker = 'manMarkerOB'
-                colorMarker = 'violet'
-                break;
-            case 'OC':
-                marker = 'manMarkerOC'
-                colorMarker = 'gold'
-                break;
-            case 'OD':
-                marker = 'manMarkerOD'
-                colorMarker = 'blue'
-                break;
-            case 'OE':
-                marker = 'manMarkerOE'
-                break;
-            case 'OF':
-                marker = 'manMarkerOF'
-                break;
-                case 'OG':
-                marker = 'manMarkerOF'
-                colorMarker = 'grey'
-                break;
-                case 'OH':
-                marker = 'manMarkerOF'
-                colorMarker = 'gold'
-                break;
-                case 'OI':
-                marker = 'manMarkerOF'
-                colorMarker = 'violet'
-                break;
-                case 'OJ':
-                marker = 'manMarkerOF'
-                colorMarker = 'grey'
-                break;
-                case 'OK':
-                marker = 'manMarkerOF'
-                colorMarker = 'red'
-                break;
-                case 'OL':
-                marker = 'manMarkerOF'
-                colorMarker = 'blue'
-                break;
-                case 'OM':
-                marker = 'manMarkerOF'
-                colorMarker = 'grey'
-                break;
-            default:
-                // code block
-        }
-
-        let start = new L.Icon({
-            iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-" + colorMarker + ".png",
-            shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
-            iconSize: [14, 21],
-            iconAnchor: [7, 22],
-            popupAnchor: [1, -34],
-            shadowSize: [28, 20],
-        });
-
-        var latlonFinish = JSON.parse(arrData[i]['plotAwal'])
-        marker = L.marker(latlonFinish, {
-            icon: start
-        }).addTo(map);
-
-        layerMarkerMan.push(marker)
     }
 
-}
 
-function markerDelAgain() {
-    for (i = 0; i < titleBlok.length; i++) {
-        map.removeLayer(titleBlok[i]);
-    }
-    for (i = 0; i < titleEstate.length; i++) {
-        map.removeLayer(titleEstate[i]);
-    }
-    for (let i = 0; i < layerMarkerMan.length; i++) {
-        map.removeLayer(layerMarkerMan[i]);
-    }
+    function getlineTaksasi(est, date) {
+        var _token = $('input[name="_token"]').val();
 
-    map.removeControl(legendVar)
-}
-
-function getPlotEstate(est, date) {
-
-    var _token = $('input[name="_token"]').val();   
-
-    $.ajax({
-        url: "{{ route('plotEstate') }}",
-        method: "POST",
-        data: {
-            est: est,
-            _token: _token,
-            tgl: date
-        },
-        success: function(result) {
-            var estate = JSON.parse(result);
-
-
-            console.log(estate)
-            drawEstatePlot(estate['est'], estate['plot'])
+        const params = new URLSearchParams(window.location.search)
+        var paramArr = [];
+        for (const param of params) {
+            paramArr = param
         }
-    })
-}
 
-function getPlotBlok(est, date) {
-
-    var _token = $('input[name="_token"]').val();
-
-    const params = new URLSearchParams(window.location.search)
-    var paramArr = [];
-    for (const param of params) {
-        paramArr = param
+        $.ajax({
+            url: "{{ route('plotLineTaksasi') }}",
+            method: "POST",
+            data: {
+                est: est,
+                _token: _token,
+                tgl: date
+            },
+            success: function(result) {
+                var line = JSON.parse(result);
+                drawLineTaksasi(line)
+            }
+        })
     }
 
-    $.ajax({
-        url: "{{ route('plotBlok') }}",
-        method: "POST",
-        data: {
-            est: est,
-            _token: _token,
-            tgl: date
-        },
-        success: function(result) {
-            
-            var blok = JSON.parse(result);
+    function getMarkerMan(est, date) {
 
-            
-            drawBlokPlot(blok)
+        var _token = $('input[name="_token"]').val();
+
+        const params = new URLSearchParams(window.location.search)
+        var paramArr = [];
+        for (const param of params) {
+            paramArr = param
         }
-    })
-}
 
-function getlineTaksasi(est, date) {
-    var _token = $('input[name="_token"]').val();
+        $.ajax({
+            url: "{{ route('plotMarkerMan') }}",
+            method: "POST",
+            data: {
+                est: est,
+                _token: _token,
+                tgl: date
+            },
+            success: function(result) {
+                var marker = JSON.parse(result);
+                drawMarkerMan(marker)
 
-    const params = new URLSearchParams(window.location.search)
-    var paramArr = [];
-    for (const param of params) {
-        paramArr = param
+            }
+        })
     }
 
-    $.ajax({
-        url: "{{ route('plotLineTaksasi') }}",
-        method: "POST",
-        data: {
-            est: est,
-            _token: _token,
-            tgl: date
-        },
-        success: function(result) {
-            var line = JSON.parse(result);
-            drawLineTaksasi(line)
+    function getUserTaksasi(est, date) {
+
+        var _token = $('input[name="_token"]').val();
+
+        const params = new URLSearchParams(window.location.search)
+        var paramArr = [];
+        for (const param of params) {
+            paramArr = param
         }
-    })
-}
 
-function getMarkerMan(est, date) {
+        $.ajax({
+            url: "{{ route('plotUserTaksasi') }}",
+            method: "POST",
+            data: {
+                est: est,
+                _token: _token,
+                tgl: date
+            },
+            success: function(result) {
+                var marker = JSON.parse(result);
 
-    var _token = $('input[name="_token"]').val();
+                drawUserTaksasi(marker)
 
-    const params = new URLSearchParams(window.location.search)
-    var paramArr = [];
-    for (const param of params) {
-        paramArr = param
+            }
+        })
     }
 
-    $.ajax({
-        url: "{{ route('plotMarkerMan') }}",
-        method: "POST",
-        data: {
-            est: est,
-            _token: _token,
-            tgl: date
-        },
-        success: function(result) {
-            var marker = JSON.parse(result);
-            drawMarkerMan(marker)
-
-        }
-    })
-}
-
-function getUserTaksasi(est, date) {
-
-    var _token = $('input[name="_token"]').val();
-
-    const params = new URLSearchParams(window.location.search)
-    var paramArr = [];
-    for (const param of params) {
-        paramArr = param
-    }
-
-    $.ajax({
-        url: "{{ route('plotUserTaksasi') }}",
-        method: "POST",
-        data: {
-            est: est,
-            _token: _token,
-            tgl: date
-        },
-        success: function(result) {
-            var marker = JSON.parse(result);
-
-            drawUserTaksasi(marker)
-
-        }
-    })
-}
-
-var options = {
+    var options = {
             series: [
                 {
                     name: 'Taksasi (Kg): ',
@@ -1241,6 +1266,7 @@ var options = {
         $('#reg').hide();
         $('#wilDropdown').hide();
         $('#est').hide();
+        $('#map').hide();
         $('a[href="#regionalTab"]').click();
 
              $('.tabDashboard').click(function(event) {
@@ -1271,6 +1297,7 @@ var options = {
                     $('#reg').show();
                 }
                 else {
+                    $('#map').show();
                     $('#reg').show();
                     $('#wilDropdown').show();
                     $('#est').show();
@@ -1658,11 +1685,11 @@ var options = {
                     // loadDataTableRealisasi($('#monthRealisasi').val(),$('#reg').val(), $('#estRealisasi').val())
                     
                     
-                // getPlotEstate(selectedEstateId, selectedDate)   
-                // getPlotBlok(selectedEstateId, selectedDate)
-                // getlineTaksasi(selectedEstateId, selectedDate)
-                // getMarkerMan(selectedEstateId, selectedDate)
-                // getUserTaksasi(selectedEstateId, selectedDate)
+                getPlotEstate(selectedEstateId, selectedDate)   
+                getPlotBlok(selectedEstateId, selectedDate)
+                getlineTaksasi(selectedEstateId, selectedDate)
+                getMarkerMan(selectedEstateId, selectedDate)
+                getUserTaksasi(selectedEstateId, selectedDate)
             
                 },
                 error: function(xhr, status, error) {
@@ -1953,7 +1980,8 @@ var options = {
         // Event listener for Regional dropdown change
         $('#reg').on('change', function() {
             var selectedRegionalId = $(this).val();
-            
+            removeMarkers();
+            markerDelAgain();
             selectedDate = $('#tgl').val()
             loadDataTableRegionalWilayah($('#tgl').val(),  selectedRegionalId)
             loadDataTableRealisasi(selectedDate,selectedRegionalId)
@@ -2064,6 +2092,8 @@ var options = {
         }
 
         $('#wilDropdown').on('change', function() {
+            removeMarkers();
+            markerDelAgain();
             loadEstateDropdown($('#reg').val(), $('#wilDropdown').val());
         })
       
@@ -2077,7 +2107,7 @@ var options = {
 
             loadDataTableEstate(selectedEstateId, selectedDate);
             removeMarkers();
-            markerDelAgain()
+            markerDelAgain();
             getPlotEstate(selectedEstateId, selectedDate)
             getPlotBlok(selectedEstateId, selectedDate)
             getlineTaksasi(selectedEstateId, selectedDate)
@@ -2349,21 +2379,20 @@ var options = {
             }
             });
 
-function doesKeyExist(dataArray, searchString) {
-return dataArray.some(obj => Object.keys(obj).includes(searchString));
-}
+    function doesKeyExist(dataArray, searchString) {
+    return dataArray.some(obj => Object.keys(obj).includes(searchString));
+    }
 
-function removeDots(value) {
-    return  value.replace(/\./g, '').replace(',', '.');
-}
+    function removeDots(value) {
+        return  value.replace(/\./g, '').replace(',', '.');
+    }
 
-function formatNumberForChart(val) {
-    // Convert number to string and split integer and fractional parts
-    let [integerPart, fractionalPart] = val.toString().split('.');
-    // Add thousand separators to the integer part
-    integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    // Join integer and fractional parts with a comma if there's a fractional part
-    return fractionalPart ? `${integerPart},${fractionalPart}` : integerPart;
-}
-
+    function formatNumberForChart(val) {
+        // Convert number to string and split integer and fractional parts
+        let [integerPart, fractionalPart] = val.toString().split('.');
+        // Add thousand separators to the integer part
+        integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        // Join integer and fractional parts with a comma if there's a fractional part
+        return fractionalPart ? `${integerPart},${fractionalPart}` : integerPart;
+    }
 </script>
