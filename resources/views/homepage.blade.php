@@ -26,7 +26,7 @@
     }
 
     #map {
-        height: 800px;
+        height: 600px;
     }
 
     th {
@@ -271,6 +271,7 @@
                         </div>
                     </div>
                     <div id="estateTab" class="tab-pane fade in">
+                        <div id="map"></div>
                         <div class="row">
                             <div class="col-6">
                                 <div class="card mt-3 p-3">
@@ -343,7 +344,7 @@
 
                                 <h4 style="color:#013C5E;font-weight: 550">Tracking Plot User Taksasi
                                 </h4>
-                                <div id="map"></div>
+
                             </div>
                         </div>
                     </div>
@@ -413,8 +414,9 @@
                                         <div class="col-3">
                                             <label>Pilih Perbandingan Chart Taksasi dan Realisasi</label>
                                             <select id="pilihanChartRealisasi" class="form-control">
-                                                <option selected disabled>Pilih Chart Realisasi</option>
-                                                <option value="taksasi_tonase">Tonase Taksasi</option>
+                                                {{-- <option disabled>Pilih Chart Realisasi</option> --}}
+                                                <option value="taksasi_tonase">Tonase Taksasi
+                                                </option>
                                                 <option value="akp_taksasi">AKP</option>
                                                 <option value="ha_panen_taksasi">Ha Panen</option>
                                                 <option value="bjr_taksasi">BJR</option>
@@ -469,20 +471,18 @@
 <script src="{{ asset('/public/js/demo.js') }}"></script>
 
 <script src="{{ asset('/public/js/loader.js') }}"></script>
-<script type="text/javascript"
+{{-- <script type="text/javascript"
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCzh5V86q6kt8UKJ8YE3oDOW0OexAXmlz8">
-</script>
+</script> --}}
 
 <script>
     date = new Date().toISOString().slice(0, 10)
     
-    var map = L.map('map').setView([-2.27462005615234, 111.61400604248], 13);
+    var map = L.map('map').setView([51.505, -0.09], 13);
 
-// satelite
-const googleSat = L.tileLayer(
-    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-).addTo(map);
-
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
 
 
 var legendVar = ''
@@ -584,7 +584,6 @@ function drawUserTaksasi(arrData) {
     legendVar = legendMaps
 }
 
-
 var titleEstate = new Array();
 
 function drawEstatePlot(est, plot) {
@@ -675,8 +674,6 @@ function drawEstatePlot(est, plot) {
 
     map.fitBounds(estateObj.getBounds());
 }
-
-
 
 var titleBlok = new Array();
 
@@ -909,7 +906,6 @@ var removeMarkers = function() {
     });
 }
 
-
 var marker = ''
 var layerMarkerMan = new Array();
 
@@ -1005,16 +1001,9 @@ function markerDelAgain() {
     map.removeControl(legendVar)
 }
 
-
 function getPlotEstate(est, date) {
 
-    var _token = $('input[name="_token"]').val();
-
-    const params = new URLSearchParams(window.location.search)
-    var paramArr = [];
-    for (const param of params) {
-        paramArr = param
-    }
+    var _token = $('input[name="_token"]').val();   
 
     $.ajax({
         url: "{{ route('plotEstate') }}",
@@ -1027,6 +1016,8 @@ function getPlotEstate(est, date) {
         success: function(result) {
             var estate = JSON.parse(result);
 
+
+            console.log(estate)
             drawEstatePlot(estate['est'], estate['plot'])
         }
     })
@@ -1059,7 +1050,6 @@ function getPlotBlok(est, date) {
         }
     })
 }
-
 
 function getlineTaksasi(est, date) {
     var _token = $('input[name="_token"]').val();
@@ -1138,10 +1128,116 @@ function getUserTaksasi(est, date) {
     })
 }
 
+var options = {
+            series: [
+                {
+                    name: 'Taksasi (Kg): ',
+                    data: [1]
+                },
+                {
+                    name: 'AKP (%): ',
+                    data: [2]
+                }
+            ],
+            chart: {
+                type: 'area', // Changed to area chart type
+                height: 350
+            },
+            colors: ['#f5b041', '#1f4d89'],
+            plotOptions: {
+                area: {  // Use area-specific plot options
+                    markers: {
+                        size: 5 // Adjust marker size if needed
+                    }
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                curve: 'smooth' // Use smooth curve for area chart
+            },
+            xaxis: {
+                categories: ['Wilayah 1'],
+            },
+            yaxis: [
+                {
+                    title: {
+                        text: 'Taksasi (Kg): '
+                    }
+                },
+                {
+                    opposite: true,
+                    title: {
+                        text: 'AKP (%): '
+                    }
+                }
+            ],
+            fill: {
+                opacity: 0.5 // Adjust fill opacity if needed
+            },
+        
+        };
+
+        var options2 = {
+            series: [
+                {
+                    name: 'Taksasi (Kg): ',
+                    data: [1]
+                },
+                {
+                    name: 'AKP (%): ',
+                    data: [2]
+                }
+            ],
+            chart: {
+                type: 'bar', // Changed to column chart type
+                height: 350
+            },
+            colors: ['#f5b041', '#1f4d89'],
+            legend:{
+                position  : 'top',
+            },
+            plotOptions: {
+                bar: {  // Use bar-specific plot options
+                    columnWidth: '50%', // Adjust column width if needed
+                    endingShape: 'rounded' // Optional: Adds rounded corners to columns
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                show: true,
+                width: 2,
+                colors: ['transparent']
+            },
+            xaxis: {
+                categories: ['Wilayah 1'],
+            },
+            yaxis: [
+                {
+                    title: {
+                        text: 'Taksasi '
+                    }
+                },
+                {
+                    opposite: true,
+                    title: {
+                        text: 'Realisasi'
+                    }
+                }
+            ],
+            fill: {
+                opacity: 1 // Full opacity for column chart
+            },
+        
+        };
 
     $(document).ready(function(){
         var finalDataReg = []
         var finalDataWil = []
+        var finalDataEst = []
         $('#reg').hide();
         $('#wilDropdown').hide();
         $('#est').hide();
@@ -1192,117 +1288,10 @@ function getUserTaksasi(est, date) {
         $('#monthImportRealisasi').val(yearMonth);
         monthImportRealisasi
 
-        var options = {
-    series: [
-        {
-            name: 'Taksasi (Kg): ',
-            data: [1]
-        },
-        {
-            name: 'AKP (%): ',
-            data: [2]
-        }
-    ],
-    chart: {
-        type: 'area', // Changed to area chart type
-        height: 350
-    },
-    colors: ['#f5b041', '#1f4d89'],
-    plotOptions: {
-        area: {  // Use area-specific plot options
-            markers: {
-                size: 5 // Adjust marker size if needed
-            }
-        }
-    },
-    dataLabels: {
-        enabled: false
-    },
-    stroke: {
-        curve: 'smooth' // Use smooth curve for area chart
-    },
-    xaxis: {
-        categories: ['Wilayah 1'],
-    },
-    yaxis: [
-        {
-            title: {
-                text: 'Taksasi (Kg): '
-            }
-        },
-        {
-            opposite: true,
-            title: {
-                text: 'AKP (%): '
-            }
-        }
-    ],
-    fill: {
-        opacity: 0.5 // Adjust fill opacity if needed
-    },
-   
-};
-
-var options2 = {
-    series: [
-        {
-            name: 'Taksasi (Kg): ',
-            data: [1]
-        },
-        {
-            name: 'AKP (%): ',
-            data: [2]
-        }
-    ],
-    chart: {
-        type: 'bar', // Changed to column chart type
-        height: 350
-    },
-    colors: ['#f5b041', '#1f4d89'],
-    legend:{
-        position  : 'top',
-    },
-    plotOptions: {
-        bar: {  // Use bar-specific plot options
-            columnWidth: '50%', // Adjust column width if needed
-            endingShape: 'rounded' // Optional: Adds rounded corners to columns
-        }
-    },
-    dataLabels: {
-        enabled: false
-    },
-    stroke: {
-        show: true,
-        width: 2,
-        colors: ['transparent']
-    },
-    xaxis: {
-        categories: ['Wilayah 1'],
-    },
-    yaxis: [
-        {
-            title: {
-                text: 'Taksasi '
-            }
-        },
-        {
-            opposite: true,
-            title: {
-                text: 'Realisasi'
-            }
-        }
-    ],
-    fill: {
-        opacity: 1 // Full opacity for column chart
-    },
-   
-};
-
-// Initialize the chart with the options
-var chart = new ApexCharts(document.querySelector("#chart"), options);
-chart.render();
-
-
+      
+        // Initialize the chart with the options
+        var chart = new ApexCharts(document.querySelector("#chart"), options);
+        chart.render();
         var chartTonaseAKPReg = new ApexCharts(document.querySelector("#chartTonaseAKPReg"), options);
         chartTonaseAKPReg.render();
         var chartTonaseAKPWil = new ApexCharts(document.querySelector("#chartTonaseAKPWil"), options);
@@ -1321,7 +1310,367 @@ chart.render();
         var dateToday = new Date().toISOString().slice(0,10);
         $('#tgl').val(dateToday);
 
-        // Function to initialize or reload DataTable
+        function loadDataTableRealisasi(dateToday, regionalId) {
+            var _token = $('input[name="_token"]').val();
+            $.ajax({
+                url: "{{ route('get-data-realisasi-taksasi-per-regional') }}",
+                method: "GET",
+                cache: false,
+                data: {
+                    _token: _token,
+                    date_request: dateToday,
+                    id_reg: regionalId,
+                    // est_req : estateRequest,
+                },
+                success: function(result) {
+                    var parseResult = JSON.parse(result);  
+                    finalDataEst = parseResult['dataEst']
+                    finalDataWil = parseResult['dataWil']
+                    finalDataReg = parseResult['dataReg']
+
+                     function destroyDataTable(tableId) {
+                        if ($.fn.DataTable.isDataTable(`#table-test-${tableId}`)) {
+                            $(`#table-test-${tableId}`).DataTable().clear().destroy();
+                        }
+                    }
+    
+            function createTable(tableId, data) {
+                    destroyDataTable(tableId);
+                    var tableHtml = `
+                    <h4 class="pl-4 pt-4" style="color:#013C5E;font-weight: 550">Realisasi Vs Taksasi Vs Varian: ${tableId}</h4>
+                    <div class="table-container p-4">
+                    <table id="table-test-${tableId}" class="stripe hover compact cell-border mt-1" style="width: 100%">
+                        <thead >
+                            <tr>
+                                <th colspan="23"> HI </th>
+                                <th colspan="14"> SHI </th>
+                                </tr>
+                                <tr>
+                                            <th rowspan="2">AFD</th>
+                                            <th colspan="3">Ha Panen</th>
+                                            <th colspan="3">AKP (%)</th>
+                                            <th colspan="3">Tonase (Kg)</th>
+                                            <th colspan="3">HK</th>
+                                            <th colspan="3">Janjang</th>
+                                            <th colspan="2">Total Tonase</th>
+                                            <th colspan="2">Restan</th>
+                                            <th colspan="3">BJR</th>
+                                            <th colspan="2">Ha Panen</th>
+                                            <th colspan="2">AKP</th>
+                                            <th colspan="2">Tonase</th>
+                                            <th colspan="2">HK</th>
+                                            <th colspan="2">Janjang</th>
+                                            <th colspan="2">Total Tonase</th>
+                                            <th colspan="2">BJR</th>
+                                        </tr>
+                                        <tr>
+                                            <th>panen  Wilayah</th>
+                                            <th>panen Aplikasi</th>
+                                            <th>panen Selisih</th>
+                                            <th>akp Wilayah</th>
+                                            <th>akp Aplikasi</th>
+                                            <th>akp </th>
+                                            <th>taksasi Wilayah</th>
+                                            <th>taksasiAplikasi</th>
+                                            <th>taksasi</th>
+                                            <th>hk Wilayah</th>
+                                            <th>hk Aplikasi</th>
+                                            <th>hk Selisih</th>
+                                            <th>janjang Wilayah</th>
+                                            <th>janjang Aplikasi</th>
+                                            <th>janjang Selisih</th>
+                                            <th>total tonase Wilayah</th>
+                                            <th>total tonase Aplikasi</th>
+                                            <th>Restan Kemarin</th>
+                                            <th>Restan HI</th>
+                                            <th>bjr Wilayah</th>
+                                            <th>bjr Aplikasi</th>
+                                            <th>bjr Selisih</th>
+                                            <th>Ha Panen SHI</th>
+                                            <th>Ha Panen SHI</th>
+                                            <th>AKP SHI</th>
+                                            <th>AKP SHI</th>
+                                            <th>Tonase SHI</th>
+                                            <th>Tonase SHI</th>
+                                            <th>HK SHI</th>
+                                            <th>HK SHI</th>
+                                            <th>Janjang SHI</th>
+                                            <th>Janjang SHI</th>
+                                            <th>Total Tonase SHI</th>
+                                            <th>Total Tonase SHI</th>
+                                            <th>BJR SHI</th>
+                                            <th>BJR SHI</th>
+                                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+
+                                </table>
+                            </div>
+                        `;
+            $('#table-realisasi').append(tableHtml);
+
+            $(`#table-test-${tableId}`).DataTable({
+                data: data,
+                
+                fixedColumns: {
+                start: 1
+                },    
+                scrollX: true,
+
+                columns: [
+                    { title: "AFD" },
+                    { title: "Taksasi" },
+                    { title: "Realisasi" },
+                    { title: "Varian" },
+                    { title: " Taksasi" },
+                    { title: " Realisasi" },
+                    { title: " Varian" },
+                    { title: "Taksasi" },
+                    { title: "Realisasi" },
+                    { title: "Varian" },
+                    { title: "Taksasi" },
+                    { title: "Realisasi" },
+                    { title: " Varian" },
+                    { title: "Taksasi" },
+                    { title: "Realisasi" },
+                    { title: " Varian" },
+                    { title: "Taksasi" },
+                    { title: "Realisasi" },
+                    { title: "Taksasi" },
+                    { title: "Realisasi" },
+                    { title: "Taksasi" },
+                    { title: "Realisasi" },
+                    { title: " Varian" },
+                    { title: "Taksasi" },
+                    { title: "Realisasi" },
+                    { title: "Taksasi" },
+                    { title: "Realisasi" },
+                    { title: "Taksasi" },
+                    { title: "Realisasi" },
+                    { title: "Taksasi" },
+                    { title: "Realisasi" },
+                    { title: "Taksasi" },
+                    { title: "Realisasi" },
+                    { title: "Taksasi" },
+                    { title: "Realisasi" },
+                    { title: "Taksasi" },
+                    { title: "Realisasi" },
+                ],
+            // "createdRow": function(row, data, dataIndex) {
+            //                 $('td', row).eq(0).css({
+            //                 'background-color': '#fbd4b4',  // Change this to the desired background color
+            //                 'color': 'black'              // Change this to the desired text color
+            //             });
+            //             },
+                    headerCallback: function(thead, data, start, end, display) {
+                        $(thead).find('th').css('text-align', 'center');
+                    }
+                });
+            }
+
+            $('#table-realisasi').empty();
+            // Loop to create tables for each estate
+             // Data for Regional
+            var finalDataRegFormatted = finalDataReg.map(data => [
+                data.key,
+                data.ha_panen_taksasi,
+                data.ha_panen_realisasi,
+                data.ha_panen_varian,
+                data.akp_taksasi,
+                data.akp_realisasi,
+                data.akp_varian,
+                data.taksasi_tonase,
+                data.taksasi_realisasi,
+                data.taksasi_varian,
+                data.keb_hk_taksasi,
+                data.keb_hk_realisasi,
+                data.keb_hk_varian,
+                data.janjang_taksasi,
+                data.janjang_realisasi,
+                data.janjang_varian,
+                data.total_tonase_taksasi,
+                data.total_tonase_realisasi,
+                data.restan_kemarin,
+                data.restan_hi,
+                data.bjr_taksasi,
+                data.bjr_realisasi,
+                data.bjr_varian,
+                data.ha_panen_taksasi_shi,
+                data.ha_panen_realisasi_shi,
+                data.pokok_taksasi_shi,
+                data.pokok_realisasi_shi,
+                data.janjang_taksasi_shi,
+                data.janjang_realisasi_shi,
+                data.bjr_taksasi_shi,
+                data.bjr_realisasi_shi,
+                data.akp_taksasi_shi,
+                data.akp_realisasi_shi,
+                data.tonase_taksasi_shi,
+                data.tonase_realisasi_shi,
+                data.keb_hk_taksasi_shi,
+                data.keb_hk_realisasi_shi,
+            ]);
+
+            // Create table for the Regional data
+            createTable('Regional', finalDataRegFormatted);
+
+            var mappedData = finalDataWil.map(data => [
+                data.key,
+                data.ha_panen_taksasi,
+                data.ha_panen_realisasi,
+                data.ha_panen_varian,
+                data.akp_taksasi,
+                data.akp_realisasi,
+                data.akp_varian,
+                data.taksasi_tonase,
+                data.taksasi_realisasi,
+                data.taksasi_varian,
+                data.keb_hk_taksasi,
+                data.keb_hk_realisasi,
+                data.keb_hk_varian,
+                data.janjang_taksasi,
+                data.janjang_realisasi,
+                data.janjang_varian,
+                data.total_tonase_taksasi,
+                data.total_tonase_realisasi,
+                data.restan_kemarin,
+                data.restan_hi,
+                data.bjr_taksasi,
+                data.bjr_realisasi,
+                data.bjr_varian,
+                data.ha_panen_taksasi_shi,
+                data.ha_panen_realisasi_shi,
+                data.pokok_taksasi_shi,
+                data.pokok_realisasi_shi,
+                data.janjang_taksasi_shi,
+                data.janjang_realisasi_shi,
+                data.bjr_taksasi_shi,
+                data.bjr_realisasi_shi,
+                data.akp_taksasi_shi,
+                data.akp_realisasi_shi,
+                data.tonase_taksasi_shi,
+                data.tonase_realisasi_shi,
+                data.keb_hk_taksasi_shi,
+                data.keb_hk_realisasi_shi,
+            ]);
+
+             createTable("Wilayah", mappedData);
+
+            var mappedData = finalDataEst.map(data => [
+                data.key,
+                    data.ha_panen_taksasi,
+                    data.ha_panen_realisasi,
+                    data.ha_panen_varian,
+                    data.akp_taksasi,
+                    data.akp_realisasi,
+                    data.akp_varian,
+                    data.taksasi_tonase,
+                    data.taksasi_realisasi,
+                    data.taksasi_varian,
+                    data.keb_hk_taksasi,
+                    data.keb_hk_realisasi,
+                    data.keb_hk_varian,
+                    data.janjang_taksasi,
+                    data.janjang_realisasi,
+                    data.janjang_varian,
+                    data.total_tonase_taksasi,
+                    data.total_tonase_realisasi,
+                    data.restan_kemarin,
+                    data.restan_hi,
+                    data.bjr_taksasi,
+                    data.bjr_realisasi,
+                    data.bjr_varian,
+                    data.ha_panen_taksasi_shi,
+                    data.ha_panen_realisasi_shi,
+                    data.pokok_taksasi_shi,
+                    data.pokok_realisasi_shi,
+                    data.janjang_taksasi_shi,
+                    data.janjang_realisasi_shi,
+                    data.bjr_taksasi_shi,
+                    data.bjr_realisasi_shi,
+                    data.akp_taksasi_shi,
+                    data.akp_realisasi_shi,
+                    data.tonase_taksasi_shi,
+                    data.tonase_realisasi_shi,
+                    data.keb_hk_taksasi_shi,
+                    data.keb_hk_realisasi_shi,
+            ]);
+
+            createTable("Estate", mappedData);
+
+                    updateChartSeriesRealisasi()
+                }
+            });
+        }
+
+        loadDataTableRegionalWilayah(dateToday, $('#reg').val());
+        loadListWilayahDropdown($('#reg').val())
+
+        var pilihanChartRealisasi = $('#pilihanChartRealisasi').val();
+        loadDataTableRealisasi(dateToday,$('#reg').val())
+        // Event listener for date input change
+        $('#tgl').on('change', function() {
+            var selectedDate = $(this).val();
+            var regionalId =  $('#reg').val()
+            loadDataTableRegionalWilayah(selectedDate, regionalId);
+            loadDataTableEstate( $('#est').val(), selectedDate)
+            loadDataTableRealisasi(selectedDate,regionalId)
+            removeMarkers();
+            markerDelAgain()
+            getPlotEstate($('#est').val(), selectedDate)
+            getPlotBlok($('#est').val(), selectedDate)
+            getlineTaksasi($('#est').val(), selectedDate)
+            getMarkerMan($('#est').val(), selectedDate)
+            getUserTaksasi($('#est').val(), selectedDate)
+           
+        });
+
+        $('#monthRealisasi').on('change', function() {
+            var selectedMonth = $(this).val();
+            loadDataTableRealisasi(selectedMonth,$('#reg').val())
+        });
+
+        if ($('#reg option:selected').length === 0) {
+            $('#reg option:first').prop('selected', true);
+        }
+
+        function loadEstateDropdown(regionalId, wilId) {
+            var _token = $('input[name="_token"]').val();
+
+            $.ajax({
+                url: "{{ route('getNameEstate') }}",
+                method: "POST",
+                data: {
+                    _token: _token,
+                    id_reg: regionalId,
+                    id_wil : wilId, 
+                },
+                success: function(result) {
+
+                    $('#est').empty().append(result);
+                    $('#est option:first').prop('selected', true);
+                    // $('#estRealisasi').empty().append(result);
+                    // $('#estRealisasi option:first').prop('selected', true);
+                    var selectedEstateId = $('#est').val();
+                    var selectedDate = $('#tgl').val();
+                    loadDataTableEstate(selectedEstateId, selectedDate);
+                    // loadDataTableRealisasi($('#monthRealisasi').val(),$('#reg').val(), $('#estRealisasi').val())
+                    
+                    
+                // getPlotEstate(selectedEstateId, selectedDate)   
+                // getPlotBlok(selectedEstateId, selectedDate)
+                // getlineTaksasi(selectedEstateId, selectedDate)
+                // getMarkerMan(selectedEstateId, selectedDate)
+                // getUserTaksasi(selectedEstateId, selectedDate)
+            
+                },
+                error: function(xhr, status, error) {
+                    console.error("An error occurred while fetching estates: ", error);
+                }
+            });
+        }
+
         function loadDataTableRegionalWilayah(date, regionalId) {
             var _token = $('input[name="_token"]').val();
             $.ajax({
@@ -1581,373 +1930,6 @@ chart.render();
             });
         }
 
-        function loadDataTableRealisasi(dateToday, regionalId) {
-            var _token = $('input[name="_token"]').val();
-            $.ajax({
-                url: "{{ route('get-data-realisasi-taksasi-per-regional') }}",
-                method: "GET",
-                cache: false,
-                data: {
-                    _token: _token,
-                    date_request: dateToday,
-                    id_reg: regionalId,
-                    // est_req : estateRequest,
-                },
-                success: function(result) {
-                    var parseResult = JSON.parse(result);  
-                    finalDataEst = parseResult['dataEst']
-                    finalDataWil = parseResult['dataWil']
-                     finalDataReg = parseResult['dataReg']
-
-                     function destroyDataTable(tableId) {
-        if ($.fn.DataTable.isDataTable(`#table-test-${tableId}`)) {
-            $(`#table-test-${tableId}`).DataTable().clear().destroy();
-        }
-    }
-
-    
-    function createTable(tableId, data) {
-        destroyDataTable(tableId);
-        var tableHtml = `
-        <h4 class="pl-4 pt-4" style="color:#013C5E;font-weight: 550">Realisasi Vs Taksasi Vs Varian: ${tableId}</h4>
-            <div class="table-container p-4">
-              
-                <table id="table-test-${tableId}" class="stripe hover compact cell-border mt-1" style="width: 100%">
-                    <thead >
-                        <tr>
-                            <th colspan="23"> HI </th>
-                            <th colspan="14"> SHI </th>
-                            </tr>
-                            <tr>
-                                        <th rowspan="2">AFD</th>
-                                        <th colspan="3">Ha Panen</th>
-                                        <th colspan="3">AKP (%)</th>
-                                        <th colspan="3">Tonase (Kg)</th>
-                                        <th colspan="3">HK</th>
-                                        <th colspan="3">Janjang</th>
-                                        <th colspan="2">Total Tonase</th>
-                                        <th colspan="2">Restan</th>
-                                        <th colspan="3">BJR</th>
-                                        <th colspan="2">Ha Panen</th>
-                                        <th colspan="2">AKP</th>
-                                        <th colspan="2">Tonase</th>
-                                        <th colspan="2">HK</th>
-                                        <th colspan="2">Janjang</th>
-                                        <th colspan="2">Total Tonase</th>
-                                        <th colspan="2">BJR</th>
-                                    </tr>
-                                    <tr>
-                                        <th>panen  Wilayah</th>
-                                        <th>panen Aplikasi</th>
-                                        <th>panen Selisih</th>
-                                        <th>akp Wilayah</th>
-                                        <th>akp Aplikasi</th>
-                                        <th>akp </th>
-                                        <th>taksasi Wilayah</th>
-                                        <th>taksasiAplikasi</th>
-                                        <th>taksasi</th>
-                                        <th>hk Wilayah</th>
-                                        <th>hk Aplikasi</th>
-                                        <th>hk Selisih</th>
-                                        <th>janjang Wilayah</th>
-                                        <th>janjang Aplikasi</th>
-                                        <th>janjang Selisih</th>
-                                        <th>total tonase Wilayah</th>
-                                        <th>total tonase Aplikasi</th>
-                                        <th>Restan Kemarin</th>
-                                        <th>Restan HI</th>
-                                        <th>bjr Wilayah</th>
-                                        <th>bjr Aplikasi</th>
-                                        <th>bjr Selisih</th>
-                                        <th>Ha Panen SHI</th>
-                                        <th>Ha Panen SHI</th>
-                                        <th>AKP SHI</th>
-                                        <th>AKP SHI</th>
-                                        <th>Tonase SHI</th>
-                                        <th>Tonase SHI</th>
-                                        <th>HK SHI</th>
-                                        <th>HK SHI</th>
-                                        <th>Janjang SHI</th>
-                                        <th>Janjang SHI</th>
-                                        <th>Total Tonase SHI</th>
-                                        <th>Total Tonase SHI</th>
-                                        <th>BJR SHI</th>
-                                        <th>BJR SHI</th>
-                                    </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-
-                </table>
-            </div>
-        `;
-        $('#table-realisasi').append(tableHtml);
-
-        // Initialize DataTable for the newly created table
-        $(`#table-test-${tableId}`).DataTable({
-            data: data,
-            
-            fixedColumns: {
-        start: 1
-    },    
-    scrollX: true,
-
-            columns: [
-                { title: "AFD" },
-                { title: "Taksasi" },
-                { title: "Realisasi" },
-                { title: "Varian" },
-                { title: " Taksasi" },
-                { title: " Realisasi" },
-                { title: " Varian" },
-                { title: "Taksasi" },
-                { title: "Realisasi" },
-                { title: "Varian" },
-                { title: "Taksasi" },
-                { title: "Realisasi" },
-                { title: " Varian" },
-                { title: "Taksasi" },
-                { title: "Realisasi" },
-                { title: " Varian" },
-                { title: "Taksasi" },
-                { title: "Realisasi" },
-                { title: "Taksasi" },
-                { title: "Realisasi" },
-                { title: "Taksasi" },
-                { title: "Realisasi" },
-                { title: " Varian" },
-                { title: "Taksasi" },
-                { title: "Realisasi" },
-                { title: "Taksasi" },
-                { title: "Realisasi" },
-                { title: "Taksasi" },
-                { title: "Realisasi" },
-                { title: "Taksasi" },
-                { title: "Realisasi" },
-                { title: "Taksasi" },
-                { title: "Realisasi" },
-                { title: "Taksasi" },
-                { title: "Realisasi" },
-                { title: "Taksasi" },
-                { title: "Realisasi" },
-            ],
-            // "createdRow": function(row, data, dataIndex) {
-            //                 $('td', row).eq(0).css({
-            //                 'background-color': '#fbd4b4',  // Change this to the desired background color
-            //                 'color': 'black'              // Change this to the desired text color
-            //             });
-            //             },
-            headerCallback: function(thead, data, start, end, display) {
-                $(thead).find('th').css('text-align', 'center');
-            }
-        });
-    }
-
-     $('#table-realisasi').empty();
-            // Loop to create tables for each estate
-             // Data for Regional
-            var finalDataRegFormatted = finalDataReg.map(data => [
-                data.key,
-                data.ha_panen_taksasi,
-                data.ha_panen_realisasi,
-                data.ha_panen_varian,
-                data.akp_taksasi,
-                data.akp_realisasi,
-                data.akp_varian,
-                data.taksasi_tonase,
-                data.taksasi_realisasi,
-                data.taksasi_varian,
-                data.keb_hk_taksasi,
-                data.keb_hk_realisasi,
-                data.keb_hk_varian,
-                data.janjang_taksasi,
-                data.janjang_realisasi,
-                data.janjang_varian,
-                data.total_tonase_taksasi,
-                data.total_tonase_realisasi,
-                data.restan_kemarin,
-                data.restan_hi,
-                data.bjr_taksasi,
-                data.bjr_realisasi,
-                data.bjr_varian,
-                data.ha_panen_taksasi_shi,
-                data.ha_panen_realisasi_shi,
-                data.pokok_taksasi_shi,
-                data.pokok_realisasi_shi,
-                data.janjang_taksasi_shi,
-                data.janjang_realisasi_shi,
-                data.bjr_taksasi_shi,
-                data.bjr_realisasi_shi,
-                data.akp_taksasi_shi,
-                data.akp_realisasi_shi,
-                data.tonase_taksasi_shi,
-                data.tonase_realisasi_shi,
-                data.keb_hk_taksasi_shi,
-                data.keb_hk_realisasi_shi,
-            ]);
-
-            // Create table for the Regional data
-            createTable('Regional', finalDataRegFormatted);
-
-            var mappedData = finalDataWil.map(data => [
-                data.key,
-                data.ha_panen_taksasi,
-                data.ha_panen_realisasi,
-                data.ha_panen_varian,
-                data.akp_taksasi,
-                data.akp_realisasi,
-                data.akp_varian,
-                data.taksasi_tonase,
-                data.taksasi_realisasi,
-                data.taksasi_varian,
-                data.keb_hk_taksasi,
-                data.keb_hk_realisasi,
-                data.keb_hk_varian,
-                data.janjang_taksasi,
-                data.janjang_realisasi,
-                data.janjang_varian,
-                data.total_tonase_taksasi,
-                data.total_tonase_realisasi,
-                data.restan_kemarin,
-                data.restan_hi,
-                data.bjr_taksasi,
-                data.bjr_realisasi,
-                data.bjr_varian,
-                data.ha_panen_taksasi_shi,
-                data.ha_panen_realisasi_shi,
-                data.pokok_taksasi_shi,
-                data.pokok_realisasi_shi,
-                data.janjang_taksasi_shi,
-                data.janjang_realisasi_shi,
-                data.bjr_taksasi_shi,
-                data.bjr_realisasi_shi,
-                data.akp_taksasi_shi,
-                data.akp_realisasi_shi,
-                data.tonase_taksasi_shi,
-                data.tonase_realisasi_shi,
-                data.keb_hk_taksasi_shi,
-                data.keb_hk_realisasi_shi,
-        ]);
-
-        // Call createTable function once with all the mapped data
-        createTable("Wilayah", mappedData);
-
-
-        var mappedData = finalDataEst.map(data => [
-            data.key,
-                data.ha_panen_taksasi,
-                data.ha_panen_realisasi,
-                data.ha_panen_varian,
-                data.akp_taksasi,
-                data.akp_realisasi,
-                data.akp_varian,
-                data.taksasi_tonase,
-                data.taksasi_realisasi,
-                data.taksasi_varian,
-                data.keb_hk_taksasi,
-                data.keb_hk_realisasi,
-                data.keb_hk_varian,
-                data.janjang_taksasi,
-                data.janjang_realisasi,
-                data.janjang_varian,
-                data.total_tonase_taksasi,
-                data.total_tonase_realisasi,
-                data.restan_kemarin,
-                data.restan_hi,
-                data.bjr_taksasi,
-                data.bjr_realisasi,
-                data.bjr_varian,
-                data.ha_panen_taksasi_shi,
-                data.ha_panen_realisasi_shi,
-                data.pokok_taksasi_shi,
-                data.pokok_realisasi_shi,
-                data.janjang_taksasi_shi,
-                data.janjang_realisasi_shi,
-                data.bjr_taksasi_shi,
-                data.bjr_realisasi_shi,
-                data.akp_taksasi_shi,
-                data.akp_realisasi_shi,
-                data.tonase_taksasi_shi,
-                data.tonase_realisasi_shi,
-                data.keb_hk_taksasi_shi,
-                data.keb_hk_realisasi_shi,
-        ]);
-
-        createTable("Estate", mappedData);
-
-                    updateChartSeriesRealisasi()
-                }
-            });
-        }
-
-        // Load DataTable for the first time with today's date
-        loadDataTableRegionalWilayah(dateToday, $('#reg').val());
-        loadListWilayahDropdown($('#reg').val())
-
-        var pilihanChartRealisasi = $('#pilihanChartRealisasi').val();
-        loadDataTableRealisasi(dateToday,$('#reg').val())
-        // Event listener for date input change
-        $('#tgl').on('change', function() {
-            var selectedDate = $(this).val();
-            var regionalId =  $('#reg').val()
-            loadDataTableRegionalWilayah(selectedDate, regionalId);
-            loadDataTableEstate( $('#est').val(), selectedDate)
-            loadDataTableRealisasi(selectedDate,regionalId)
-            removeMarkers();
-            markerDelAgain()
-            getPlotEstate($('#est').val(), selectedDate)
-            getPlotBlok($('#est').val(), selectedDate)
-            getlineTaksasi($('#est').val(), selectedDate)
-            getMarkerMan($('#est').val(), selectedDate)
-            getUserTaksasi($('#est').val(), selectedDate)
-           
-        });
-
-        $('#monthRealisasi').on('change', function() {
-            var selectedMonth = $(this).val();
-            loadDataTableRealisasi(selectedMonth,$('#reg').val())
-        });
-
-        if ($('#reg option:selected').length === 0) {
-            $('#reg option:first').prop('selected', true);
-        }
-
-        
-    function loadEstateDropdown(regionalId, wilId) {
-        var _token = $('input[name="_token"]').val();
-
-        $.ajax({
-            url: "{{ route('getNameEstate') }}",
-            method: "POST",
-            data: {
-                _token: _token,
-                id_reg: regionalId,
-                id_wil : wilId, 
-            },
-            success: function(result) {
-
-                $('#est').empty().append(result);
-                $('#est option:first').prop('selected', true);
-                // $('#estRealisasi').empty().append(result);
-                // $('#estRealisasi option:first').prop('selected', true);
-                var selectedEstateId = $('#est').val();
-                var selectedDate = $('#tgl').val();
-                loadDataTableEstate(selectedEstateId, selectedDate);
-                // loadDataTableRealisasi($('#monthRealisasi').val(),$('#reg').val(), $('#estRealisasi').val())
-                
-            getPlotEstate(selectedEstateId, selectedDate)   
-            getPlotBlok(selectedEstateId, selectedDate)
-            getlineTaksasi(selectedEstateId, selectedDate)
-            getMarkerMan(selectedEstateId, selectedDate)
-            getUserTaksasi(selectedEstateId, selectedDate)
-        
-            },
-            error: function(xhr, status, error) {
-                console.error("An error occurred while fetching estates: ", error);
-            }
-        });
-        }
-
         function loadListWilayahDropdown(regional) {
                     var _token = $('input[name="_token"]').val();
                     $.ajax({
@@ -1980,19 +1962,8 @@ chart.render();
             updateChartSeriesRealisasi()
         });
 
-        // $('#estRealisasi').on('change', function() {
-        //     var selectedEstate = $(this).val();
-        //     var selectedReg = $('#reg').val()
-        //     loadDataTableRealisasi($('#monthRealisasi').val(),selectedReg, selectedEstate)
-        // });
-
-        // Load estates for the default selected regional on page load
         var defaultRegionalId = $('#reg').val();
-        if (defaultRegionalId) {
-            loadEstateDropdown(defaultRegionalId, $('#wilDropdown').val());
-        }
-
-
+        var defaultValue = $('#pilihanChartRealisasi option:first').val();
         function loadDataTableEstate(estate, selectedDate) {
             var _token = $('input[name="_token"]').val();
 
@@ -2095,7 +2066,7 @@ chart.render();
         $('#wilDropdown').on('change', function() {
             loadEstateDropdown($('#reg').val(), $('#wilDropdown').val());
         })
-
+      
         $('#pilihanChartRealisasi').on('change', function() {
             updateChartSeriesRealisasi()
         });
@@ -2116,21 +2087,21 @@ chart.render();
         });
 
         function updateChartSeriesRealisasi() {
-    var pilihanChart = $('#pilihanChartRealisasi').val();
-    var valueTaksasiReg = [];
-    var valueRealisasiReg = [];
-    var chartCategoriesXReg = [];
-    var valueTaksasiWil = [];
-    var valueRealisasiWil = [];
-    var chartCategoriesXWil = [];
-    var valueTaksasiEst = [];
-    var valueRealisasiEst = [];
-    var chartCategoriesXEst = [];
-    var keyExists = doesKeyExist(finalDataReg, pilihanChart);
-    let titleChartRealisasi = ''
-    if (keyExists) {
+            var pilihanChart = $('#pilihanChartRealisasi').val();
+            var valueTaksasiReg = [];
+            var valueRealisasiReg = [];
+            var chartCategoriesXReg = [];
+            var valueTaksasiWil = [];
+            var valueRealisasiWil = [];
+            var chartCategoriesXWil = [];
+            var valueTaksasiEst = [];
+            var valueRealisasiEst = [];
+            var chartCategoriesXEst = [];
+            var keyExists = doesKeyExist(finalDataReg, pilihanChart);
+            let titleChartRealisasi = ''
+            if (keyExists) {
        
-        finalDataReg.forEach(obj => {
+            finalDataReg.forEach(obj => {
             chartCategoriesXReg.push(obj.key);
             let tempValueTaksasiReg = obj[pilihanChart];
             valueTaksasiReg.push(tempValueTaksasiReg !== '-' ? removeDots(tempValueTaksasiReg)  || 0 : 0);
@@ -2153,9 +2124,9 @@ chart.render();
                 tempValueRealisasiReg = obj['keb_hk_realisasi'];
             }
             valueRealisasiReg.push(tempValueRealisasiReg !== '-' ? removeDots(tempValueRealisasiReg) || 0 : 0);
-        });
+            });
 
-        finalDataWil.forEach(obj => {
+            finalDataWil.forEach(obj => {
             chartCategoriesXWil.push(obj.key);
             let tempValueTaksasiWil = obj[pilihanChart];
             valueTaksasiWil.push(tempValueTaksasiWil !== '-' ? removeDots(tempValueTaksasiWil) || 0 : 0);
@@ -2173,215 +2144,213 @@ chart.render();
                 tempValueRealisasiWil = obj['keb_hk_realisasi'];
             }
             valueRealisasiWil.push(tempValueRealisasiWil !== '-' ? removeDots(tempValueRealisasiWil) || 0 : 0);
-        });
+            });
 
-        finalDataEst.forEach(obj => {
-            chartCategoriesXEst.push(obj.key);
-            let tempValueTaksasiEst = obj[pilihanChart];
-            valueTaksasiEst.push(tempValueTaksasiEst !== '-' ? removeDots(tempValueTaksasiEst) || 0 : 0);
+                finalDataEst.forEach(obj => {
+                    chartCategoriesXEst.push(obj.key);
+                    let tempValueTaksasiEst = obj[pilihanChart];
+                    valueTaksasiEst.push(tempValueTaksasiEst !== '-' ? removeDots(tempValueTaksasiEst) || 0 : 0);
 
-            let tempValueRealisasiEst = 0;
-            if (pilihanChart === 'taksasi_tonase') {
-                tempValueRealisasiEst = obj['taksasi_realisasi'];
-            } else if (pilihanChart === 'akp_taksasi') {
-                tempValueRealisasiEst = obj['akp_realisasi'];
-            } else if (pilihanChart === 'ha_panen_taksasi') {
-                tempValueRealisasiEst = obj['ha_panen_realisasi'];
-            } else if (pilihanChart === 'bjr_taksasi') {
-                tempValueRealisasiEst = obj['bjr_realisasi'];
-            } else if (pilihanChart === 'keb_hk_taksasi') {
-                tempValueRealisasiEst = obj['keb_hk_realisasi'];
-            }
-            valueRealisasiEst.push(tempValueRealisasiEst !== '-' ? removeDots(tempValueRealisasiEst) || 0 : 0);
-        });
-    }
-
-
-
-
-// Update series data
-chartRealisasiRegional.updateSeries([{
-    name: 'Taksasi',
-    data: valueTaksasiReg
-}, {
-    name: 'Realisasi',
-    data: valueRealisasiReg
-}]);
-console.log(valueTaksasiReg)
-console.log(valueRealisasiReg)
-
-chartRealisasiRegional.updateOptions({
-    title: {
-        text: titleChartRealisasi + ' Regional',
-        align: 'center',
-        style: {
-            fontSize: '15px',
-            fontWeight: 'bold',
-            color: '#263238'
+                    let tempValueRealisasiEst = 0;
+                    if (pilihanChart === 'taksasi_tonase') {
+                        tempValueRealisasiEst = obj['taksasi_realisasi'];
+                    } else if (pilihanChart === 'akp_taksasi') {
+                        tempValueRealisasiEst = obj['akp_realisasi'];
+                    } else if (pilihanChart === 'ha_panen_taksasi') {
+                        tempValueRealisasiEst = obj['ha_panen_realisasi'];
+                    } else if (pilihanChart === 'bjr_taksasi') {
+                        tempValueRealisasiEst = obj['bjr_realisasi'];
+                    } else if (pilihanChart === 'keb_hk_taksasi') {
+                        tempValueRealisasiEst = obj['keb_hk_realisasi'];
+                    }
+                    valueRealisasiEst.push(tempValueRealisasiEst !== '-' ? removeDots(tempValueRealisasiEst) || 0 : 0);
+                });
         }
-    },
-    xaxis: {
-        categories: chartCategoriesXReg
-    },
-    tooltip: {
-        y: [{
-            formatter: function (val) {
-                let formattedVal = formatNumberForChart(val);
-                if (pilihanChart === 'akp_taksasi') {
-                    return formattedVal + " %";
-                } else if (pilihanChart === 'taksasi_tonase') {
-                    return formattedVal + " Kg";
-                } else if (pilihanChart === 'ha_panen_taksasi') {
-                    return formattedVal + " Ha";
-                } else if (pilihanChart === 'bjr_taksasi') {
-                    return formattedVal + " %";
-                } else if (pilihanChart === 'keb_hk_taksasi') {
-                    return formattedVal + " org";
-                } else {
-                    return formattedVal;
-                }
-            }
-        }, {
-            formatter: function (val) {
-                let formattedVal = formatNumberForChart(val);
-                if (pilihanChart === 'akp_taksasi') {
-                    return formattedVal + " %";
-                } else if (pilihanChart === 'taksasi_tonase') {
-                    return formattedVal + " Kg";
-                } else if (pilihanChart === 'ha_panen_taksasi') {
-                    return formattedVal + " Ha";
-                } else if (pilihanChart === 'bjr_taksasi') {
-                    return formattedVal + " %";
-                } else if (pilihanChart === 'keb_hk_taksasi') {
-                    return formattedVal + " org";
-                } else {
-                    return formattedVal;
-                }
-            }
-        }]
-    }
-});
 
-        chartRealisasiWilayah.updateSeries([{
-            name: 'Taksasi',
-            data: valueTaksasiWil
-        }, {
-            name: 'Realisasi',
-            data: valueRealisasiWil
-        }]);
 
-        chartRealisasiWilayah.updateOptions({
-            title: {
-                text: titleChartRealisasi + ' Wilayah',
-                align: 'center',
-                style: {
-                fontSize:  '15px',
-                fontWeight:  'bold',
-                color:  '#263238'
+
+
+            // Update series data
+            chartRealisasiRegional.updateSeries([{
+                name: 'Taksasi',
+                data: valueTaksasiReg
+            }, {
+                name: 'Realisasi',
+                data: valueRealisasiReg
+            }]);
+
+            chartRealisasiRegional.updateOptions({
+                title: {
+                    text: titleChartRealisasi + ' Regional',
+                    align: 'center',
+                    style: {
+                        fontSize: '15px',
+                        fontWeight: 'bold',
+                        color: '#263238'
+                    }
                 },
-            },
-            xaxis: {
-                categories: chartCategoriesXWil
-            },
-            tooltip: {
-        y: [{
-            formatter: function (val) {
-                if (pilihanChart === 'akp_taksasi') {
-                    return val + " %"
-                } else if (pilihanChart === 'taksasi_tonase') {
-                    return val + " Kg";
-                } else if (pilihanChart === 'ha_panen_taksasi') {
-                    return val + " Ha";
-                } else if (pilihanChart === 'bjr_taksasi') {
-                    return val + " %";
-                } else if (pilihanChart === 'keb_hk_taksasi') {
-                    return val + " org";
-                } else {
-                    return val;
+                xaxis: {
+                    categories: chartCategoriesXReg
+                },
+                tooltip: {
+                    y: [{
+                        formatter: function (val) {
+                            let formattedVal = formatNumberForChart(val);
+                            if (pilihanChart === 'akp_taksasi') {
+                                return formattedVal + " %";
+                            } else if (pilihanChart === 'taksasi_tonase') {
+                                return formattedVal + " Kg";
+                            } else if (pilihanChart === 'ha_panen_taksasi') {
+                                return formattedVal + " Ha";
+                            } else if (pilihanChart === 'bjr_taksasi') {
+                                return formattedVal + " %";
+                            } else if (pilihanChart === 'keb_hk_taksasi') {
+                                return formattedVal + " org";
+                            } else {
+                                return formattedVal;
+                            }
+                        }
+                    }, {
+                        formatter: function (val) {
+                            let formattedVal = formatNumberForChart(val);
+                            if (pilihanChart === 'akp_taksasi') {
+                                return formattedVal + " %";
+                            } else if (pilihanChart === 'taksasi_tonase') {
+                                return formattedVal + " Kg";
+                            } else if (pilihanChart === 'ha_panen_taksasi') {
+                                return formattedVal + " Ha";
+                            } else if (pilihanChart === 'bjr_taksasi') {
+                                return formattedVal + " %";
+                            } else if (pilihanChart === 'keb_hk_taksasi') {
+                                return formattedVal + " org";
+                            } else {
+                                return formattedVal;
+                            }
+                        }
+                    }]
                 }
-            }
-        }, {
-            formatter: function (val) {
-                if (pilihanChart === 'akp_taksasi') {
-                    return val + " %"
-                } else if (pilihanChart === 'taksasi_tonase') {
-                    return val + " Kg";
-                } else if (pilihanChart === 'ha_panen_taksasi') {
-                    return val + " Ha";
-                } else if (pilihanChart === 'bjr_taksasi') {
-                    return val + " %";
-                } else if (pilihanChart === 'keb_hk_taksasi') {
-                    return val + " org";
-                } else {
-                    return val;
-                }
-            }
-        }]
-    }
-        });
+            });
 
-        chartRealisasiEstate.updateSeries([{
-            name: 'Taksasi',
-            data: valueTaksasiEst
-        }, {
-            name: 'Realisasi',
-            data: valueRealisasiEst
-        }]);
+                chartRealisasiWilayah.updateSeries([{
+                    name: 'Taksasi',
+                    data: valueTaksasiWil
+                }, {
+                    name: 'Realisasi',
+                    data: valueRealisasiWil
+                }]);
 
-        chartRealisasiEstate.updateOptions({
-            title: {
-    text: titleChartRealisasi + ' Estate',
-    align: 'center',
-    style: {
-      fontSize:  '15px',
-      fontWeight:  'bold',
-      color:  '#263238'
-    },
-},
-            xaxis: {
-                categories: chartCategoriesXEst
+                chartRealisasiWilayah.updateOptions({
+                    title: {
+                        text: titleChartRealisasi + ' Wilayah',
+                        align: 'center',
+                        style: {
+                        fontSize:  '15px',
+                        fontWeight:  'bold',
+                        color:  '#263238'
+                        },
+                    },
+                    xaxis: {
+                        categories: chartCategoriesXWil
+                    },
+                    tooltip: {
+                y: [{
+                    formatter: function (val) {
+                        if (pilihanChart === 'akp_taksasi') {
+                            return val + " %"
+                        } else if (pilihanChart === 'taksasi_tonase') {
+                            return val + " Kg";
+                        } else if (pilihanChart === 'ha_panen_taksasi') {
+                            return val + " Ha";
+                        } else if (pilihanChart === 'bjr_taksasi') {
+                            return val + " %";
+                        } else if (pilihanChart === 'keb_hk_taksasi') {
+                            return val + " org";
+                        } else {
+                            return val;
+                        }
+                    }
+                }, {
+                    formatter: function (val) {
+                        if (pilihanChart === 'akp_taksasi') {
+                            return val + " %"
+                        } else if (pilihanChart === 'taksasi_tonase') {
+                            return val + " Kg";
+                        } else if (pilihanChart === 'ha_panen_taksasi') {
+                            return val + " Ha";
+                        } else if (pilihanChart === 'bjr_taksasi') {
+                            return val + " %";
+                        } else if (pilihanChart === 'keb_hk_taksasi') {
+                            return val + " org";
+                        } else {
+                            return val;
+                        }
+                    }
+                }]
+            }
+                });
+
+                chartRealisasiEstate.updateSeries([{
+                    name: 'Taksasi',
+                    data: valueTaksasiEst
+                }, {
+                    name: 'Realisasi',
+                    data: valueRealisasiEst
+                }]);
+
+                chartRealisasiEstate.updateOptions({
+                    title: {
+            text: titleChartRealisasi + ' Estate',
+            align: 'center',
+            style: {
+            fontSize:  '15px',
+            fontWeight:  'bold',
+            color:  '#263238'
             },
-            tooltip: {
-        y: [{
-            formatter: function (val) {
-                if (pilihanChart === 'akp_taksasi') {
-                    return val + " %"
-                } else if (pilihanChart === 'taksasi_tonase') {
-                    return val + " Kg";
-                } else if (pilihanChart === 'ha_panen_taksasi') {
-                    return val + " Ha";
-                } else if (pilihanChart === 'bjr_taksasi') {
-                    return val + " %";
-                } else if (pilihanChart === 'keb_hk_taksasi') {
-                    return val + " org";
-                } else {
-                    return val;
-                }
+        },
+                    xaxis: {
+                        categories: chartCategoriesXEst
+                    },
+                    tooltip: {
+                y: [{
+                    formatter: function (val) {
+                        if (pilihanChart === 'akp_taksasi') {
+                            return val + " %"
+                        } else if (pilihanChart === 'taksasi_tonase') {
+                            return val + " Kg";
+                        } else if (pilihanChart === 'ha_panen_taksasi') {
+                            return val + " Ha";
+                        } else if (pilihanChart === 'bjr_taksasi') {
+                            return val + " %";
+                        } else if (pilihanChart === 'keb_hk_taksasi') {
+                            return val + " org";
+                        } else {
+                            return val;
+                        }
+                    }
+                }, {
+                    formatter: function (val) {
+                        if (pilihanChart === 'akp_taksasi') {
+                            return val + " %"
+                        } else if (pilihanChart === 'taksasi_tonase') {
+                            return val + " Kg";
+                        } else if (pilihanChart === 'ha_panen_taksasi') {
+                            return val + " Ha";
+                        } else if (pilihanChart === 'bjr_taksasi') {
+                            return val + " %";
+                        } else if (pilihanChart === 'keb_hk_taksasi') {
+                            return val + " org";
+                        } else {
+                            return val;
+                        }
+                    }
+                }]
             }
-        }, {
-            formatter: function (val) {
-                if (pilihanChart === 'akp_taksasi') {
-                    return val + " %"
-                } else if (pilihanChart === 'taksasi_tonase') {
-                    return val + " Kg";
-                } else if (pilihanChart === 'ha_panen_taksasi') {
-                    return val + " Ha";
-                } else if (pilihanChart === 'bjr_taksasi') {
-                    return val + " %";
-                } else if (pilihanChart === 'keb_hk_taksasi') {
-                    return val + " org";
-                } else {
-                    return val;
-                }
+                });
             }
-        }]
-    }
-        });
-    }
-    });
+            });
 
-    function doesKeyExist(dataArray, searchString) {
-    return dataArray.some(obj => Object.keys(obj).includes(searchString));
+function doesKeyExist(dataArray, searchString) {
+return dataArray.some(obj => Object.keys(obj).includes(searchString));
 }
 
 function removeDots(value) {
