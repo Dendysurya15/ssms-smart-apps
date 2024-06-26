@@ -402,14 +402,36 @@
 
                             <div class="row">
                                 <div class="card mt-3 p-3 col-12">
-
-
-                                    <div class="row">
-
-                                    </div>
                                     <div class="row">
                                         <div class="col-12">
                                             <div id="table-realisasi">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row ml-3">
+                                        <div class="col-3">
+                                            <label>Pilih Perbandingan Chart Taksasi dan Realisasi</label>
+                                            <select id="pilihanChartRealisasi" class="form-control">
+                                                <option selected disabled>Pilih Chart Realisasi</option>
+                                                <option value="taksasi_tonase">Tonase Taksasi</option>
+                                                <option value="akp_taksasi">AKP</option>
+                                                <option value="ha_panen_taksasi">Ha Panen</option>
+                                                <option value="bjr_taksasi">BJR</option>
+                                                <option value="keb_hk_taksasi">Keb Pemanen</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col mt-3">
+                                            <div id="chartRealisasiRegional">
+                                            </div>
+                                        </div>
+                                        <div class="col mt-3">
+                                            <div id="chartRealisasiWilayah">
+                                            </div>
+                                        </div>
+                                        <div class="col mt-3">
+                                            <div id="chartRealisasiEstate">
                                             </div>
                                         </div>
                                     </div>
@@ -1115,8 +1137,10 @@ function getUserTaksasi(est, date) {
     })
 }
 
-    $(document).ready(function(){
 
+    $(document).ready(function(){
+        var finalDataReg = []
+        var finalDataWil = []
         $('#reg').hide();
         $('#wilDropdown').hide();
         $('#est').hide();
@@ -1184,7 +1208,7 @@ function getUserTaksasi(est, date) {
         type: 'area', // Changed to area chart type
         height: 350
     },
-    colors: ['#ffff00', '#1f4d89'],
+    colors: ['#f5b041', '#1f4d89'],
     plotOptions: {
         area: {  // Use area-specific plot options
             markers: {
@@ -1217,20 +1241,62 @@ function getUserTaksasi(est, date) {
     fill: {
         opacity: 0.5 // Adjust fill opacity if needed
     },
-    tooltip: {
-        y: [
-            {
-                formatter: function (val) {
-                    return val + " %"
-                }
-            },
-            {
-                formatter: function (val) {
-                    return val + " Kg"
-                }
+   
+};
+
+var options2 = {
+    series: [
+        {
+            name: 'Taksasi (Kg): ',
+            data: [1]
+        },
+        {
+            name: 'AKP (%): ',
+            data: [2]
+        }
+    ],
+    chart: {
+        type: 'bar', // Changed to column chart type
+        height: 350
+    },
+    colors: ['#f5b041', '#1f4d89'],
+    legend:{
+        position  : 'top',
+    },
+    plotOptions: {
+        bar: {  // Use bar-specific plot options
+            columnWidth: '50%', // Adjust column width if needed
+            endingShape: 'rounded' // Optional: Adds rounded corners to columns
+        }
+    },
+    dataLabels: {
+        enabled: false
+    },
+    stroke: {
+        show: true,
+        width: 2,
+        colors: ['transparent']
+    },
+    xaxis: {
+        categories: ['Wilayah 1'],
+    },
+    yaxis: [
+        {
+            title: {
+                text: 'Taksasi '
             }
-        ]
-    }
+        },
+        {
+            opposite: true,
+            title: {
+                text: 'Realisasi'
+            }
+        }
+    ],
+    fill: {
+        opacity: 1 // Full opacity for column chart
+    },
+   
 };
 
 // Initialize the chart with the options
@@ -1246,6 +1312,12 @@ chart.render();
         chartTonaseAKPEst.render();
         var ChartGrafikTonaseAfdeling = new ApexCharts(document.querySelector("#ChartGrafikTonaseAfdeling"), options);
         ChartGrafikTonaseAfdeling.render();
+        var chartRealisasiRegional = new ApexCharts(document.querySelector("#chartRealisasiRegional"), options2);
+        chartRealisasiRegional.render();
+        var chartRealisasiWilayah = new ApexCharts(document.querySelector("#chartRealisasiWilayah"), options2);
+        chartRealisasiWilayah.render();
+        var chartRealisasiEstate = new ApexCharts(document.querySelector("#chartRealisasiEstate"), options2);
+        chartRealisasiEstate.render();
         // Set default date to today
         var dateToday = new Date().toISOString().slice(0,10);
         $('#tgl').val(dateToday);
@@ -1330,12 +1402,12 @@ chart.render();
                             { "data": "ritase", "title": "RITASE" },
                             { "data": "keb_pemanen", "title": "KEB. PEMANEN" }
                         ],
-                        "createdRow": function(row, data, dataIndex) {
-                            $('td', row).eq(0).css({
-                            'background-color': '#fbd4b4',  // Change this to the desired background color
-                            'color': 'black'              // Change this to the desired text color
-                        });
-                        }
+                        // "createdRow": function(row, data, dataIndex) {
+                        //     $('td', row).eq(0).css({
+                        //     'background-color': '#fbd4b4',  // Change this to the desired background color
+                        //     'color': 'black'              // Change this to the desired text color
+                        // });
+                        // }
                     });
 
                     if ($.fn.dataTable.isDataTable('#table-wilayah')) {
@@ -1357,12 +1429,12 @@ chart.render();
                             { "data": "ritase", "title": "RITASE" },
                             { "data": "keb_pemanen", "title": "KEB. PEMANEN" }
                         ],
-                        "createdRow": function(row, data, dataIndex) {
-                            $('td', row).eq(0).css({
-                            'background-color': '#fbd4b4',  // Change this to the desired background color
-                            'color': 'black'              // Change this to the desired text color
-                        });
-                        }
+                        // "createdRow": function(row, data, dataIndex) {
+                        //     $('td', row).eq(0).css({
+                        //     'background-color': '#fbd4b4',  // Change this to the desired background color
+                        //     'color': 'black'              // Change this to the desired text color
+                        // });
+                        // }
                     });
 
 
@@ -1386,12 +1458,12 @@ chart.render();
                             { "data": "ritase", "title": "RITASE" },
                             { "data": "keb_pemanen", "title": "KEB. PEMANEN" }
                         ],
-                        "createdRow": function(row, data, dataIndex) {
-                            $('td', row).eq(0).css({
-                            'background-color': '#fbd4b4',  // Change this to the desired background color
-                            'color': 'black'              // Change this to the desired text color
-                        });
-                        }
+                        // "createdRow": function(row, data, dataIndex) {
+                        //     $('td', row).eq(0).css({
+                        //     'background-color': '#fbd4b4',  // Change this to the desired background color
+                        //     'color': 'black'              // Change this to the desired text color
+                        // });
+                        // }
                     });
 
                     var taksasiDataReg = [];
@@ -1407,8 +1479,8 @@ chart.render();
 
                     $.each(parseResult['data_reg'], function(regional, values) {
                         chartCategoriesReg.push(regional);
-                        taksasiDataReg.push(values.taksasi === '-' ? 0 : values.taksasi);  // Convert '-' to 0 for the chart
-                        akpDataReg.push(values.akp === '-' ? 0 : values.akp);  // Convert '-' to 0 for the chart
+                        taksasiDataReg.push(values.taksasi === '-' ? 0 : removeDots(values.taksasi));  // Convert '-' to 0 for the chart
+                        akpDataReg.push(values.akp === '-' ? 0 : removeDots(values.akp));  // Convert '-' to 0 for the chart
                     });
 
                     chartTonaseAKPReg.updateSeries([{
@@ -1422,13 +1494,27 @@ chart.render();
                     chartTonaseAKPReg.updateOptions({
                         xaxis: {
                             categories: chartCategoriesReg
+                        },
+                        tooltip: {
+                            y: [{
+                                formatter: function (val) {
+                                    let formattedVal = formatNumberForChart(val);
+                                        return formattedVal + ' %';
+                                }
+                            }, {
+                                formatter: function (val) {
+                                    let formattedVal = formatNumberForChart(val);
+
+                                        return formattedVal + ' Kg';
+                                }
+                            }]
                         }
                     });
 
                     $.each(parseResult['data_wil'], function(wilayah, values) {
                         chartCategoriesWil.push(wilayah);
-                        taksasiDataWil.push(values.taksasi === '-' ? 0 : values.taksasi);  // Convert '-' to 0 for the chart
-                        akpDataWil.push(values.akp === '-' ? 0 : values.akp);  // Convert '-' to 0 for the chart
+                        taksasiDataWil.push(values.taksasi === '-' ? 0 : removeDots(values.taksasi));  // Convert '-' to 0 for the chart
+                        akpDataWil.push(values.akp === '-' ? 0 : removeDots(values.akp));  // Convert '-' to 0 for the chart
                     });
 
                     chartTonaseAKPWil.updateSeries([{
@@ -1442,14 +1528,28 @@ chart.render();
                     chartTonaseAKPWil.updateOptions({
                         xaxis: {
                             categories: chartCategoriesWil
+                        },
+                        tooltip: {
+                            y: [{
+                                formatter: function (val) {
+                                    let formattedVal = formatNumberForChart(val);
+                                        return formattedVal + ' %';
+                                }
+                            }, {
+                                formatter: function (val) {
+                                    let formattedVal = formatNumberForChart(val);
+
+                                        return formattedVal + ' Kg';
+                                }
+                            }]
                         }
                     });
 
 
                     $.each(parseResult['data_est'], function(estate, values) {
                         chartCategoriesEst.push(estate);
-                        taksasiDataEst.push(values.taksasi === '-' ? 0 : values.taksasi);  // Convert '-' to 0 for the chart
-                        akpDataEst.push(values.akp === '-' ? 0 : values.akp);  // Convert '-' to 0 for the chart
+                        taksasiDataEst.push(values.taksasi === '-' ? 0 : removeDots(values.taksasi));  // Convert '-' to 0 for the chart
+                        akpDataEst.push(values.akp === '-' ? 0 : removeDots(values.akp));  // Convert '-' to 0 for the chart
                     });
 
                     chartTonaseAKPEst.updateSeries([{
@@ -1463,6 +1563,19 @@ chart.render();
                     chartTonaseAKPEst.updateOptions({
                         xaxis: {
                             categories: chartCategoriesEst
+                        },
+                        tooltip: {
+                            y: [{
+                                formatter: function (val) {
+                                    let formattedVal = formatNumberForChart(val);
+                                    return formattedVal + ' %';
+                                }
+                            }, {
+                                formatter: function (val) {
+                                    let formattedVal = formatNumberForChart(val);
+                                    return formattedVal + ' Kg';
+                                }
+                            }]
                         }
                     });
                 }
@@ -1483,10 +1596,10 @@ chart.render();
                 },
                 success: function(result) {
                     var parseResult = JSON.parse(result);  
-                    var finalDataEst = parseResult['dataEst']
-                    var finalDataWil = parseResult['dataWil']
-                    var finalDataReg = parseResult['dataReg']
-                    
+                    finalDataEst = parseResult['dataEst']
+                    finalDataWil = parseResult['dataWil']
+                     finalDataReg = parseResult['dataReg']
+
                      function destroyDataTable(tableId) {
         if ($.fn.DataTable.isDataTable(`#table-test-${tableId}`)) {
             $(`#table-test-${tableId}`).DataTable().clear().destroy();
@@ -1619,12 +1732,12 @@ chart.render();
                 { title: "Taksasi" },
                 { title: "Realisasi" },
             ],
-            "createdRow": function(row, data, dataIndex) {
-                            $('td', row).eq(0).css({
-                            'background-color': '#fbd4b4',  // Change this to the desired background color
-                            'color': 'black'              // Change this to the desired text color
-                        });
-                        },
+            // "createdRow": function(row, data, dataIndex) {
+            //                 $('td', row).eq(0).css({
+            //                 'background-color': '#fbd4b4',  // Change this to the desired background color
+            //                 'color': 'black'              // Change this to the desired text color
+            //             });
+            //             },
             headerCallback: function(thead, data, start, end, display) {
                 $(thead).find('th').css('text-align', 'center');
             }
@@ -1763,6 +1876,7 @@ chart.render();
 
         createTable("Estate", mappedData);
 
+                    updateChartSeriesRealisasi()
                 }
             });
         }
@@ -1771,7 +1885,7 @@ chart.render();
         loadDataTableRegionalWilayah(dateToday, $('#reg').val());
         loadListWilayahDropdown($('#reg').val())
 
-        
+        var pilihanChartRealisasi = $('#pilihanChartRealisasi').val();
         loadDataTableRealisasi(dateToday,$('#reg').val())
         // Event listener for date input change
         $('#tgl').on('change', function() {
@@ -1799,6 +1913,7 @@ chart.render();
             $('#reg option:first').prop('selected', true);
         }
 
+        
     function loadEstateDropdown(regionalId, wilId) {
         var _token = $('input[name="_token"]').val();
 
@@ -1863,6 +1978,7 @@ chart.render();
             loadDataTableRealisasi(selectedDate,selectedRegionalId)
             loadListWilayahDropdown(selectedRegionalId)
             loadEstateDropdown(selectedRegionalId, $('#wilDropdown').val());
+            updateChartSeriesRealisasi()
         });
 
         // $('#estRealisasi').on('change', function() {
@@ -1926,12 +2042,12 @@ chart.render();
                             { "data": "ritase", "title": "RITASE" },
                             { "data": "keb_pemanen", "title": "KEB. PEMANEN" }
                         ],
-                        "createdRow": function(row, data, dataIndex) {
-                            $('td', row).eq(0).css({
-                            'background-color': '#fbd4b4',  // Change this to the desired background color
-                            'color': 'black'              // Change this to the desired text color
-                        });
-                        }
+                        // "createdRow": function(row, data, dataIndex) {
+                        //     $('td', row).eq(0).css({
+                        //     'background-color': '#fbd4b4',  // Change this to the desired background color
+                        //     'color': 'black'              // Change this to the desired text color
+                        // });
+                        // }
                     });
 
                     var taksasiDataAfd = [];
@@ -1940,8 +2056,8 @@ chart.render();
 
                     $.each(parseResult['data_estate'], function(afdeling, values) {
                         chartCategoriesAfd.push(afdeling);
-                        taksasiDataAfd.push(values.taksasi === '-' ? 0 : values.taksasi);  // Convert '-' to 0 for the chart
-                        akpDataAfd.push(values.akp === '-' ? 0 : values.akp);  // Convert '-' to 0 for the chart
+                        taksasiDataAfd.push(values.taksasi === '-' ? 0 : removeDots(values.taksasi));  // Convert '-' to 0 for the chart
+                        akpDataAfd.push(values.akp === '-' ? 0 : removeDots(values.akp));  // Convert '-' to 0 for the chart
                     });
 
                     ChartGrafikTonaseAfdeling.updateSeries([{
@@ -1955,6 +2071,19 @@ chart.render();
                     ChartGrafikTonaseAfdeling.updateOptions({
                         xaxis: {
                             categories: chartCategoriesAfd
+                        },
+                        tooltip: {
+                            y: [{
+                                formatter: function (val) {
+                                    let formattedVal = formatNumberForChart(val);
+                                    return formattedVal + ' %';
+                                }
+                            }, {
+                                formatter: function (val) {
+                                    let formattedVal = formatNumberForChart(val);
+                                    return formattedVal + ' Kg';
+                                }
+                            }]
                         }
                     });
                 },
@@ -1968,7 +2097,10 @@ chart.render();
             loadEstateDropdown($('#reg').val(), $('#wilDropdown').val());
         })
 
-        // Event listener for #est dropdown change
+        $('#pilihanChartRealisasi').on('change', function() {
+            updateChartSeriesRealisasi()
+        });
+        
         $('#est').on('change', function() {
             var selectedEstateId = $(this).val();
             var selectedDate = $('#tgl').val(); // Get the selected date from #tgl
@@ -1983,7 +2115,287 @@ chart.render();
             getUserTaksasi(selectedEstateId, selectedDate)
             
         });
+
+        function updateChartSeriesRealisasi() {
+    var pilihanChart = $('#pilihanChartRealisasi').val();
+    var valueTaksasiReg = [];
+    var valueRealisasiReg = [];
+    var chartCategoriesXReg = [];
+    var valueTaksasiWil = [];
+    var valueRealisasiWil = [];
+    var chartCategoriesXWil = [];
+    var valueTaksasiEst = [];
+    var valueRealisasiEst = [];
+    var chartCategoriesXEst = [];
+    var keyExists = doesKeyExist(finalDataReg, pilihanChart);
+    let titleChartRealisasi = ''
+    if (keyExists) {
+       
+        finalDataReg.forEach(obj => {
+            chartCategoriesXReg.push(obj.key);
+            let tempValueTaksasiReg = obj[pilihanChart];
+            valueTaksasiReg.push(tempValueTaksasiReg !== '-' ? removeDots(tempValueTaksasiReg)  || 0 : 0);
+
+            let tempValueRealisasiReg = 0;
+            if (pilihanChart === 'taksasi_tonase') {
+                tempValueRealisasiReg = obj['taksasi_realisasi'];
+                titleChartRealisasi = 'Tonase Taksasi dan Realisasi'
+            } else if (pilihanChart === 'akp_taksasi') {
+                titleChartRealisasi = 'AKP Taksasi dan Realisasi'
+                tempValueRealisasiReg = obj['akp_realisasi'];
+            } else if (pilihanChart === 'ha_panen_taksasi') {
+                titleChartRealisasi = 'Ha Panen Taksasi dan Realisasi'
+                tempValueRealisasiReg = obj['ha_panen_realisasi'];
+            } else if (pilihanChart === 'bjr_taksasi') {
+                titleChartRealisasi = 'BJR Taksasi dan Realisasi'
+                tempValueRealisasiReg = obj['bjr_realisasi'];
+            } else if (pilihanChart === 'keb_hk_taksasi') {
+                titleChartRealisasi = 'Kebutuhan HK Taksasi dan Realisasi'
+                tempValueRealisasiReg = obj['keb_hk_realisasi'];
+            }
+            valueRealisasiReg.push(tempValueRealisasiReg !== '-' ? removeDots(tempValueRealisasiReg) || 0 : 0);
+        });
+
+        finalDataWil.forEach(obj => {
+            chartCategoriesXWil.push(obj.key);
+            let tempValueTaksasiWil = obj[pilihanChart];
+            valueTaksasiWil.push(tempValueTaksasiWil !== '-' ? removeDots(tempValueTaksasiWil) || 0 : 0);
+
+            let tempValueRealisasiWil = 0;
+            if (pilihanChart === 'taksasi_tonase') {
+                tempValueRealisasiWil = obj['taksasi_realisasi'];
+            } else if (pilihanChart === 'akp_taksasi') {
+                tempValueRealisasiWil = obj['akp_realisasi'];
+            } else if (pilihanChart === 'ha_panen_taksasi') {
+                tempValueRealisasiWil = obj['ha_panen_realisasi'];
+            } else if (pilihanChart === 'bjr_taksasi') {
+                tempValueRealisasiWil = obj['bjr_realisasi'];
+            } else if (pilihanChart === 'keb_hk_taksasi') {
+                tempValueRealisasiWil = obj['keb_hk_realisasi'];
+            }
+            valueRealisasiWil.push(tempValueRealisasiWil !== '-' ? removeDots(tempValueRealisasiWil) || 0 : 0);
+        });
+
+        finalDataEst.forEach(obj => {
+            chartCategoriesXEst.push(obj.key);
+            let tempValueTaksasiEst = obj[pilihanChart];
+            valueTaksasiEst.push(tempValueTaksasiEst !== '-' ? removeDots(tempValueTaksasiEst) || 0 : 0);
+
+            let tempValueRealisasiEst = 0;
+            if (pilihanChart === 'taksasi_tonase') {
+                tempValueRealisasiEst = obj['taksasi_realisasi'];
+            } else if (pilihanChart === 'akp_taksasi') {
+                tempValueRealisasiEst = obj['akp_realisasi'];
+            } else if (pilihanChart === 'ha_panen_taksasi') {
+                tempValueRealisasiEst = obj['ha_panen_realisasi'];
+            } else if (pilihanChart === 'bjr_taksasi') {
+                tempValueRealisasiEst = obj['bjr_realisasi'];
+            } else if (pilihanChart === 'keb_hk_taksasi') {
+                tempValueRealisasiEst = obj['keb_hk_realisasi'];
+            }
+            valueRealisasiEst.push(tempValueRealisasiEst !== '-' ? removeDots(tempValueRealisasiEst) || 0 : 0);
+        });
+    }
+
+
+
+
+// Update series data
+chartRealisasiRegional.updateSeries([{
+    name: 'Taksasi',
+    data: valueTaksasiReg
+}, {
+    name: 'Realisasi',
+    data: valueRealisasiReg
+}]);
+console.log(valueTaksasiReg)
+console.log(valueRealisasiReg)
+
+chartRealisasiRegional.updateOptions({
+    title: {
+        text: titleChartRealisasi + ' Regional',
+        align: 'center',
+        style: {
+            fontSize: '15px',
+            fontWeight: 'bold',
+            color: '#263238'
+        }
+    },
+    xaxis: {
+        categories: chartCategoriesXReg
+    },
+    tooltip: {
+        y: [{
+            formatter: function (val) {
+                let formattedVal = formatNumberForChart(val);
+                if (pilihanChart === 'akp_taksasi') {
+                    return formattedVal + " %";
+                } else if (pilihanChart === 'taksasi_tonase') {
+                    return formattedVal + " Kg";
+                } else if (pilihanChart === 'ha_panen_taksasi') {
+                    return formattedVal + " Ha";
+                } else if (pilihanChart === 'bjr_taksasi') {
+                    return formattedVal + " %";
+                } else if (pilihanChart === 'keb_hk_taksasi') {
+                    return formattedVal + " org";
+                } else {
+                    return formattedVal;
+                }
+            }
+        }, {
+            formatter: function (val) {
+                let formattedVal = formatNumberForChart(val);
+                if (pilihanChart === 'akp_taksasi') {
+                    return formattedVal + " %";
+                } else if (pilihanChart === 'taksasi_tonase') {
+                    return formattedVal + " Kg";
+                } else if (pilihanChart === 'ha_panen_taksasi') {
+                    return formattedVal + " Ha";
+                } else if (pilihanChart === 'bjr_taksasi') {
+                    return formattedVal + " %";
+                } else if (pilihanChart === 'keb_hk_taksasi') {
+                    return formattedVal + " org";
+                } else {
+                    return formattedVal;
+                }
+            }
+        }]
+    }
+});
+
+        chartRealisasiWilayah.updateSeries([{
+            name: 'Taksasi',
+            data: valueTaksasiWil
+        }, {
+            name: 'Realisasi',
+            data: valueRealisasiWil
+        }]);
+
+        chartRealisasiWilayah.updateOptions({
+            title: {
+                text: titleChartRealisasi + ' Wilayah',
+                align: 'center',
+                style: {
+                fontSize:  '15px',
+                fontWeight:  'bold',
+                color:  '#263238'
+                },
+            },
+            xaxis: {
+                categories: chartCategoriesXWil
+            },
+            tooltip: {
+        y: [{
+            formatter: function (val) {
+                if (pilihanChart === 'akp_taksasi') {
+                    return val + " %"
+                } else if (pilihanChart === 'taksasi_tonase') {
+                    return val + " Kg";
+                } else if (pilihanChart === 'ha_panen_taksasi') {
+                    return val + " Ha";
+                } else if (pilihanChart === 'bjr_taksasi') {
+                    return val + " %";
+                } else if (pilihanChart === 'keb_hk_taksasi') {
+                    return val + " org";
+                } else {
+                    return val;
+                }
+            }
+        }, {
+            formatter: function (val) {
+                if (pilihanChart === 'akp_taksasi') {
+                    return val + " %"
+                } else if (pilihanChart === 'taksasi_tonase') {
+                    return val + " Kg";
+                } else if (pilihanChart === 'ha_panen_taksasi') {
+                    return val + " Ha";
+                } else if (pilihanChart === 'bjr_taksasi') {
+                    return val + " %";
+                } else if (pilihanChart === 'keb_hk_taksasi') {
+                    return val + " org";
+                } else {
+                    return val;
+                }
+            }
+        }]
+    }
+        });
+
+        chartRealisasiEstate.updateSeries([{
+            name: 'Taksasi',
+            data: valueTaksasiEst
+        }, {
+            name: 'Realisasi',
+            data: valueRealisasiEst
+        }]);
+
+        chartRealisasiEstate.updateOptions({
+            title: {
+    text: titleChartRealisasi + ' Estate',
+    align: 'center',
+    style: {
+      fontSize:  '15px',
+      fontWeight:  'bold',
+      color:  '#263238'
+    },
+},
+            xaxis: {
+                categories: chartCategoriesXEst
+            },
+            tooltip: {
+        y: [{
+            formatter: function (val) {
+                if (pilihanChart === 'akp_taksasi') {
+                    return val + " %"
+                } else if (pilihanChart === 'taksasi_tonase') {
+                    return val + " Kg";
+                } else if (pilihanChart === 'ha_panen_taksasi') {
+                    return val + " Ha";
+                } else if (pilihanChart === 'bjr_taksasi') {
+                    return val + " %";
+                } else if (pilihanChart === 'keb_hk_taksasi') {
+                    return val + " org";
+                } else {
+                    return val;
+                }
+            }
+        }, {
+            formatter: function (val) {
+                if (pilihanChart === 'akp_taksasi') {
+                    return val + " %"
+                } else if (pilihanChart === 'taksasi_tonase') {
+                    return val + " Kg";
+                } else if (pilihanChart === 'ha_panen_taksasi') {
+                    return val + " Ha";
+                } else if (pilihanChart === 'bjr_taksasi') {
+                    return val + " %";
+                } else if (pilihanChart === 'keb_hk_taksasi') {
+                    return val + " org";
+                } else {
+                    return val;
+                }
+            }
+        }]
+    }
+        });
+    }
     });
 
+    function doesKeyExist(dataArray, searchString) {
+    return dataArray.some(obj => Object.keys(obj).includes(searchString));
+}
+
+function removeDots(value) {
+    return  value.replace(/\./g, '').replace(',', '.');
+}
+
+function formatNumberForChart(val) {
+    // Convert number to string and split integer and fractional parts
+    let [integerPart, fractionalPart] = val.toString().split('.');
+    // Add thousand separators to the integer part
+    integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    // Join integer and fractional parts with a comma if there's a fractional part
+    return fractionalPart ? `${integerPart},${fractionalPart}` : integerPart;
+}
 
 </script>
