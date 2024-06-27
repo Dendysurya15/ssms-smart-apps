@@ -189,8 +189,9 @@
                     </li>
                     <li class="nav-item"><a href="#estateTab" class="nav-link tabDashboard">Estate</a>
                     </li>
-                    {{-- <li class="nav-item"><a data-toggle="tab" href="#blokTab" class="nav-link">Blok</a>
-                    </li> --}}
+                    <li class="nav-item"><a data-toggle="tab" href="#afdelingTab"
+                            class="nav-link tabDashboard">Afdeling</a>
+                    </li>
                     <li class="nav-item active"><a href="#realisasiTab" class="nav-link tabDashboard">Realisasi
                             Taksasi</a>
                     </li>
@@ -278,6 +279,7 @@
                                         <thead>
                                             <tr>
                                                 <th>Estate</th>
+                                                <th>Nama Wilayah</th>
                                                 <th>Luas (Ha)</th>
                                                 <th>Jumlah Blok</th>
                                                 <th>Ritase</th>
@@ -299,6 +301,10 @@
                                 </div>
                             </div>
                         </div>
+
+
+                    </div>
+                    <div id="afdelingTab" class="tab-pane fade in">
                         <div class="row">
                             <div class="col-6">
                                 <div class="card mt-3 p-3">
@@ -333,24 +339,13 @@
                                 </div>
                             </div>
                         </div>
-
-
-
                         <div class="card mt-3 p-3">
 
                             <h4 style="color:#013C5E;font-weight: 550">Tracking Plot User Taksasi
                             </h4>
 
                         </div>
-
                     </div>
-                    {{-- <div id="blokTab" class="tab-pane fade in">
-
-
-
-
-                        <h1>Belum Tersedia</h1>
-                    </div> --}}
                     <div id="realisasiTab" class="tab-pane fade in">
                         <form action="{{ route('import-realisasi-taksasi') }}" method="POST"
                             enctype="multipart/form-data">
@@ -446,10 +441,7 @@
 
 
             </div>
-
-
             <div id="map"></div>
-
         </div>
     </section>
 
@@ -1296,11 +1288,16 @@
                     $('#est').hide();
                     $('#reg').show();
                 }
-                else {
-                    $('#map').show();
+                else if(tab ==='afdelingTab'){
                     $('#reg').show();
                     $('#wilDropdown').show();
                     $('#est').show();
+                    $('#map').show();
+                }
+                else {
+                    $('#reg').show();
+                    // $('#wilDropdown').show();
+                    // $('#est').show();
                 }
             }
 
@@ -1742,6 +1739,7 @@
                     $.each(parseResult['data_est'], function(estate, values) {
                         dataEst.push({
                             "estate": estate,
+                            "nama_wil": values.nama_wil,
                             "luas": values.luas,
                             "jumlahBlok": values.jumlahBlok,
                             "akp": values.akp,
@@ -1818,6 +1816,18 @@
                         $('#table-estate').DataTable().clear().destroy();
                     }
 
+                    // var wilayah1Exists = dataEst.some(function(item) {
+                    //     return item.nama_wil === 'Wilayah 1';
+                    // });
+
+                    // // Define a custom sorting plugin
+                    // if (wilayah1Exists) {
+                    //     $.fn.dataTable.ext.order['custom-name-wilayah'] = function(settings, col) {
+                    //         return this.api().column(col, { order: 'index' }).nodes().map(function(td, i) {
+                    //             return $(td).text() === 'Wilayah 1' ? '0' : '1';
+                    //         });
+                    //     };
+                    // }
                     $('#table-estate').DataTable({
                         "processing": true,
                         "serverSide": false,
@@ -1826,6 +1836,7 @@
                         "pageLength": 10,
                         "columns": [
                             { "data": "estate", "title": "ESTATE" },
+                            { "data": "nama_wil", "title": "NAMA WILAYAH" },
                             { "data": "luas", "title": "LUAS (Ha)" },
                             { "data": "jumlahBlok", "title": "JUMLAH BLOK" },
                             { "data": "akp", "title": "AKP (%)" },
@@ -1833,6 +1844,13 @@
                             { "data": "ritase", "title": "RITASE" },
                             { "data": "keb_pemanen", "title": "KEB. PEMANEN" }
                         ],
+                        // "order": [[1, 'asc']], // Default sort by the second column (nama_wil)
+                        // "columnDefs": wilayah1Exists ? [
+                        //     {
+                        //         "targets": 1, // Apply to the second column
+                        //         "orderDataType": "custom-name-wilayah"
+                        //     }
+                        // ] : []
                         // "createdRow": function(row, data, dataIndex) {
                         //     $('td', row).eq(0).css({
                         //     'background-color': '#fbd4b4',  // Change this to the desired background color
@@ -2342,14 +2360,14 @@
 
                 chartRealisasiEstate.updateOptions({
                     title: {
-            text: titleChartRealisasi + ' Estate',
-            align: 'center',
-            style: {
-            fontSize:  '15px',
-            fontWeight:  'bold',
-            color:  '#263238'
-            },
-        },
+                        text: titleChartRealisasi + ' Estate',
+                        align: 'center',
+                        style: {
+                        fontSize:  '15px',
+                        fontWeight:  'bold',
+                        color:  '#263238'
+                        },
+                    },
                     xaxis: {
                         categories: chartCategoriesXEst
                     },

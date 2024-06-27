@@ -33,28 +33,34 @@ class DashboardNewController extends Controller
         $idReg = $request->get('id_reg');
         $reg_all = Regional::all()->where('nama', '!=', 'Regional V')->toArray();
 
+        // dd($reg_all);
         $queryListWil = Wilayah::select('nama')
-            ->where('regional', $reg_all[$idReg]['id'])
+            // ->where('regional', $reg_all[$idReg]['id'])
             ->pluck('nama');
 
-        $queryListWilId = Wilayah::select('id')
-            ->where('regional', $reg_all[$idReg]['id'])
-            ->pluck('id');
+        // dd($queryListWil);
 
+        $queryListWilId = Wilayah::select('id')
+            // ->where('regional', $reg_all[$idReg]['id'])  
+            ->pluck('id');
+        // dd($queryListWilId);
 
         $queryListEstate = Estate::whereIn('wil', $queryListWilId)
+            ->select('estate.*', 'wil.nama as nama_wilayah')
+            ->join('wil', 'estate.wil', 'wil.id')
             ->where(function ($query) {
-                $query->where(DB::raw('LOWER(nama)'), 'NOT LIKE', '%mill%')
-                    ->where(DB::raw('LOWER(est)'), 'NOT LIKE', '%plasma%')
-                    ->where(DB::raw('LOWER(est)'), 'NOT LIKE', '%cws1%')
-                    ->where(DB::raw('LOWER(est)'), 'NOT LIKE', '%cws2%')
-                    ->where(DB::raw('LOWER(est)'), 'NOT LIKE', '%cws3%')
-                    ->where(DB::raw('LOWER(est)'), 'NOT LIKE', '%reg%')
-                    ->where(DB::raw('LOWER(est)'), 'NOT LIKE', '%srs%')
-                    ->where(DB::raw('LOWER(est)'), 'NOT LIKE', '%sr%')
-                    ->where(DB::raw('LOWER(est)'), 'NOT LIKE', '%tc%');
+                $query->where(DB::raw('LOWER(estate.nama)'), 'NOT LIKE', '%mill%')
+                    ->where(DB::raw('LOWER(estate.est)'), 'NOT LIKE', '%plasma%')
+                    ->where(DB::raw('LOWER(estate.est)'), 'NOT LIKE', '%cws1%')
+                    ->where(DB::raw('LOWER(estate.est)'), 'NOT LIKE', '%cws2%')
+                    ->where(DB::raw('LOWER(estate.est)'), 'NOT LIKE', '%cws3%')
+                    ->where(DB::raw('LOWER(estate.est)'), 'NOT LIKE', '%reg%')
+                    ->where(DB::raw('LOWER(estate.est)'), 'NOT LIKE', '%srs%')
+                    ->where(DB::raw('LOWER(estate.est)'), 'NOT LIKE', '%sr%')
+                    ->where(DB::raw('LOWER(estate.est)'), 'NOT LIKE', '%tc%');
             })
-            ->pluck('est', 'nama')
+            // ->pluck('est', 'nama')
+            ->get()
             ->toArray();
 
         $first = $tglData . ' 00:00:00';
@@ -84,13 +90,14 @@ class DashboardNewController extends Controller
             ->groupBy('nama_wilayah');
 
 
+        $estValues = collect($queryListEstate)->pluck('est', 'nama');
 
         $queryByDateEstate = DB::connection('mysql2')->table('taksasi')
             ->select('taksasi.*',  'wil.nama as nama_wilayah')
             ->join('estate', 'taksasi.lokasi_kerja', '=', 'estate.est')
             ->join('wil', 'estate.wil', '=', 'wil.id')
             ->whereBetween('taksasi.waktu_upload', [$firstData, $lastData])
-            ->whereIn('taksasi.lokasi_kerja', $queryListEstate)
+            ->whereIn('taksasi.lokasi_kerja', $estValues)
             ->get()
             ->groupBy('lokasi_kerja');
 
@@ -124,9 +131,10 @@ class DashboardNewController extends Controller
         }
 
         $dataFinalEstate = [];
-        foreach ($queryListEstate as $key => $nama) {
-            $dataFinalEstate[$nama] = [
-                'estate' => $nama,
+        foreach ($queryListEstate as $key => $value) {
+            $dataFinalEstate[$value['est']] = [
+                'estate' => $value['est'],
+                'nama_wil' => $value['nama_wilayah'],
                 'luas' => "-",
                 'jumlahBlok' => "-",
                 'ritase' => "-",
