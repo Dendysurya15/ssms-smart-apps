@@ -96,7 +96,7 @@
     <table class="table table-bordered " style="font-size: 11px;">
         <thead>
             <tr>
-                <th colspan="18" class="text-center"
+                <th colspan="20" class="text-center"
                     style="padding:10px;background: #D9E1F2;border: 1px solid black;font-size:16px">
                     LAPORAN TAKSASI PANEN
                 </th>
@@ -104,7 +104,7 @@
 
 
             <tr>
-                <th style=" color: white;border-left:1px solid white;border-right:1px solid white" colspan="18">|
+                <th style=" color: white;border-left:1px solid white;border-right:1px solid white" colspan="20">|
                 </th>
             </tr>
 
@@ -122,7 +122,7 @@
                     ESTATE : {{$namaEstate}}
                 </th>
 
-                <th colspan="9" style="border-top: 2px solid white;border-bottom:1px solid white"></th>
+                <th colspan="11" style="border-top: 2px solid white;border-bottom:1px solid white"></th>
 
                 <th colspan="6" style="padding:8px;font-size: 13px;text-align: left;background:#D9E1F2;">
                     TANGGAL TAKSASI : {{$today}}</th>
@@ -133,7 +133,7 @@
                     WILAYAH : {{$wil}}
                 </th>
 
-                <th colspan="9" style="border-right: 1px solid black;border-bottom: 1px solid white"></th>
+                <th colspan="11" style="border-right: 1px solid black;border-bottom: 1px solid white"></th>
 
 
                 <th colspan="6"
@@ -141,7 +141,7 @@
                     TANGGAL PANEN : {{$besok}}</th>
             </tr>
             <tr>
-                <th style=" color: white;border-left:1px solid white;border-right:1px solid white" colspan="18">|
+                <th style=" color: white;border-left:1px solid white;border-right:1px solid white" colspan="20">|
                 </th>
             </tr>
         </thead>
@@ -150,6 +150,8 @@
                 <th style="border:1px solid black;padding:10px;width:5%;">AFDELING</th>
                 <th style="border:1px solid black;padding:10px;width:5%;">BLOK</th>
                 <th style="border:1px solid black;padding:10px;width:5%;">LUAS (HA)</th>
+                <th style="border:1px solid black;padding:10px;width:5%;">POKOK PRODUKTIF</th>
+                <th style="border:1px solid black;padding:10px;width:5%;">POKOK JANJANG</th>
                 <th style="border:1px solid black;padding:10px;width:5%;">INTERVAL PANEN</th>
                 <th style="border:1px solid black;padding:10px;width:5%;">JUMLAH POKOK</th>
                 {{-- <th style="border:1px solid black;padding:10px;width:5%;">POKOK PRODUKTIF</th> --}}
@@ -182,6 +184,14 @@
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$key}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$key2}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$item['luas']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">
+                    {{ $item['pokok_produktif'] != 0 ? $item['pokok_produktif'] : '-' }}
+                </td>
+
+                <td style="border:1px solid black;text-align:center;padding:7px">
+                    {{ $item['pokok_janjang'] != 0 ? $item['pokok_janjang'] : '-' }}
+                </td>
+
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$item['interval_panen']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">-</td>
                 {{-- <td style="border:1px solid black;text-align:center;padding:7px">-</td> --}}
@@ -206,8 +216,14 @@
             <tr style="background: #E2EFDA;font-weight:bold">
                 <td style="border:1px solid black;text-align:center;padding:7px" colspan="2">Total</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$valuex['luas']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">
+                    {{ $item['pokok_produktif'] != 0 ? $item['pokok_produktif'] : '-' }}
+                </td>
+
+                <td style="border:1px solid black;text-align:center;padding:7px">
+                    {{ $item['pokok_janjang'] != 0 ? $item['pokok_janjang'] : '-' }}
+                </td>
                 <td style="border:1px solid black;text-align:center;padding:7px">-</td>
-                {{-- <td style="border:1px solid black;text-align:center;padding:7px">-</td> --}}
                 <td style="border:1px solid black;text-align:center;padding:7px">-</td>
                 <td style="border: 1px solid black; text-align: center; padding: 7px">
                     {{ intval($valuex['sph']) }}
@@ -235,6 +251,13 @@
             <tr style="background: #D9E1F2;font-weight: bold">
                 <td style="border:1px solid black;text-align:center;padding:7px" colspan="2">Estate</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$takest['luas']}}</td>
+                <td style="border:1px solid black;text-align:center;padding:7px">
+                    {{ $item['pokok_produktif'] != 0 ? $item['pokok_produktif'] : '-' }}
+                </td>
+
+                <td style="border:1px solid black;text-align:center;padding:7px">
+                    {{ $item['pokok_janjang'] != 0 ? $item['pokok_janjang'] : '-' }}
+                </td>
                 <td style="border:1px solid black;text-align:center;padding:7px">-</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">-</td>
                 {{-- <td style="border:1px solid black;text-align:center;padding:7px">-</td> --}}
