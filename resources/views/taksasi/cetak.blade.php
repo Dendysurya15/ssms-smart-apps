@@ -226,7 +226,7 @@
                 <td style="border:1px solid black;text-align:center;padding:7px">
                     {{ $valuex['interval_panen'] != 0 ? $valuex['interval_panen'] : '-' }}
                 </td>
-                <td style="border:1px solid black;text-align:center;padding:7px">-</td>
+
                 <td style="border: 1px solid black; text-align: center; padding: 7px">
                     {{ intval($valuex['sph']) }}
                 </td>
@@ -234,6 +234,7 @@
                 <td style="border: 1px solid black; text-align: center; padding: 7px">
                     {{ intval($valuex['bjr']) }}
                 </td>
+                <td style="border:1px solid black;text-align:center;padding:7px">-</td>
 
                 <td style="border:1px solid black;text-align:center;padding:7px">-</td>
 

@@ -1653,6 +1653,7 @@ class DashboardController extends Controller
                         $luas += $value2['luas'];
                         $processedBlokYgSama[] = $value2['blok'];
                         $output += $value2['output'];
+                        $pokok_produktif += $value2['pokok_produktif'];;
                         $outputBlokYgSama++;
                     }
 
@@ -1661,7 +1662,7 @@ class DashboardController extends Controller
                     $bjr = $value2['bjr_sensus'] != 0 ? $value2['bjr_sensus'] : $value2['bjr'];
                     $sum_janjang += $value2['jumlah_janjang'];
                     $sum_pokok += $value2['jumlah_pokok'];
-                    $pokok_produktif = ceil(($sum_pokok / $value2['sph'] / $value2['luas']) * 100);
+                    // $pokok_produktif = ceil(($sum_pokok / $value2['sph'] / $value2['luas']) * 100);
                     $pemanen += $value2['pemanen'];
                     $merge_baris .= '(' . $value2['br_kiri'] . ',' . $value2['br_kanan'] . '), ';
                     $br_kiri .= $value2['br_kiri'];
@@ -1753,6 +1754,7 @@ class DashboardController extends Controller
                 $output += $value1['output'];
                 $keb_pemanen_ha_per_hk_blok += $value1['keb_pemanen_ha_per_hk'];
                 $rotasi += $value1['interval_panen'];
+                $pokok_produktif += $value1['pokok_produktif'];
                 $inc++;
             }
 
@@ -1762,7 +1764,7 @@ class DashboardController extends Controller
             $akp = round(($jumlah_janjang / $jumlah_pokok) * 100, 2);
 
             $sum_sph = round($sum_sph / count($value), 2);
-            $pokok_produktif = ceil(($jumlah_pokok / $sum_sph / $luas) * 100);
+            // $pokok_produktif = ceil(($jumlah_pokok / $sum_sph / $luas) * 100);
             $sum_bjr = round($sum_bjr / count($value), 2);
             $tak = round(($akp * $luas * $sum_bjr * $sum_sph) / 100, 1);
 
@@ -1817,7 +1819,7 @@ class DashboardController extends Controller
         foreach ($takafd as $key => $value) {
             $luas += $value['luas'];
             $sum_sph += $value['sph'];
-            // $pokok_produktif += $value['pokok_produktif'];
+            $pokok_produktif += $value['pokok_produktif'];
             $pokok_janjang += $value['pokok_janjang'];
             $jumlah_path += $value['jumlah_path'];
             $sum_bjr += $value['bjr'];
@@ -1845,7 +1847,7 @@ class DashboardController extends Controller
             $keb_pemanen_ha_per_hk_afd = 1;
         }
 
-        $pokok_produktif = ceil(($jumlah_pokok / $sum_sph / $luas) * 100);
+        // $pokok_produktif = ceil(($jumlah_pokok / $sum_sph / $luas) * 100);
         $takest['luas'] = $luas;
         $takest['jumlah_path'] = $jumlah_path;
         $takest['path'] = count($takafd);
