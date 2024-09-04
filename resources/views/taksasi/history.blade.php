@@ -1386,7 +1386,7 @@
 
         var _token = $('input[name="_token"]').val();
 
-        var url = '/exportPdfTaksasi/' + est + '/' + date + '/web' ;
+        var url = '/api/exportPdfTaksasi/' + est + '/' + date + '/web' ;
         window.open(
             url,
             '_blank' // <- This is what makes it open in a new window.

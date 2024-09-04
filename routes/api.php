@@ -15,7 +15,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-    Route::get('exportPdfTaksasi/{est}/{date}', [DashboardController::class, 'exportPdfTaksasi'])->name('exportPdfTaksasi');
-});
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+//     Route::get('exportPdfTaksasi/{est}/{date}', [DashboardController::class, 'exportPdfTaksasi'])->name('exportPdfTaksasi');
+// });
+
+Route::get('exportPdfTaksasi/{est}/{date}/{web?}', [DashboardController::class, 'exportPdfTaksasi'])->name('exportPdfTaksasi');
