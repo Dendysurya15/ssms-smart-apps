@@ -1831,9 +1831,29 @@ class DashboardController extends Controller
             $rotasi += $value['interval_panen'];
             $output += $value['output'];
         }
-        $akp = round(($jumlah_janjang / $jumlah_pokok) * 100, 2);
-        $sum_sph = round($sum_sph / count($takafd), 2);
-        $sum_bjr = round($sum_bjr / count($takafd), 2);
+        if ($jumlah_pokok != 0) {
+            $akp = round(($jumlah_janjang / $jumlah_pokok) * 100, 2);
+        } else {
+            // Handle the case where $jumlah_pokok is zero
+            $akp = null; // or any other default value or action you prefer
+            // You could also log an error, throw an exception, or handle this case in some other way
+        }
+        if (count($takafd) != 0) {
+            $sum_sph = round($sum_sph / count($takafd), 2);
+        } else {
+            // Handle the case where count($takafd) is zero
+            $sum_sph = null; // or any other default value or action you prefer
+            // You could also log an error, throw an exception, or handle this case in some other way
+        }
+        if (count($takafd) != 0) {
+            $sum_bjr = round($sum_bjr / count($takafd), 2);
+        } else {
+            // Handle the case where count($takafd) is zero
+            $sum_bjr = null; // or any other default value or action you prefer
+            // You could also log an error, throw an exception, or handle this case in some other way
+        }
+
+
         $tak = round(($akp * $luas * $sum_bjr * $sum_sph) / 100, 1);
         $jjg_taksasi = ceil(($akp * $luas  * $sum_sph) / 100);
 
