@@ -4,6 +4,28 @@
         height: 800px;
     }
 
+    .swal2-batal-button {
+        background-color: #6c757d !important;
+        /* Gray background for Batal button */
+        color: white !important;
+        /* White text color */
+    }
+
+    .swal2-actions-custom-order .swal2-deny {
+        order: 1;
+        /* Batal button */
+    }
+
+    .swal2-actions-custom-order .swal2-cancel {
+        order: 2;
+        /* Tolak button */
+    }
+
+    .swal2-actions-custom-order .swal2-confirm {
+        order: 3;
+        /* Verifikasi button */
+    }
+
     .legend {
         padding: 6px 8px;
         font: 14px Arial, Helvetica, sans-serif;
@@ -152,7 +174,7 @@
 
                     </select>
                 </div>
-                <div class="col-2">
+                <div class="col-1">
                     <button id="btnExport" class="btn btn-success"> Export PDF <i
                             class="nav-icon fa fa-download"></i></button>
                 </div>
@@ -175,6 +197,7 @@
                                     <thead>
                                         <tr>
                                             <th scope="col">No</th>
+                                            <th scope="col">STATUS VERIFIKASI</th>
                                             <th scope="col">TANGGAl</th>
                                             <th scope="col">ESTATE</th>
                                             <th scope="col">AFDELING</th>
@@ -189,6 +212,7 @@
                                             <th scope="col">SAMPEL PATH</th>
                                             <th scope="col">JANJANG SAMPEL</th>
                                             <th scope="col">POKOK SAMPEL</th>
+                                            <th scope="col">AKSI</th>
 
                                         </tr>
                                     </thead>
@@ -205,6 +229,103 @@
 
             </div>
 
+
+            <!-- Modal -->
+            <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Edit Taksasi</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="editForm" class="row" method="POST" action="{{ route('editDataTaksasi') }}">
+                                @csrf
+                                <!-- Add the hidden input field to pass the id -->
+                                <input type="hidden" name="id" id="modal_id" value="">
+
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="field2">Lokasi Kerja</label>
+                                        <input type="text" class="form-control" id="lokasi_kerja" name="lokasi_kerja"
+                                            placeholder="Enter value">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="field2">Afdeling</label>
+                                        <input type="text" class="form-control" id="afdeling" name="afdeling"
+                                            placeholder="Enter value">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="field1">Blok</label>
+                                        <input type="text" class="form-control" id="blok" name="blok"
+                                            placeholder="Enter value">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="field2">Luas</label>
+                                        <input type="text" class="form-control" id="luas" name="luas"
+                                            placeholder="Enter value">
+                                    </div>
+
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="field3">SPH</label>
+                                        <input type="text" class="form-control" id="sph" name="sph"
+                                            placeholder="Enter value">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="field4">BJR Sensus</label>
+                                        <input type="text" class="form-control" id="bjr_sensus" name="bjr_sensus"
+                                            placeholder="Enter value">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="field2">Jumlah Pokok</label>
+                                        <input type="text" class="form-control" id="jumlah_pokok" name="jumlah_pokok"
+                                            placeholder="Enter value">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="field2">Jumlah Janjang</label>
+                                        <input type="text" class="form-control" id="jumlah_janjang"
+                                            name="jumlah_janjang" placeholder="Enter value">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="field5">AKP (%)</label>
+                                        <input type="text" class="form-control" id="akp" name="akp"
+                                            placeholder="Enter value">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="field6">Taksasi (Kg)</label>
+                                        <input type="text" class="form-control" id="taksasi" name="taksasi"
+                                            placeholder="Enter value">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="field2">Output</label>
+                                        <input type="text" class="form-control" id="output" name="output"
+                                            placeholder="Enter value">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="field2">Pokok Produktif</label>
+                                        <input type="text" class="form-control" id="pokok_produktif"
+                                            name="pokok_produktif" placeholder="Enter value">
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
             <br>
             <h3>Tracking User Taksasi</h3>
             <div id="map"></div>
@@ -213,7 +334,7 @@
 
 </div>
 @include('layout.footer')
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 {{-- <script src="{{ asset('lottie/93121-no-data-preview.json') }}" type="text/javascript"></script> --}}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.9.4/lottie.min.js"
     integrity="sha512-ilxj730331yM7NbrJAICVJcRmPFErDqQhXJcn+PLbkXdE031JJbcK87Wt4VbAK+YY6/67L+N8p7KdzGoaRjsTg=="
@@ -237,6 +358,8 @@
 
 <script>
     date = new Date().toISOString().slice(0, 10)
+
+    document.getElementById('inputTanggal').value = date;
     var map = L.map('map').setView([-2.27462005615234, 111.61400604248], 13);
 
     // satelite
@@ -798,7 +921,9 @@
 
         let inc = 1;
         for (let i = 0; i < paginatedItems.length; i++) {
+            
             let item = inc
+            let status_verifikasi_value = paginatedItems[i]['status_verifikasi']
             let item2 = paginatedItems[i]['tanggal_formatted']
             let item3 = paginatedItems[i]['lokasi_kerja']
             let item4 = paginatedItems[i]['afdeling']
@@ -816,7 +941,12 @@
             let item16 = paginatedItems[i]['tanggal_formatted']
 
             var tr = document.createElement('tr');
+            // Set background color based on verifikasi value
+        // if (paginatedItems[i]['status_verifikasi'] === 1) {
+        //     tr.style.backgroundColor = '#d4edda'; // Light green background
+        // }
             let item_element = document.createElement('td')
+            let status_verifikasi_element = document.createElement('td')
             let item_element2 = document.createElement('td')
             let item_element3 = document.createElement('td')
             let item_element4 = document.createElement('td')
@@ -832,9 +962,22 @@
             let item_element14 = document.createElement('td')
             let item_element15 = document.createElement('td')
             let item_element16 = document.createElement('td')
-
+            
             // item_element.classList.add('item')
             item_element.innerText = item
+            let badge_status_verifikasi = document.createElement('button');
+                if (status_verifikasi_value === 1) {
+                    badge_status_verifikasi.innerText = 'Terverifikasi';
+                    badge_status_verifikasi.className = 'btn btn-success btn-sm cursor-progress';
+                } else if (status_verifikasi_value === 0) {
+                    badge_status_verifikasi.innerText = 'Belum Verifikasi';
+                    badge_status_verifikasi.className = 'btn btn-secondary btn-sm cursor-progress';
+                } else if (status_verifikasi_value === 99) {
+                    badge_status_verifikasi.innerText = 'Ditolak';
+                    badge_status_verifikasi.className = 'btn btn-danger btn-sm cursor-progress';
+                }
+
+            status_verifikasi_element.appendChild(badge_status_verifikasi);
             item_element2.innerText = item2
             item_element3.innerText = item3
             item_element4.innerText = item4
@@ -850,9 +993,121 @@
             item_element13.innerText = item13
             item_element14.innerText = item14
             item_element15.innerText = item15
-            item_element16.innerText = item16
+            
+            
+        let editButton = document.createElement('button');
+        editButton.innerText = 'Edit';
+        editButton.className = 'btn btn-primary btn-sm'; // Bootstrap classes for styling
+        editButton.setAttribute('data-toggle', 'modal'); // Bootstrap modal trigger
+        editButton.setAttribute('data-target', '#editModal'); // Target the modal with ID exampleModa
+        editButton.addEventListener('click', function() {
+            // Add your edit functionality here
+            document.getElementById('exampleModalLabel').innerText = 
+            `Edit Taksasi (${paginatedItems[i]['name']} - ${item3} - ${item4} - ${item5})`;
+
+
+            document.getElementById('modal_id').value = paginatedItems[i]['id'];
+             // Populate modal fields dynamically
+            document.getElementById('lokasi_kerja').value = item3;  // tanggal_formatted
+            document.getElementById('afdeling').value = item4;  // lokasi_kerja
+            document.getElementById('blok').value = item5;  // afdeling
+            document.getElementById('luas').value = item10;  // blok
+            document.getElementById('sph').value = item11;  // akp
+            document.getElementById('bjr_sensus').value = paginatedItems[i]['bjr_sensus'];  // taksasi
+            document.getElementById('jumlah_pokok').value = item15;  // taksasi
+            document.getElementById('jumlah_janjang').value = item14;  // taksasi
+            document.getElementById('akp').value = item6;  // taksasi
+            document.getElementById('taksasi').value = item7;  // taksasi
+            document.getElementById('output').value = paginatedItems[i]['output'];;  // taksasi
+            document.getElementById('pokok_produktif').value = paginatedItems[i]['pokok_produktif'];;  // taksasi
+
+    // Show the modal
+    
+
+        });
+
+        item_element16.appendChild(editButton);
+
+        if (paginatedItems[i]['status_verifikasi'] === 0) {
+                let verifikasiButton = document.createElement('button');
+                verifikasiButton.innerText = 'Verifikasi';
+                verifikasiButton.classList.add('btn', 'btn-verifikasi'); // Optional: Add classes for styling
+                verifikasiButton.className = 'ml-1 btn btn-success btn-sm';
+                verifikasiButton.addEventListener('click', function() {
+                    Swal.fire({
+                        title: 'Verifikasi Taksasi ini?',
+                        text: `Taksasi ${paginatedItems[i]['name']} - ${item3} - ${item4} - ${item5} - ${item7}Kg`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        showDenyButton: true, // Add Deny button for 'Batal'
+                        confirmButtonColor: '#50C878',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Verifikasi',
+                        cancelButtonText: 'Tolak',
+                        denyButtonText: 'Batal', // Label for the 'Batal' button
+                        reverseButtons: true,
+                        customClass: {
+                            actions: 'swal2-actions-custom-order',
+                              denyButton: 'swal2-batal-button'
+                        },
+                    }).then((result) => {
+                        let actionType;
+                        if (result.isConfirmed) {
+                            actionType = 'verifikasi';
+                        } else if (result.dismiss === Swal.DismissReason.cancel) {
+                            actionType = 'tolak';
+                        } else if (result.isDenied) {
+                            Swal.close(); // Simply close the modal when 'Batal' is clicked
+                            return; // Exit the function
+                        }
+
+                        if (actionType) {
+                            var _token = $('input[name="_token"]').val();
+                            $.ajax({
+                                url: 'verifikasiDataTaksasi', // Change to your actual route
+                                type: 'POST',
+                                data: {
+                                    id: paginatedItems[i]['id'], // Send the item ID or any necessary data
+                                    action: actionType, // Add action type to the request
+                                    _token: _token,
+                                },
+                                success: function(data) {
+                                    if (data.success) {
+                                        Swal.fire(
+                                            result.isConfirmed ? 'Terverifikasi!' : 'Ditolak!',
+                                            result.isConfirmed ? 'Taksasi telah diverifikasi.' : 'Taksasi telah ditolak.',
+                                            'success'
+                                        ).then(() => {
+                                            // Optionally, you can refresh the list or reload the page
+                                            location.reload();
+                                        });
+                                    } else {
+                                        Swal.fire(
+                                            'Error!',
+                                            'Terjadi kesalahan saat memproses.',
+                                            'error'
+                                        );
+                                    }
+                                },
+                                error: function() {
+                                    Swal.fire(
+                                        'Error!',
+                                        'Terjadi kesalahan dalam memproses.',
+                                        'error'
+                                    );
+                                }
+                            });
+                        }
+                    });
+                });
+        item_element16.appendChild(verifikasiButton);
+    }
+
+        // Append buttons to the last cell (item 16)
+        
 
             tr.appendChild(item_element);
+            tr.appendChild(status_verifikasi_element);
             tr.appendChild(item_element2);
             tr.appendChild(item_element3);
             tr.appendChild(item_element4);
@@ -867,10 +1122,60 @@
             tr.appendChild(item_element13);
             tr.appendChild(item_element14);
             tr.appendChild(item_element15);
+            tr.appendChild(item_element16);
             wrapper.appendChild(tr)
             inc++
         }
     }
+
+    document.getElementById('editForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // Prevent the default form submission
+
+        let form = this;
+        let formData = new FormData(form);
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+            }
+        })
+        .then(response => response.json()) // Expecting JSON response from server
+        .then(data => {
+            if (data.success) {
+                // Show success message
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Data has been successfully updated.',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    // Optionally, close the modal
+                    $('#editModal').modal('hide');
+                    location.reload(); 
+                    // Reload or update the data in the table
+                    // DisplayList(updatedItems, wrapper, rows_per_page, currentPage); 
+                });
+            } else {
+                // Show error message
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Something went wrong. Please try again.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        })
+        .catch(error => {
+            Swal.fire({
+                title: 'Error!',
+                text: 'There was an issue with the request. Please try again later.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        });
+    });
 
     function SetupPagination(items, wrapper, rows_per_page) {
         wrapper.innerHTML = "";
@@ -1081,7 +1386,7 @@
 
         var _token = $('input[name="_token"]').val();
 
-        var url = '/exportPdfTaksasi/' + est + '/' + date;
+        var url = '/exportPdfTaksasi/' + est + '/' + date + '/web' ;
         window.open(
             url,
             '_blank' // <- This is what makes it open in a new window.

@@ -1588,7 +1588,7 @@ class DashboardController extends Controller
     }
 
 
-    public function exportPdfTaksasi($est, $date)
+    public function exportPdfTaksasi($est, $date,  $web = null)
     {
         $estate_input = $est;
         $tgl = $date;
@@ -1634,9 +1634,9 @@ class DashboardController extends Controller
                 $br_kiri = '';
                 $br_kanan = '';
                 $nama_ancak = '';
-                $rotasi = '';
+                $rotasi = 0;
                 $merge_baris = '';
-                $output_rerata = 0;
+
                 $total_keb_pemanen_kg_per_hk = 0;
                 $total_keb_pemanen_ha_per_hk = 0;
                 $processedBlokYgSama = [];
@@ -1645,7 +1645,7 @@ class DashboardController extends Controller
                 $pokok_janjang = 0;
                 $output = 0;
                 $outputBlokYgSama = 0;
-
+                $inc = 0;
                 foreach ($value1 as $key2 => $value2) {
 
 
@@ -1656,20 +1656,23 @@ class DashboardController extends Controller
                         $outputBlokYgSama++;
                     }
 
-                    $pokok_produktif += $value2['pokok_produktif'] != 0 ? $value2['pokok_produktif'] : 0;
-                    $pokok_janjang += $value2['pokok_janjang'] != 0 ? $value2['pokok_janjang'] : 0;
+
 
                     $bjr = $value2['bjr_sensus'] != 0 ? $value2['bjr_sensus'] : $value2['bjr'];
                     $sum_janjang += $value2['jumlah_janjang'];
                     $sum_pokok += $value2['jumlah_pokok'];
+                    $pokok_produktif = ceil(($sum_pokok / $value2['sph'] / $value2['luas']) * 100);
                     $pemanen += $value2['pemanen'];
                     $merge_baris .= '(' . $value2['br_kiri'] . ',' . $value2['br_kanan'] . '), ';
                     $br_kiri .= $value2['br_kiri'];
                     $br_kanan .= $value2['br_kanan'];
                     $nama_ancak .= $value2['ancak'] . ', ';
-                    $rotasi .= $value2['rotasi'] . ', ';
-                    $output_rerata += $value2['output'];
+                    $rotasi += $value2['rotasi'];
+                    $inc++;
                 }
+
+
+
 
                 $merge_baris = rtrim($merge_baris, ", ");
                 $rotasi = rtrim($rotasi, ", ");
@@ -1681,7 +1684,7 @@ class DashboardController extends Controller
                 $unique_nama_ancak = implode(', ', $nama_ancak_values);
 
                 $akp = round(($sum_janjang / $sum_pokok) * 100, 2);
-                $jjg_taksasi = round(($akp * $luas * $value2['sph']) / 100, 2);
+                $jjg_taksasi = ceil(($akp * $luas * $value2['sph']) / 100);
                 $tak = round(($akp * $luas * $bjr * $value2['sph']) / 100, 1);
 
                 if ($luas > 4.5) {
@@ -1694,14 +1697,12 @@ class DashboardController extends Controller
                     $total_keb_pemanen_ha_per_hk = 1;
                 }
 
-                $total_keb_pemanen_kg_per_hk = $output_rerata != 0 ? ceil($tak / $output_rerata) : 0;
-
                 // $sum_sph = round($sum_sph / $inc, 2);
                 $Taksasi[$key][$key1]['luas'] = $luas;
                 $Taksasi[$key][$key1]['bjr'] = $bjr;
                 $Taksasi[$key][$key1]['br_kiri'] = $merge_baris;
                 $Taksasi[$key][$key1]['pokok_produktif'] = $pokok_produktif;
-                $Taksasi[$key][$key1]['pokok_janjang'] = $pokok_janjang;
+                $Taksasi[$key][$key1]['pokok_janjang'] = $sum_janjang;
 
                 $Taksasi[$key][$key1]['jjg_taksasi'] = $jjg_taksasi;
                 $Taksasi[$key][$key1]['nama_ancak'] = $unique_nama_ancak;
@@ -1710,11 +1711,12 @@ class DashboardController extends Controller
                 $Taksasi[$key][$key1]['jumlah_pokok'] = $sum_pokok;
                 $Taksasi[$key][$key1]['jumlah_janjang'] = $sum_janjang;
                 $Taksasi[$key][$key1]['pemanen'] = $pemanen;
-                $Taksasi[$key][$key1]['keb_pemanen_ha_per_hk'] = $total_keb_pemanen_ha_per_hk;
+                $Taksasi[$key][$key1]['keb_pemanen_ha_per_hk'] = ceil($total_keb_pemanen_ha_per_hk);
                 $Taksasi[$key][$key1]['keb_pemanen_kg_per_hk'] = 0;
                 $Taksasi[$key][$key1]['akp'] = $akp;
+                $Taksasi[$key][$key1]['output'] = $output;
                 $Taksasi[$key][$key1]['taksasi'] = $tak;
-                $Taksasi[$key][$key1]['interval_panen'] = $rotasi;
+                $Taksasi[$key][$key1]['interval_panen'] = ceil($rotasi / $inc);
                 $Taksasi[$key][$key1]['ritase'] = round(($tak / 6500), 2);
             }
         }
@@ -1731,14 +1733,16 @@ class DashboardController extends Controller
             $jumlah_pokok = 0;
             $pemanen = 0;
             $tak = 0;
-            $keb_pemanen_kg_per_hk_blok = 0;
+            $total_keb_pemanen_ha_per_hk = 0;
             $keb_pemanen_ha_per_hk_blok = 0;
             $pokok_produktif = 0;
             $pokok_janjang = 0;
+            $rotasi = 0;
+            $inc = 0;
+            $output = 0;
             foreach ($value as $key1 => $value1) {
 
                 $luas += $value1['luas'];
-                $pokok_produktif += $value1['pokok_produktif'];
                 $pokok_janjang += $value1['pokok_janjang'];
                 $sum_sph += $value1['sph'];
                 $jumlah_path += $value1['jumlah_path'];
@@ -1746,15 +1750,33 @@ class DashboardController extends Controller
                 $jumlah_pokok += $value1['jumlah_pokok'];
                 $jumlah_janjang += $value1['jumlah_janjang'];
                 $pemanen += $value1['pemanen'];
-                $keb_pemanen_kg_per_hk_blok += $value1['keb_pemanen_kg_per_hk'];
+                $output += $value1['output'];
                 $keb_pemanen_ha_per_hk_blok += $value1['keb_pemanen_ha_per_hk'];
+                $rotasi += $value1['interval_panen'];
+                $inc++;
             }
+
+
+
+
             $akp = round(($jumlah_janjang / $jumlah_pokok) * 100, 2);
+
             $sum_sph = round($sum_sph / count($value), 2);
+            $pokok_produktif = ceil(($jumlah_pokok / $sum_sph / $luas) * 100);
             $sum_bjr = round($sum_bjr / count($value), 2);
             $tak = round(($akp * $luas * $sum_bjr * $sum_sph) / 100, 1);
 
-            $jjg_taksasi = round(($akp * $luas * $sum_sph) / 100, 2);
+            if ($luas > 4.5) {
+                if ($output != 0) {
+                    $total_keb_pemanen_ha_per_hk = round($tak / $output, 2);
+                } else {
+                    $total_keb_pemanen_ha_per_hk = 0; // or any default value you prefer
+                }
+            } else {
+                $total_keb_pemanen_ha_per_hk = 1;
+            }
+
+            $jjg_taksasi = ceil(($akp * $luas * $sum_sph) / 100);
 
             $takafd[$key]['luas'] = $luas;
             $takafd[$key]['jumlah_path'] = $jumlah_path;
@@ -1767,8 +1789,10 @@ class DashboardController extends Controller
             $takafd[$key]['jumlah_janjang'] = $jumlah_janjang;
             $takafd[$key]['akp'] = $akp;
             $takafd[$key]['taksasi'] = $tak;
-            $takafd[$key]['keb_pemanen_ha_per_hk'] = $keb_pemanen_ha_per_hk_blok;
+            $takafd[$key]['output'] = $output;
+            $takafd[$key]['keb_pemanen_ha_per_hk'] = $total_keb_pemanen_ha_per_hk;
             $takafd[$key]['keb_pemanen_kg_per_hk'] = 0;
+            $takafd[$key]['interval_panen'] = ceil($rotasi / $inc);
             $takafd[$key]['ritase'] = round($tak / 6500, 2);
             $takafd[$key]['pemanenx'] = $pemanen;
         }
@@ -1784,26 +1808,44 @@ class DashboardController extends Controller
         $pokok_produktif = 0;
         $pokok_janjang = 0;
         $tak = 0;
-        $keb_pemanen_kg_per_hk_afd = 0;
         $keb_pemanen_ha_per_hk_afd = 0;
+        $keb_pemanen_kg_per_hk_afd = 0;
+        $rotasi = 0;
+        $inc = 0;
+        $output = 0;
+
         foreach ($takafd as $key => $value) {
             $luas += $value['luas'];
             $sum_sph += $value['sph'];
-            $pokok_produktif += $value['pokok_produktif'];
+            // $pokok_produktif += $value['pokok_produktif'];
             $pokok_janjang += $value['pokok_janjang'];
             $jumlah_path += $value['jumlah_path'];
             $sum_bjr += $value['bjr'];
             $jumlah_pokok += $value['jumlah_pokok'];
             $jumlah_janjang += $value['jumlah_janjang'];
             $pemanen += $value['pemanenx'];
-            $keb_pemanen_kg_per_hk_afd += $value['keb_pemanen_kg_per_hk'];
-            $keb_pemanen_ha_per_hk_afd += $value['keb_pemanen_ha_per_hk'];
+
+            // $keb_pemanen_ha_per_hk_afd += $value['keb_pemanen_ha_per_hk'];
+            $rotasi += $value['interval_panen'];
+            $output += $value['output'];
         }
         $akp = round(($jumlah_janjang / $jumlah_pokok) * 100, 2);
         $sum_sph = round($sum_sph / count($takafd), 2);
         $sum_bjr = round($sum_bjr / count($takafd), 2);
         $tak = round(($akp * $luas * $sum_bjr * $sum_sph) / 100, 1);
-        $jjg_taksasi = round(($akp * $luas  * $sum_sph) / 100, 2);
+        $jjg_taksasi = ceil(($akp * $luas  * $sum_sph) / 100);
+
+        if ($luas > 4.5) {
+            if ($output != 0) {
+                $keb_pemanen_ha_per_hk_afd = round($tak / $output, 2);
+            } else {
+                $keb_pemanen_ha_per_hk_afd = 0; // or any default value you prefer
+            }
+        } else {
+            $keb_pemanen_ha_per_hk_afd = 1;
+        }
+
+        $pokok_produktif = ceil(($jumlah_pokok / $sum_sph / $luas) * 100);
         $takest['luas'] = $luas;
         $takest['jumlah_path'] = $jumlah_path;
         $takest['path'] = count($takafd);
@@ -1816,8 +1858,14 @@ class DashboardController extends Controller
         $takest['akp'] = $akp;
         $takest['taksasi'] = $tak;
         $takest['jjg_taksasi'] = $jjg_taksasi;
-        $takest['keb_pemanen_kg_per_hk'] = $keb_pemanen_kg_per_hk_afd;
-        $takest['keb_pemanen_ha_per_hk'] = 0;
+        $takest['keb_pemanen_ha_per_hk'] =  ceil($keb_pemanen_ha_per_hk_afd);
+        $takest['keb_pemanen_kg_per_hk'] = 0;
+
+        if ($inc != 0) {
+            $takest['interval_panen'] = ceil($rotasi / $inc);
+        } else {
+            $takest['interval_panen'] = $rotasi;
+        }
         $takest['ritase'] = round($tak / 6500, 2);
         $takest['pemanenx'] = $pemanen;
         // dd($takafd, $takest);
@@ -2035,8 +2083,16 @@ class DashboardController extends Controller
         $pdf->set_paper('A3', 'landscape');
 
         $filename = 'Taksasi-' . $estate_input . '-' . $tgl . '.pdf';
-        return $pdf->stream($filename);
-        // Storage::disk('public')->put($filename, $pdf->output());
+
+        if (!is_null($web)) {
+            return $pdf->stream($filename);
+        } else {
+            $pdfContent = $pdf->output();
+            $base64Pdf = base64_encode($pdfContent);
+            return response()->json([
+                'base64_pdf' => $base64Pdf
+            ]);
+        }
     }
 
     public function getDataTable(Request $request)
@@ -3038,5 +3094,77 @@ class DashboardController extends Controller
 
         $filename = 'QC-Taksasi.pdf';
         return $pdf->stream($filename);
+    }
+
+
+    public function verifikasiDataTaksasi(Request $request)
+    {
+
+        $query = DB::connection('mysql2')->table('taksasi')->find($request->id);
+
+        if ($query) {
+
+            $verifikasiValue = $request->action === 'verifikasi' ? 1 : 99;
+
+            // Update the record
+            $updateSuccessful = DB::connection('mysql2')->table('taksasi')
+                ->where('id', $request->id)
+                ->update([
+                    'status_verifikasi' => $verifikasiValue,
+                ]);
+
+            if ($updateSuccessful) {
+                return response()->json(['success' => true]);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Update failed.']);
+            }
+        } else {
+            return response()->json(['success' => false, 'message' => 'Record not found.'], 404);
+        }
+    }
+
+    public function editDataTaksasi(Request $request)
+    {
+        // Validate the request data if necessary
+        $validatedData = $request->validate([
+            'id' => 'required|integer',
+            'lokasi_kerja' => 'required|string|max:255',
+            'afdeling' => 'required|string|max:255',
+            'blok' => 'required|string|max:255',
+            'luas' => 'required|numeric',
+            'sph' => 'required|numeric',
+            'bjr_sensus' => 'required|numeric',
+            'jumlah_pokok' => 'required|numeric',
+            'jumlah_janjang' => 'required|numeric',
+            'akp' => 'required|numeric',
+            'taksasi' => 'required|numeric',
+            'output' => 'required|numeric',
+            'pokok_produktif' => 'required|numeric',
+        ]);
+
+        // Find the existing record by ID
+        // Update the record directly using the DB facade
+        $updateSuccessful = DB::connection('mysql2')->table('taksasi')
+            ->where('id', $validatedData['id'])
+            ->update([
+                'lokasi_kerja' => $validatedData['lokasi_kerja'],
+                'afdeling' => $validatedData['afdeling'],
+                'blok' => $validatedData['blok'],
+                'luas' => $validatedData['luas'],
+                'sph' => $validatedData['sph'],
+                'bjr_sensus' => $validatedData['bjr_sensus'],
+                'jumlah_pokok' => $validatedData['jumlah_pokok'],
+                'jumlah_janjang' => $validatedData['jumlah_janjang'],
+                'akp' => $validatedData['akp'],
+                'taksasi' => $validatedData['taksasi'],
+                'output' => $validatedData['output'],
+                'pokok_produktif' => $validatedData['pokok_produktif'],
+            ]);
+
+        if ($updateSuccessful) {
+            return response()->json(['success' => true]);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Update failed.']);
+        }
     }
 }

@@ -30,6 +30,8 @@ Route::get('logout', [HomeController::class, 'logout'])->name('logout');
 
 Route::group(['middleware' => 'auth'], function () {
     Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
+    Route::post('editDataTaksasi', [DashboardController::class, 'editDataTaksasi'])->name('editDataTaksasi');
+    Route::post('verifikasiDataTaksasi', [DashboardController::class, 'verifikasiDataTaksasi'])->name('verifikasiDataTaksasi');
     Route::get('dashboard_taksasi', [DashboardController::class, 'ds_taksasi'])->name('dash_est');
     Route::get('dashboard_taksasi_afdeling', [DashboardController::class, 'ds_taksasi_afdeling'])->name('dash_afd');
     Route::get('history_taksasi', [DashboardController::class, 'history_taksasi'])->name('hish_tak');
@@ -45,7 +47,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('plotUserTaksasi', [DashboardController::class, 'plotUserTaksasi'])->name('plotUserTaksasi');
     Route::post('getDataTable', [DashboardController::class, 'getDataTable'])->name('getDataTable');
     Route::post('getListEstate', [DashboardController::class, 'getListEstate'])->name('getListEstate');
-    Route::get('exportPdfTaksasi/{est}/{date}', [DashboardController::class, 'exportPdfTaksasi'])->name('exportPdfTaksasi');
+    Route::get('exportPdfTaksasi/{est}/{date}/{web?}', [DashboardController::class, 'exportPdfTaksasi'])->name('exportPdfTaksasi');
     Route::get('tableCoba', [DashboardController::class, 'tableCoba'])->name('tableCoba');
     Route::post('getDataAfdeling', [DashboardController::class, 'getDataAfd'])->name('getDataAfdeling');
     Route::post('getLoadRegional', [DashboardController::class, 'getDataRegional'])->name('getLoadRegional');
