@@ -1734,8 +1734,8 @@ class DashboardController extends Controller
             $jumlah_pokok = 0;
             $pemanen = 0;
             $tak = 0;
+            $total_keb_pemanen_kg_per_hk = 0;
             $total_keb_pemanen_ha_per_hk = 0;
-            $keb_pemanen_ha_per_hk_blok = 0;
             $pokok_produktif = 0;
             $pokok_janjang = 0;
             $rotasi = 0;
@@ -1752,7 +1752,7 @@ class DashboardController extends Controller
                 $jumlah_janjang += $value1['jumlah_janjang'];
                 $pemanen += $value1['pemanen'];
                 $output += $value1['output'];
-                $keb_pemanen_ha_per_hk_blok += $value1['keb_pemanen_ha_per_hk'];
+
                 $rotasi += $value1['interval_panen'];
                 $pokok_produktif += $value1['pokok_produktif'];
                 $inc++;
@@ -1770,13 +1770,16 @@ class DashboardController extends Controller
 
             if ($luas > 4.5) {
                 if ($output != 0) {
-                    $total_keb_pemanen_ha_per_hk = round($tak / $output, 2);
+                    $output = round($output / $inc, 2);
+                    $total_keb_pemanen_ha_per_hk = round($luas / $output, 2);
                 } else {
                     $total_keb_pemanen_ha_per_hk = 0; // or any default value you prefer
                 }
             } else {
                 $total_keb_pemanen_ha_per_hk = 1;
             }
+
+            $total_keb_pemanen_kg_per_hk = round($tak / $output, 2);
 
             $jjg_taksasi = ceil(($akp * $luas * $sum_sph) / 100);
 
@@ -1793,7 +1796,7 @@ class DashboardController extends Controller
             $takafd[$key]['taksasi'] = $tak;
             $takafd[$key]['output'] = $output;
             $takafd[$key]['keb_pemanen_ha_per_hk'] = $total_keb_pemanen_ha_per_hk;
-            $takafd[$key]['keb_pemanen_kg_per_hk'] = 0;
+            $takafd[$key]['keb_pemanen_kg_per_hk'] = $total_keb_pemanen_kg_per_hk;
             $takafd[$key]['interval_panen'] = ceil($rotasi / $inc);
             $takafd[$key]['ritase'] = round($tak / 6500, 2);
             $takafd[$key]['pemanenx'] = $pemanen;
@@ -1810,8 +1813,8 @@ class DashboardController extends Controller
         $pokok_produktif = 0;
         $pokok_janjang = 0;
         $tak = 0;
-        $keb_pemanen_ha_per_hk_afd = 0;
         $keb_pemanen_kg_per_hk_afd = 0;
+        $keb_pemanen_ha_per_hk_afd = 0;
         $rotasi = 0;
         $inc = 0;
         $output = 0;
@@ -1826,11 +1829,11 @@ class DashboardController extends Controller
             $jumlah_pokok += $value['jumlah_pokok'];
             $jumlah_janjang += $value['jumlah_janjang'];
             $pemanen += $value['pemanenx'];
-
-            // $keb_pemanen_ha_per_hk_afd += $value['keb_pemanen_ha_per_hk'];
             $rotasi += $value['interval_panen'];
             $output += $value['output'];
+            $inc++;
         }
+
         if ($jumlah_pokok != 0) {
             $akp = round(($jumlah_janjang / $jumlah_pokok) * 100, 2);
         } else {
@@ -1838,6 +1841,7 @@ class DashboardController extends Controller
             $akp = null; // or any other default value or action you prefer
             // You could also log an error, throw an exception, or handle this case in some other way
         }
+
         if (count($takafd) != 0) {
             $sum_sph = round($sum_sph / count($takafd), 2);
         } else {
@@ -1859,13 +1863,16 @@ class DashboardController extends Controller
 
         if ($luas > 4.5) {
             if ($output != 0) {
-                $keb_pemanen_ha_per_hk_afd = round($tak / $output, 2);
+                $output = round($output / $inc, 2);
+                $keb_pemanen_ha_per_hk_afd = round($luas / $output, 2);
             } else {
                 $keb_pemanen_ha_per_hk_afd = 0; // or any default value you prefer
             }
         } else {
             $keb_pemanen_ha_per_hk_afd = 1;
         }
+
+        $keb_pemanen_kg_per_hk_afd = round($tak / $output, 2);
 
         // $pokok_produktif = ceil(($jumlah_pokok / $sum_sph / $luas) * 100);
         $takest['luas'] = $luas;
@@ -1880,8 +1887,8 @@ class DashboardController extends Controller
         $takest['akp'] = $akp;
         $takest['taksasi'] = $tak;
         $takest['jjg_taksasi'] = $jjg_taksasi;
-        $takest['keb_pemanen_ha_per_hk'] =  ceil($keb_pemanen_ha_per_hk_afd);
-        $takest['keb_pemanen_kg_per_hk'] = 0;
+        $takest['keb_pemanen_ha_per_hk'] =  $keb_pemanen_ha_per_hk_afd;
+        $takest['keb_pemanen_kg_per_hk'] =  $keb_pemanen_kg_per_hk_afd;
 
         if ($inc != 0) {
             $takest['interval_panen'] = ceil($rotasi / $inc);

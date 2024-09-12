@@ -246,7 +246,7 @@
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$valuex['taksasi']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$valuex['keb_pemanen_ha_per_hk']}}
                 <td style="border:1px solid black;text-align:center;padding:7px">
-                    {{ $valuex['keb_pemanen_kg_per_hk'] != 0 ? $valuex['keb_pemanen_kg_per_hk'] : '-' }}
+                    {{ $valuex['keb_pemanen_kg_per_hk']}}
                 </td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$valuex['ritase']}}</td>
 
@@ -281,7 +281,7 @@
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$takest['taksasi']}}</td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$takest['keb_pemanen_ha_per_hk']}}
                 <td style="border:1px solid black;text-align:center;padding:7px">
-                    {{ $takest['keb_pemanen_kg_per_hk'] != 0 ? $takest['keb_pemanen_kg_per_hk'] : '-' }}
+                    {{ $takest['keb_pemanen_kg_per_hk'] }}
                 </td>
                 <td style="border:1px solid black;text-align:center;padding:7px">{{$takest['ritase']}}</td>
             </tr>
