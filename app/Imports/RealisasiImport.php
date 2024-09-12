@@ -18,12 +18,16 @@ class RealisasiImport implements ToCollection
      * @param Collection $collection
      */
     protected $dataService;
+    protected $finaldataTaksasiRealisasiGM;
     protected $month;
+    protected $finaldataProdAfdInti;
 
-    public function __construct(DataServiceImportRealisasi $dataService, $month)
+    public function __construct(DataServiceImportRealisasi $dataService, $month, $finaldataTaksasiRealisasiGM, DataServiceImportRealisasi $finaldataProdAfdInti)
     {
         $this->dataService = $dataService;
         $this->month = $month;
+        $this->finaldataTaksasiRealisasiGM = $finaldataTaksasiRealisasiGM;
+        $this->finaldataProdAfdInti = $finaldataProdAfdInti;
     }
 
     /**
@@ -35,6 +39,8 @@ class RealisasiImport implements ToCollection
     public function collection(Collection $collection)
     {
         $dataFromTenagaKerjaSheet = $this->dataService->getData();
+
+
 
         $listAllEstate = Estate::select('id', 'nama', 'est', 'wil')->where(DB::raw('LOWER(nama)'), 'NOT LIKE', '%mill%')->get()->toArray();
 
@@ -83,6 +89,8 @@ class RealisasiImport implements ToCollection
             }
 
             foreach ($row as $subKey => $value) {
+
+
                 if ($value === 'REALISASI') {
                     $indexStartRealisasi = $subKey;
                 }
@@ -99,9 +107,12 @@ class RealisasiImport implements ToCollection
             }
 
             if ($filteredRowsEstate != [] && $indexStartRealisasi != '' && $arrKeyRealisasi != []) {
+
                 foreach ($row as $subKey => $value) {
                     // Check if $value is a valid key type before using it in array_key_exists
                     if (is_string($value) || is_int($value)) {
+
+
                         if (array_key_exists($value, $filteredRowsEstate)) {
                             $filteredRowsEstate[$value] = true;
                             $tempEstateCheckedName = $value;
@@ -113,17 +124,24 @@ class RealisasiImport implements ToCollection
                 }
 
                 if ($tempEstateCheckedName != '') {
+
+
                     $listEstateSheet[] = $tempEstateCheckedName;
                     foreach ($arrKeyRealisasi as $key => $title) {
-                        if (is_numeric($row[$key])) {
-                            $dataRaw[$inc][$tempEstateCheckedName][$row[$indexAfdeling]][$title] = $row[$key];
-                        } else {
-                            $dataRaw[$inc][$tempEstateCheckedName][$row[$indexAfdeling]][$title] = null;
-                        }
+                        // if (is_numeric($row[$key])) {
+
+
+                        $dataRaw[$inc][$tempEstateCheckedName][$row[$indexAfdeling]][$title] = $row[$key];
+
+
+                        // $dataRaw[$inc][$tempEstateCheckedName][$row[$indexAfdeling]][$title] = null;
+
                     }
                 }
             }
         }
+
+
 
         if ($dataRaw != []) {
             $dataRaw = $this->removeEmptyKeys($dataRaw);
@@ -168,52 +186,56 @@ class RealisasiImport implements ToCollection
                 }
             }
 
-            DB::connection('mysql2')->transaction(function () use ($groupedDataFinal) {
-                $insertRecords = [];
 
-                foreach ($groupedDataFinal as $date => $estates) {
-                    foreach ($estates as $estateName => $afdelings) {
-                        foreach ($afdelings as $afdelingName => $data) {
-                            $record = [
-                                'tanggal_realisasi' => $date . ' 00:00:00',
-                                'est' => $estateName,
-                                'afd' => $afdelingName,
-                                'ha_panen' => $data['HA PANEN'],
-                                'pokok' => $data['POKOK'],
-                                'janjang' => $data['JANJANG'],
-                                'tonase' => $data['TONASE'],
-                                'restan_hi' => $data['RESTAN HI'],
-                                'total_tonase' => $data['TOTAL TONASE'],
-                                'bjr' => $data['BJR'],
-                                'hk' => $data['HK'],
-                                'akp' => $data['AKP']
-                            ];
+            // dd($groupedDataFinal['2024-09-11']);
+            // DB::connection('mysql2')->transaction(function () use ($groupedDataFinal) {
+            //     $insertRecords = [];
 
-                            $existingRecord = DB::connection('mysql2')->table('realisasi_taksasi')
-                                ->where('tanggal_realisasi', $record['tanggal_realisasi'])
-                                ->where('est', $record['est'])
-                                ->where('afd', $record['afd'])
-                                ->first();
+            //     foreach ($groupedDataFinal as $date => $estates) {
+            //         foreach ($estates as $estateName => $afdelings) {
+            //             foreach ($afdelings as $afdelingName => $data) {
+            //                 $record = [
+            //                     'tanggal_realisasi' => $date . ' 00:00:00',
+            //                     'est' => $estateName,
+            //                     'afd' => $afdelingName,
+            //                     'ha_panen' => $data['HA PANEN'],
+            //                     'pokok' => $data['POKOK'],
+            //                     'janjang' => $data['JANJANG'],
+            //                     'tonase' => $data['TONASE'],
+            //                     'restan_hi' => $data['RESTAN HI'],
+            //                     'total_tonase' => $data['TOTAL TONASE'],
+            //                     'bjr' => $data['BJR'],
+            //                     'hk' => $data['HK'],
+            //                     'akp' => $data['AKP']
+            //                 ];
 
-                            if (!$existingRecord) {
-                                $insertRecords[] = $record;
-                            } else {
-                                DB::connection('mysql2')->table('realisasi_taksasi')
-                                    ->where('id', $existingRecord->id)
-                                    ->update($record);
-                            }
-                        }
-                    }
-                }
+            //                 $existingRecord = DB::connection('mysql2')->table('realisasi_taksasi')
+            //                     ->where('tanggal_realisasi', $record['tanggal_realisasi'])
+            //                     ->where('est', $record['est'])
+            //                     ->where('afd', $record['afd'])
+            //                     ->first();
+
+            //                 if (!$existingRecord) {
+            //                     $insertRecords[] = $record;
+            //                 } else {
+            //                     DB::connection('mysql2')->table('realisasi_taksasi')
+            //                         ->where('id', $existingRecord->id)
+            //                         ->update($record);
+            //                 }
+            //             }
+            //         }
+            //     }
 
 
 
-                if (!empty($insertRecords)) {
-                    foreach (array_chunk($insertRecords, 50) as $chunk) {
-                        DB::connection('mysql2')->table('realisasi_taksasi')->insert($chunk);
-                    }
-                }
-            });
+            // if (!empty($insertRecords)) {
+            //     foreach (array_chunk($insertRecords, 50) as $chunk) {
+            //         DB::connection('mysql2')->table('realisasi_taksasi')->insert($chunk);
+            //     }
+            // }
+            // });
+
+            $this->finaldataTaksasiRealisasiGM->setData($groupedDataFinal);
         }
     }
 

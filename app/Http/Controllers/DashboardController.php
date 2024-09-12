@@ -1779,7 +1779,9 @@ class DashboardController extends Controller
                 $total_keb_pemanen_ha_per_hk = 1;
             }
 
-            $total_keb_pemanen_kg_per_hk = round($tak / $output, 2);
+            if ($output != 0) {
+                $total_keb_pemanen_kg_per_hk = round($tak / $output, 2);
+            }
 
             $jjg_taksasi = ceil(($akp * $luas * $sum_sph) / 100);
 
@@ -1872,7 +1874,10 @@ class DashboardController extends Controller
             $keb_pemanen_ha_per_hk_afd = 1;
         }
 
-        $keb_pemanen_kg_per_hk_afd = round($tak / $output, 2);
+        if ($output != 0) {
+            $keb_pemanen_kg_per_hk_afd = round($tak / $output, 2);
+        }
+
 
         // $pokok_produktif = ceil(($jumlah_pokok / $sum_sph / $luas) * 100);
         $takest['luas'] = $luas;

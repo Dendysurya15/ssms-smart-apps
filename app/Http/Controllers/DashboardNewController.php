@@ -21,10 +21,14 @@ class DashboardNewController extends Controller
 
 
     protected $dataService;
+    protected $finaldataTaksasiRealisasiGM;
+    protected $finaldataProdAfdInti;
 
-    public function __construct(DataServiceImportRealisasi $dataService)
+    public function __construct(DataServiceImportRealisasi $dataService, DataServiceImportRealisasi $finaldataTaksasiRealisasiGM, DataServiceImportRealisasi $finaldataProdAfdInti)
     {
         $this->dataService = $dataService;
+        $this->finaldataTaksasiRealisasiGM = $finaldataTaksasiRealisasiGM;
+        $this->finaldataProdAfdInti = $finaldataProdAfdInti;
     }
 
     public function getAllDataRegionalWilayah(Request $request)
@@ -595,6 +599,8 @@ class DashboardNewController extends Controller
         $dateString = $date_request;
         $dataFinal = $this->hiRealisasi($startDateSHI, $endDateSHI, $name_reg, $dateString, $listEstPerWil, $resultEstWithAfd, $dataRawTaksasi, $dataRawTaksasiSHI, $dataRawRealisasi, $dataRawRealisasiSHI);
 
+
+        dd($dataFinal);
         echo json_encode($dataFinal);
     }
 
@@ -823,7 +829,9 @@ class DashboardNewController extends Controller
                     $ha_panen_varian = $ha_panen_taksasi_value !== 0 ? number_format(($ha_panen_realisasi_value / $ha_panen_taksasi_value) * 100, 2) : '-';
                     $tonase_varian = $tonase_taksasi !== '-' && $tonase_taksasi !== 0 ? number_format(($tonase_realisasi_value / $tonase_taksasi) * 100, 2) : '-';
                     $akp_varian = $akp_taksasi !== '-' && $akp_taksasi !== 0 ? number_format(($akp_realisasi_value / $akp_taksasi) * 100, 2) : '-';
-                    $keb_hk_varian = $keb_hk_taksasi !== '-' && $keb_hk_taksasi !== 0 ? number_format(($keb_hk_realisasi_value / $keb_hk_taksasi) * 100, 2) : '-';
+                    $keb_hk_varian = ($keb_hk_taksasi !== '-' && $keb_hk_taksasi != 0 && $keb_hk_realisasi_value != 0)
+                        ? number_format(($keb_hk_realisasi_value / $keb_hk_taksasi) * 100, 2)
+                        : '-';
                     $pokok_varian = isset($dataRawTaksasi[$dateString][$nama_est][$afdeling]['pokok']) ? number_format(($item->pokok / $dataRawTaksasi[$dateString][$nama_est][$afdeling]['pokok']) * 100, 2) : '-';
                     $janjang_varian = isset($dataRawTaksasi[$dateString][$nama_est][$afdeling]['janjang']) ? number_format(($item->janjang / $dataRawTaksasi[$dateString][$nama_est][$afdeling]['janjang']) * 100, 2) : '-';
                     $bjr_varian = isset($dataRawTaksasi[$dateString][$nama_est][$afdeling]['bjr']) ? number_format(($item->bjr / $dataRawTaksasi[$dateString][$nama_est][$afdeling]['bjr']) * 100, 2) : '-';
@@ -1316,7 +1324,7 @@ class DashboardNewController extends Controller
             $file = $request->file('file');
 
             // Process the Excel file
-            $import = new RealisasiTaksasiImport($this->dataService, $month);
+            $import = new RealisasiTaksasiImport($this->dataService, $month, $this->finaldataTaksasiRealisasiGM, $this->finaldataProdAfdInti);
             FacadesExcel::import($import, $file); // Specify the sheet here
 
             // Flash success message
