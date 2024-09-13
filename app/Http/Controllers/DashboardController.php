@@ -1623,6 +1623,9 @@ class DashboardController extends Controller
 
 
 
+        $sum_all_bjr_blok = [];
+        $sum_all_sph_blok = [];
+        $sum_all_output_blok = 0;
         foreach ($queryDataNew as $key => $value) {
             foreach ($value as $key1 => $value1) {
 
@@ -1646,20 +1649,31 @@ class DashboardController extends Controller
                 $output = 0;
                 $outputBlokYgSama = 0;
                 $inc = 0;
+                $blockData = []; // To store total output and count for each block
                 foreach ($value1 as $key2 => $value2) {
-
+                    $blok = $value2['blok'];
+                    $currentOutput = $value2['output'];
+                    // Track block data
+                    if (!isset($blockData[$blok])) {
+                        $blockData[$blok] = [
+                            'totalOutput' => 0,
+                            'count' => 0
+                        ];
+                    }
+                    $blockData[$blok]['totalOutput'] += $currentOutput;
+                    $blockData[$blok]['count'] += 1;
 
                     if (!in_array($value2['blok'], $processedBlokYgSama)) {
                         $luas += $value2['luas'];
                         $processedBlokYgSama[] = $value2['blok'];
                         $output += $value2['output'];
-                        $pokok_produktif += $value2['pokok_produktif'];;
+                        $pokok_produktif += $value2['pokok_produktif'];
+                        $bjr = $value2['bjr_sensus'] != 0 ? $value2['bjr_sensus'] : $value2['bjr'];
+                        $sum_all_bjr_blok[$value2['blok']] = $bjr;
+                        $sum_all_sph_blok[$value2['blok']] = $value2['sph'];
                         $outputBlokYgSama++;
                     }
 
-
-
-                    $bjr = $value2['bjr_sensus'] != 0 ? $value2['bjr_sensus'] : $value2['bjr'];
                     $sum_janjang += $value2['jumlah_janjang'];
                     $sum_pokok += $value2['jumlah_pokok'];
                     // $pokok_produktif = ceil(($sum_pokok / $value2['sph'] / $value2['luas']) * 100);
@@ -1672,7 +1686,21 @@ class DashboardController extends Controller
                     $inc++;
                 }
 
+                $finalOutput = 0;
+                foreach ($blockData as $blok => $data) {
+                    if ($data['count'] > 1) {
+                        // Average output for blocks that occur more than once
+                        $averageOutput = $data['totalOutput'] / $data['count'];
+                        $finalOutput += $averageOutput;
+                    } else {
+                        // Use total output for unique blocks
+                        $finalOutput += $data['totalOutput'];
+                    }
+                }
 
+                $finalOutput = round($finalOutput / $outputBlokYgSama, 2);
+
+                $sum_all_output_blok += $finalOutput;
 
 
                 $merge_baris = rtrim($merge_baris, ", ");
@@ -1700,7 +1728,7 @@ class DashboardController extends Controller
 
                 // $sum_sph = round($sum_sph / $inc, 2);
                 $Taksasi[$key][$key1]['luas'] = $luas;
-                $Taksasi[$key][$key1]['bjr'] = $bjr;
+                $Taksasi[$key][$key1]['bjr'] = $value2['bjr'];
                 $Taksasi[$key][$key1]['br_kiri'] = $merge_baris;
                 $Taksasi[$key][$key1]['pokok_produktif'] = $pokok_produktif;
                 $Taksasi[$key][$key1]['pokok_janjang'] = $sum_janjang;
@@ -1715,16 +1743,19 @@ class DashboardController extends Controller
                 $Taksasi[$key][$key1]['keb_pemanen_ha_per_hk'] = ceil($total_keb_pemanen_ha_per_hk);
                 $Taksasi[$key][$key1]['keb_pemanen_kg_per_hk'] = 0;
                 $Taksasi[$key][$key1]['akp'] = $akp;
-                $Taksasi[$key][$key1]['output'] = $output;
+                $Taksasi[$key][$key1]['output'] = $finalOutput;
                 $Taksasi[$key][$key1]['taksasi'] = $tak;
                 $Taksasi[$key][$key1]['interval_panen'] = ceil($rotasi / $inc);
                 $Taksasi[$key][$key1]['ritase'] = round(($tak / 6500), 2);
             }
         }
 
+        $totalSumBJRBlok = array_sum($sum_all_bjr_blok);
+        $totalSumSPHBlok = array_sum($sum_all_sph_blok);
 
         $takafd = array();
 
+        $incTotalBlok = 0;
         foreach ($Taksasi as $key => $value) {
             $luas = 0;
             $sum_sph = 0;
@@ -1756,6 +1787,7 @@ class DashboardController extends Controller
                 $rotasi += $value1['interval_panen'];
                 $pokok_produktif += $value1['pokok_produktif'];
                 $inc++;
+                $incTotalBlok++;
             }
 
 
@@ -1765,8 +1797,8 @@ class DashboardController extends Controller
 
             $sum_sph = round($sum_sph / count($value), 2);
             // $pokok_produktif = ceil(($jumlah_pokok / $sum_sph / $luas) * 100);
-            $sum_bjr = round($sum_bjr / count($value), 2);
-            $tak = round(($akp * $luas * $sum_bjr * $sum_sph) / 100, 1);
+            $final_bjr = round($sum_bjr / count($value), 2);
+            $tak = round(($akp * $luas * $final_bjr * $sum_sph) / 100, 1);
 
             if ($luas > 4.5) {
                 if ($output != 0) {
@@ -1788,7 +1820,7 @@ class DashboardController extends Controller
             $takafd[$key]['luas'] = $luas;
             $takafd[$key]['jumlah_path'] = $jumlah_path;
             $takafd[$key]['sph'] = $sum_sph;
-            $takafd[$key]['bjr'] = $sum_bjr;
+            $takafd[$key]['bjr'] = $final_bjr;
             $takafd[$key]['pokok_produktif'] = $pokok_produktif;
             $takafd[$key]['pokok_janjang'] = $pokok_janjang;
             $takafd[$key]['jumlah_pokok'] = $jumlah_pokok;
@@ -1819,8 +1851,6 @@ class DashboardController extends Controller
         $keb_pemanen_ha_per_hk_afd = 0;
         $rotasi = 0;
         $inc = 0;
-        $output = 0;
-
         foreach ($takafd as $key => $value) {
             $luas += $value['luas'];
             $sum_sph += $value['sph'];
@@ -1832,7 +1862,6 @@ class DashboardController extends Controller
             $jumlah_janjang += $value['jumlah_janjang'];
             $pemanen += $value['pemanenx'];
             $rotasi += $value['interval_panen'];
-            $output += $value['output'];
             $inc++;
         }
 
@@ -1845,14 +1874,14 @@ class DashboardController extends Controller
         }
 
         if (count($takafd) != 0) {
-            $sum_sph = round($sum_sph / count($takafd), 2);
+            $sum_sph = round($totalSumSPHBlok / $incTotalBlok, 2);
         } else {
             // Handle the case where count($takafd) is zero
             $sum_sph = null; // or any other default value or action you prefer
             // You could also log an error, throw an exception, or handle this case in some other way
         }
         if (count($takafd) != 0) {
-            $sum_bjr = round($sum_bjr / count($takafd), 2);
+            $sum_bjr = round($totalSumBJRBlok / $incTotalBlok, 2);
         } else {
             // Handle the case where count($takafd) is zero
             $sum_bjr = null; // or any other default value or action you prefer
@@ -1862,10 +1891,9 @@ class DashboardController extends Controller
 
         $tak = round(($akp * $luas * $sum_bjr * $sum_sph) / 100, 1);
         $jjg_taksasi = ceil(($akp * $luas  * $sum_sph) / 100);
-
+        $output = round($sum_all_output_blok / $incTotalBlok, 2);
         if ($luas > 4.5) {
             if ($output != 0) {
-                $output = round($output / $inc, 2);
                 $keb_pemanen_ha_per_hk_afd = round($luas / $output, 2);
             } else {
                 $keb_pemanen_ha_per_hk_afd = 0; // or any default value you prefer
@@ -1878,8 +1906,6 @@ class DashboardController extends Controller
             $keb_pemanen_kg_per_hk_afd = round($tak / $output, 2);
         }
 
-
-        // $pokok_produktif = ceil(($jumlah_pokok / $sum_sph / $luas) * 100);
         $takest['luas'] = $luas;
         $takest['jumlah_path'] = $jumlah_path;
         $takest['path'] = count($takafd);
@@ -1902,7 +1928,7 @@ class DashboardController extends Controller
         }
         $takest['ritase'] = round($tak / 6500, 2);
         $takest['pemanenx'] = $pemanen;
-        // dd($takafd, $takest);
+
 
         // foreach ($queryData as $key => $value) {
         //     $path_arr = explode(';', $value->br_kanan);

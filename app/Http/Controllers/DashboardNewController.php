@@ -35,17 +35,25 @@ class DashboardNewController extends Controller
     {
         $tglData = $request->get('tgl_request');
         $idReg = $request->get('id_reg');
-        $reg_all = Regional::all()->where('nama', '!=', 'Regional V')->toArray();
 
-        // dd($reg_all);
+
+
+        $specificReg = 'Regional I';
+        $specificWil = 'Wilayah 3';
+        $specificEst = 'NBE';
+
+        $reg_all = Regional::all()->where('nama', '=', $specificReg)->where('nama', '!=', 'Regional V')->toArray();
+
+
         $queryListWil = Wilayah::select('nama')
             // ->where('regional', $reg_all[$idReg]['id'])
+            ->where('nama', $specificWil)
             ->pluck('nama');
-
         // dd($queryListWil);
 
         $queryListWilId = Wilayah::select('id')
-            // ->where('regional', $reg_all[$idReg]['id'])  
+            // ->where('regional', $reg_all[$idReg]['id'])
+            ->where("nama", $specificWil)
             ->pluck('id');
         // dd($queryListWilId);
 
@@ -64,8 +72,12 @@ class DashboardNewController extends Controller
                     ->where(DB::raw('LOWER(estate.est)'), 'NOT LIKE', '%tc%');
             })
             // ->pluck('est', 'nama')
+            ->where('estate.est', $specificEst)
             ->get()
             ->toArray();
+
+
+
 
         $first = $tglData . ' 00:00:00';
         $last = $tglData . ' 23:59:59';
@@ -77,7 +89,10 @@ class DashboardNewController extends Controller
             ->join('estate', 'taksasi.lokasi_kerja', '=', 'estate.est')
             ->join('wil', 'estate.wil', '=', 'wil.id')
             ->join('reg', 'wil.regional', '=', 'reg.id')
-            ->whereBetween('taksasi.waktu_upload', [$firstData, $lastData])
+            // ->whereBetween('taksasi.waktu_upload', [$firstData, $lastData])
+            ->whereDate('taksasi.waktu_upload', $tglData)
+            ->where('reg.nama', '=', $specificReg)
+            ->where('taksasi.lokasi_kerja', $specificEst)
             ->where('reg.nama', '!=', 'Regional V')
             // ->where('reg.nama', $reg_all[$idReg]['nama'])
             ->get()
@@ -88,10 +103,14 @@ class DashboardNewController extends Controller
             ->select('taksasi.*',  'wil.nama as nama_wilayah')
             ->join('estate', 'taksasi.lokasi_kerja', '=', 'estate.est')
             ->join('wil', 'estate.wil', '=', 'wil.id')
-            ->whereBetween('taksasi.waktu_upload', [$firstData, $lastData])
+            ->where('taksasi.lokasi_kerja', $specificEst)
+            // ->whereBetween('taksasi.waktu_upload', [$firstData, $lastData])
+            ->whereDate('taksasi.waktu_upload', $tglData)
             ->whereIn('wil.nama', $queryListWil)
             ->get()
             ->groupBy('nama_wilayah');
+
+
 
 
         $estValues = collect($queryListEstate)->pluck('est', 'nama');
@@ -100,8 +119,10 @@ class DashboardNewController extends Controller
             ->select('taksasi.*',  'wil.nama as nama_wilayah')
             ->join('estate', 'taksasi.lokasi_kerja', '=', 'estate.est')
             ->join('wil', 'estate.wil', '=', 'wil.id')
-            ->whereBetween('taksasi.waktu_upload', [$firstData, $lastData])
+            // ->whereBetween('taksasi.waktu_upload', [$firstData, $lastData])
+            ->whereDate('taksasi.waktu_upload', $tglData)
             ->whereIn('taksasi.lokasi_kerja', $estValues)
+
             ->get()
             ->groupBy('lokasi_kerja');
 
@@ -156,32 +177,69 @@ class DashboardNewController extends Controller
             $jum_sph = 0;
             $jum_bjr = 0;
             $pemanen = 0;
-
+            $output = 0;
+            $inc = 0;
+            $seenBlocks = []; // Store unique blocks
+            $jumBlokSama = 0;
+            $blockData = []; // To store total output and count for each block
             foreach ($value as $key2 => $value2) {
-                $luasTotal += $value2->luas;
-                $jum_sph += $value2->sph;
-                $jum_bjr += $value2->bjr;
+                $blok = $value2->blok;
+                $currentOutput = $value2->output;
+
+                // Track block data
+                if (!isset($blockData[$blok])) {
+                    $blockData[$blok] = [
+                        'totalOutput' => 0,
+                        'count' => 0
+                    ];
+                }
+                $blockData[$blok]['totalOutput'] += $currentOutput;
+                $blockData[$blok]['count'] += 1;
+                if (!in_array($value2->blok, $seenBlocks)) {
+                    $luasTotal += $value2->luas;
+                    $jum_sph += $value2->sph;
+                    $jum_bjr +=  $value2->bjr_sensus != 0 ? $value2->bjr_sensus : $value2->bjr;
+                    $seenBlocks[] = $value2->blok; // Mark block as seen
+                    $jumBlokSama++;
+                }
+
                 $jum_pokok += $value2->jumlah_pokok;
                 $jum_janjang += $value2->jumlah_janjang;
                 $pemanen += $value2->pemanen;
                 $jumlahBlok += 1;
+                $output += $value2->output;
+                $inc++;
+            }
+            $finalOutput = 0;
+            foreach ($blockData as $blok => $data) {
+                if ($data['count'] > 1) {
+                    // Average output for blocks that occur more than once
+                    $averageOutput = $data['totalOutput'] / $data['count'];
+                    $finalOutput += $averageOutput;
+                } else {
+                    // Use total output for unique blocks
+                    $finalOutput += $data['totalOutput'];
+                }
             }
 
-            $rerata_sph = round($jum_sph / $jumlahBlok);
-            $rerata_bjr = round($jum_bjr / $jumlahBlok);
+            $output = round($finalOutput / $jumBlokSama, 2);
+
+            $rerata_sph = round($jum_sph / $jumBlokSama, 2);
+            $rerata_bjr = round($jum_bjr / $jumBlokSama, 2);
             $akp = round(($jum_janjang / $jum_pokok) * 100, 2);
             $tak =  round(($akp * $luasTotal * $rerata_bjr * $rerata_sph) / 100, 2);
+
+            $keb_pemanen_kg_per_hk = $output ? round($tak / $output, 2) : 0;
 
             $dataFinalRegional[$key]['luas'] = $this->custom_number_format(round($luasTotal, 2));
             $dataFinalRegional[$key]['jumlahBlok'] = $this->custom_number_format($jumlahBlok);
             $dataFinalRegional[$key]['ritase'] = $this->custom_number_format(round($tak / 6500, 2));
             $dataFinalRegional[$key]['akp'] = $this->custom_number_format($akp);
             $dataFinalRegional[$key]['taksasi'] = $this->custom_number_format($tak);
-            $dataFinalRegional[$key]['keb_pemanen'] = $this->custom_number_format($pemanen);
+            $dataFinalRegional[$key]['keb_pemanen'] = $this->custom_number_format($keb_pemanen_kg_per_hk);
         }
 
 
-        // dd($dataFinalRegional);
         foreach ($queryByDateWilayah as $key => $value) {
             $jumlahBlok = 0;
             $luasTotal = 0;
@@ -190,28 +248,68 @@ class DashboardNewController extends Controller
             $jum_sph = 0;
             $jum_bjr = 0;
             $pemanen = 0;
-
+            $output = 0;
+            $inc = 0;
+            $seenBlocks = []; // Store unique blocks
+            $jumBlokSama = 0;
+            $blockData = []; // To store total output and count for each block
             foreach ($value as $key2 => $value2) {
-                $luasTotal += $value2->luas;
-                $jum_sph += $value2->sph;
-                $jum_bjr += $value2->bjr;
+                $blok = $value2->blok;
+                $currentOutput = $value2->output;
+
+                // Track block data
+                if (!isset($blockData[$blok])) {
+                    $blockData[$blok] = [
+                        'totalOutput' => 0,
+                        'count' => 0
+                    ];
+                }
+                $blockData[$blok]['totalOutput'] += $currentOutput;
+                $blockData[$blok]['count'] += 1;
+                if (!in_array($value2->blok, $seenBlocks)) {
+                    $luasTotal += $value2->luas;
+                    $jum_sph += $value2->sph;
+                    $jum_bjr +=  $value2->bjr_sensus != 0 ? $value2->bjr_sensus : $value2->bjr;
+                    $seenBlocks[] = $value2->blok; // Mark block as seen
+                    $jumBlokSama++;
+                }
+
                 $jum_pokok += $value2->jumlah_pokok;
                 $jum_janjang += $value2->jumlah_janjang;
                 $pemanen += $value2->pemanen;
+                $output += $value2->output;
                 $jumlahBlok += 1;
+                $inc++;
             }
 
-            $rerata_sph = round($jum_sph / $jumlahBlok);
-            $rerata_bjr = round($jum_bjr / $jumlahBlok);
+            $finalOutput = 0;
+            foreach ($blockData as $blok => $data) {
+                if ($data['count'] > 1) {
+                    // Average output for blocks that occur more than once
+                    $averageOutput = $data['totalOutput'] / $data['count'];
+                    $finalOutput += $averageOutput;
+                } else {
+                    // Use total output for unique blocks
+                    $finalOutput += $data['totalOutput'];
+                }
+            }
+
+            $output = round($finalOutput / $jumBlokSama, 2);
+
+            $rerata_sph = round($jum_sph / $jumBlokSama, 2);
+            $rerata_bjr = round($jum_bjr / $jumBlokSama, 2);
             $akp = round(($jum_janjang / $jum_pokok) * 100, 2);
             $tak =  round(($akp * $luasTotal * $rerata_bjr * $rerata_sph) / 100, 1);
+
+
+            $keb_pemanen_kg_per_hk = $output ? round($tak / $output, 2) : 0;
 
             $dataFinalWilayah[$key]['luas'] = $this->custom_number_format(round($luasTotal, 2));
             $dataFinalWilayah[$key]['jumlahBlok'] = $this->custom_number_format($jumlahBlok);
             $dataFinalWilayah[$key]['ritase'] = $this->custom_number_format(round($tak / 6500, 2));
             $dataFinalWilayah[$key]['akp'] = $this->custom_number_format($akp);
             $dataFinalWilayah[$key]['taksasi'] = $this->custom_number_format($tak);
-            $dataFinalWilayah[$key]['keb_pemanen'] = $this->custom_number_format($pemanen);
+            $dataFinalWilayah[$key]['keb_pemanen'] = $this->custom_number_format($keb_pemanen_kg_per_hk);
         }
 
         foreach ($queryByDateEstate as $key => $value) {
@@ -222,28 +320,73 @@ class DashboardNewController extends Controller
             $jum_sph = 0;
             $jum_bjr = 0;
             $pemanen = 0;
+            $output = 0;
+            $inc = 0;
+
+            // Arrays to track blocks and their outputs
+            $blockData = []; // To store total output and count for each block
+            $seenBlocks = []; // To store unique blocks (for existing logic)
+            $jumBlokSama = 0;
 
             foreach ($value as $key2 => $value2) {
-                $luasTotal += $value2->luas;
-                $jum_sph += $value2->sph;
-                $jum_bjr += $value2->bjr;
+                $blok = $value2->blok;
+                $currentOutput = $value2->output;
+
+                // Track block data
+                if (!isset($blockData[$blok])) {
+                    $blockData[$blok] = [
+                        'totalOutput' => 0,
+                        'count' => 0
+                    ];
+                }
+                $blockData[$blok]['totalOutput'] += $currentOutput;
+                $blockData[$blok]['count'] += 1;
+
+                // Existing logic for unique blocks
+                if (!in_array($blok, $seenBlocks)) {
+                    $luasTotal += $value2->luas;
+                    $jum_sph += $value2->sph;
+                    $jum_bjr += $value2->bjr_sensus != 0 ? $value2->bjr_sensus : $value2->bjr;
+                    $seenBlocks[] = $blok;
+                    $jumBlokSama++;
+                }
+
+                // Accumulate other values
                 $jum_pokok += $value2->jumlah_pokok;
                 $jum_janjang += $value2->jumlah_janjang;
                 $pemanen += $value2->pemanen;
                 $jumlahBlok += 1;
+                $inc++;
             }
 
-            $rerata_sph = round($jum_sph / $jumlahBlok);
-            $rerata_bjr = round($jum_bjr / $jumlahBlok);
+            $finalOutput = 0;
+            foreach ($blockData as $blok => $data) {
+                if ($data['count'] > 1) {
+                    // Average output for blocks that occur more than once
+                    $averageOutput = $data['totalOutput'] / $data['count'];
+                    $finalOutput += $averageOutput;
+                } else {
+                    // Use total output for unique blocks
+                    $finalOutput += $data['totalOutput'];
+                }
+            }
+
+            $output = round($finalOutput / $jumBlokSama, 2);
+
+            $rerata_sph = round($jum_sph / $jumBlokSama, 2);
+            $rerata_bjr = round($jum_bjr / $jumBlokSama, 2);
             $akp = round(($jum_janjang / $jum_pokok) * 100, 2);
             $tak =  round(($akp * $luasTotal * $rerata_bjr * $rerata_sph) / 100, 1);
+
+            $keb_pemanen_kg_per_hk = $output ? round($tak / $output, 2) : 0;
 
             $dataFinalEstate[$key]['luas'] = $this->custom_number_format(round($luasTotal, 2));
             $dataFinalEstate[$key]['jumlahBlok'] = $jumlahBlok;
             $dataFinalEstate[$key]['ritase'] = $this->custom_number_format(round($tak / 6500, 2));
             $dataFinalEstate[$key]['akp'] = $this->custom_number_format($akp);
             $dataFinalEstate[$key]['taksasi'] =  $this->custom_number_format($tak);
-            $dataFinalEstate[$key]['keb_pemanen'] = $pemanen;
+            $dataFinalEstate[$key]['total_bjr'] =  $this->custom_number_format($jum_bjr);
+            $dataFinalEstate[$key]['keb_pemanen'] = $keb_pemanen_kg_per_hk;
         }
 
 
@@ -358,7 +501,7 @@ class DashboardNewController extends Controller
 
         $name_reg = Regional::where('id', $id_reg)->first()->nama;
 
-        $wil_id = Wilayah::where('regional', $id_reg)->pluck('id')->toArray();
+        $wil_id = Wilayah::where('regional', $id_reg)->where('nama', 'Wilayah 3')->pluck('id')->toArray();
 
         $query = Afdeling::select('afdeling.nama as nama_afdeling', 'estate.est as nama_est', 'wil.id as nama_wil')
             ->join('estate', 'afdeling.estate', 'estate.id')
@@ -374,6 +517,7 @@ class DashboardNewController extends Controller
                     ->where(DB::raw('LOWER(estate.est)'), 'NOT LIKE', '%tc%');
             })
             ->whereIn('estate.wil', $wil_id)
+            ->where('estate.est', 'NBE')
             ->get()
             ->groupBy('nama_est')
             ->toArray();
@@ -600,7 +744,6 @@ class DashboardNewController extends Controller
         $dataFinal = $this->hiRealisasi($startDateSHI, $endDateSHI, $name_reg, $dateString, $listEstPerWil, $resultEstWithAfd, $dataRawTaksasi, $dataRawTaksasiSHI, $dataRawRealisasi, $dataRawRealisasiSHI);
 
 
-        dd($dataFinal);
         echo json_encode($dataFinal);
     }
 
@@ -1075,7 +1218,10 @@ class DashboardNewController extends Controller
             $akp_realisasi_wil = ($janjang_realisasi_wil != 0 && $pokok_realisasi_wil != 0) ? round($janjang_realisasi_wil / $pokok_realisasi_wil * 100, 2) : '-';
 
             $total_tonase_wil_realisasi = $tonase_realisasi_wil + $restan_hi_realisasi_wil;
-            $bjr_wil_realisasi = ($total_tonase_est_realisasi != 0 && $sum_janjang_est_realisasi != 0)  ? round($total_tonase_wil_realisasi / $janjang_realisasi_wil, 2) : '-';
+            $bjr_wil_realisasi = ($total_tonase_wil_realisasi != 0 && $janjang_realisasi_wil != 0)
+                ? round($total_tonase_wil_realisasi / $janjang_realisasi_wil, 2)
+                : '-';
+
 
             $ha_panen_wil_varian = ($ha_panen_realisasi_wil != 0 && $ha_panen != 0) ? round($ha_panen_realisasi_wil / $ha_panen * 100, 2) : '-';
             $pokok_wil_varian = ($sum_pkk != 0 && $pokok_realisasi_wil != 0) ? round($pokok_realisasi_wil / $sum_pkk * 100, 2) : '-';
