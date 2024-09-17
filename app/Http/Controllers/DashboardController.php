@@ -347,9 +347,12 @@ class DashboardController extends Controller
         $reg_all = Regional::get()->toArray();
 
         $reg = $reg_all[$id_reg];
-
-        $wil_list = Wilayah::where('regional', $reg['id'])->get()->pluck('id');
-
+        $specific_wil = 'Wilayah 3';
+        $specific_est = 'NBE';
+        $wil_list = Wilayah::
+            // where('regional', $reg['id'])
+            where('nama', $specific_wil)
+            ->get()->pluck('id');
 
 
         $id_wil_pil = $wil_list[$id_wil];
@@ -365,7 +368,10 @@ class DashboardController extends Controller
                     ->where(DB::raw('LOWER(estate.est)'), 'NOT LIKE', '%sr%')
                     ->where(DB::raw('LOWER(estate.est)'), 'NOT LIKE', '%tc%');
             })
+            ->where('est', $specific_est)
             ->get()->toArray();
+
+
 
         $output = '';
         $inc_est = 1;
@@ -1053,7 +1059,7 @@ class DashboardController extends Controller
         }
 
 
-        // dd($plotLine);
+
         echo json_encode($plotLine);
     }
 
@@ -1080,32 +1086,60 @@ class DashboardController extends Controller
             ->get();
 
 
+
+        // dd($queryData, $estate_input, $tgl);
         $arr = array();
         $inc = 0;
+
+
         foreach ($queryData as $key => $value) {
-            $check = explode(';', $value->br_kiri);
+            $check = explode(';', $value->lat_awal);
 
             if (count($check) != 1) {
-
-                $lat_awal_exp = explode(';', $value->lat_awal);
-                $lon_awal_exp = explode(';', $value->lon_awal);
-                $lat_akhir_exp = explode(';', $value->lat_akhir);
-                $lon_akhir_exp = explode(';', $value->lon_akhir);
-                $name_exp = explode(';', $value->name);
-                for ($i = 0; $i < count($check); $i++) {
-                    if (array_key_exists($i, $name_exp)) {
-                        $arr[$inc]['name'] = $name_exp[$i];
-                    } else {
-                        $arr[$inc]['name'] = $value->name;
-                    }
-                    $arr[$inc]['afdeling'] = $value->afdeling;
-                    $arr[$inc]['lokasi_kerja'] = $value->lokasi_kerja;
-                    $arr[$inc]['blok'] = $value->blok;
-                    $arr[$inc]['plot'] =  '[' . $lon_awal_exp[$i] . ',' . $lat_awal_exp[$i] . '],[' . $lon_akhir_exp[$i] . ',' . $lat_akhir_exp[$i] . ']';
-                    $arr[$inc]['plotAwal'] =  '[' . $lat_awal_exp[$i] . ',' . $lon_awal_exp[$i] . ']';
-                    $arr[$inc]['plotAkhir'] =  '[' . $lat_akhir_exp[$i] . ',' . $lon_akhir_exp[$i] . ']';
-                    $inc++;
+                $lat_awals = explode(';', $value->lat_awal);
+                $lon_awals = explode(';', $value->lon_awal);
+                $plotPairs = [];
+                for ($i = 0; $i < count($lat_awals); $i++) {
+                    // Pair lat_awal with lon_awal
+                    $plotPairs[] = '[' . $lon_awals[$i] . ',' . $lat_awals[$i] . ']';
                 }
+
+                // Construct plot from all paired coordinates
+                $arr[$inc]['plot'] = implode(',', $plotPairs);
+
+                // Assign plotAwal (first pair)
+                $arr[$inc]['plotAwal'] = '[' . $lat_awals[0] . ',' . $lon_awals[0] . ']';
+                $arr[$inc]['blok'] = $value->blok;
+
+                // Assign plotAkhir (last pair)
+                $arr[$inc]['plotAkhir'] = '[' . $lat_awals[count($lat_awals) - 1] . ',' . $lon_awals[count($lon_awals) - 1] . ']';
+
+                // Assign other details
+                $arr[$inc]['name'] = $value->name;
+                $arr[$inc]['afdeling'] = $value->afdeling;
+                // $arr[$inc]['latins'] = '[' . $lat_awals[count($lat_awals) - 1] . ',' . $lon_awals[count($lon_awals) - 1] . ']';
+                $arr[$inc]['lokasi_kerja'] = $value->lokasi_kerja;
+                $inc++;
+                // $lat_awal_exp = explode(';', $value->lat_awal);
+                // $lon_awal_exp = explode(';', $value->lon_awal);
+                // $lat_akhir_exp = explode(';', $value->lat_akhir);
+                // $lon_akhir_exp = explode(';', $value->lon_akhir);
+                // $name_exp = explode(';', $value->name);
+                // for ($i = 0; $i < count($check); $i++) {
+                //     if (array_key_exists($i, $name_exp)) {
+                //         $arr[$inc]['name'] = $name_exp[$i];
+                //     } else {
+                //         $arr[$inc]['name'] = $value->name;
+                //     }
+                //     $arr[$inc]['afdeling'] = $value->afdeling;
+                //     $arr[$inc]['lokasi_kerja'] = $value->lokasi_kerja;
+                //     $arr[$inc]['blok'] = $value->blok;
+                //     $arr[$inc]['plot'] =  '[' . $lon_awal_exp[$i] . ',' . $lat_awal_exp[$i] . '],[' . $lon_akhir_exp[$i] . ',' . $lat_akhir_exp[$i] . ']';
+
+                //     $arr[$inc]['plotAkhir'] =  '[' . $lat_akhir_exp[$i] . ',' . $lon_akhir_exp[$i] . ']';
+                //     $inc++;
+                // }
+                // $arr[$inc]['plotAwal'] =  '[' . $lat_awal_exp[0] . ',' . $lon_awal_exp[0] . ']';
             } else {
 
                 $arr[$inc]['name'] = $value->name;
@@ -1121,6 +1155,8 @@ class DashboardController extends Controller
             }
         }
 
+
+        // dd($arr);
 
         echo json_encode($arr);
     }
@@ -1891,7 +1927,7 @@ class DashboardController extends Controller
 
         $tak = round(($akp * $luas * $sum_bjr * $sum_sph) / 100, 1);
         $jjg_taksasi = ceil(($akp * $luas  * $sum_sph) / 100);
-        $output = round($sum_all_output_blok / $incTotalBlok, 2);
+        $output = $incTotalBlok != 0 ?  round($sum_all_output_blok / $incTotalBlok, 2) : 0;
         if ($luas > 4.5) {
             if ($output != 0) {
                 $keb_pemanen_ha_per_hk_afd = round($luas / $output, 2);
@@ -2678,8 +2714,11 @@ class DashboardController extends Controller
         $reg_all = Regional::where('nama', '!=', 'Regional V')->get()->toArray();
 
         $id_reg = $reg_all[$id_reg]['id'];
-
-        $wil_all = Wilayah::where('regional', $id_reg)->pluck('nama')->toArray();
+        $specific_wil = 'Wilayah 3';
+        $wil_all = Wilayah::
+            // where('regional', $id_reg)
+            where('nama', $specific_wil)
+            ->pluck('nama')->toArray();
 
         $output = '';
         $inc_est = 1;

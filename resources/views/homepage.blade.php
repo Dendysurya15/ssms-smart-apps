@@ -453,6 +453,9 @@
     integrity="sha512-ilxj730331yM7NbrJAICVJcRmPFErDqQhXJcn+PLbkXdE031JJbcK87Wt4VbAK+YY6/67L+N8p7KdzGoaRjsTg=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <!-- jQuery -->
+
+<script src=" https://cdn.jsdelivr.net/npm/leaflet-polylinedecorator@1.6.0/dist/leaflet.polylineDecorator.min.js ">
+</script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src="{{ asset('/public/plugins/jquery/jquery.min.js') }}"></script>
 <!-- Bootstrap 4 -->
@@ -842,52 +845,66 @@
     }
 
     function drawLineTaksasi(line) {
-        var getLineStr = '{"type"'
-        getLineStr += ":"
-        getLineStr += '"FeatureCollection",'
-        getLineStr += '"features"'
-        getLineStr += ":"
-        getLineStr += '['
+    // Create a valid GeoJSON string by fixing the format of the coordinates
+    var getLineStr = '{"type":"FeatureCollection","features":[';
 
-        for (let i = 0; i < line.length; i++) {
-            getLineStr += '{"type"'
-            getLineStr += ":"
-            getLineStr += '"Feature",'
-            getLineStr += '"properties"'
-            getLineStr += ":"
-            getLineStr += '{},'
-            getLineStr += '"geometry"'
-            getLineStr += ":"
-            getLineStr += '{"coordinates"'
-            getLineStr += ":"
-            getLineStr += '['
-            getLineStr += line[i]
-            getLineStr += '],"type"'
-            getLineStr += ":"
-            getLineStr += '"LineString"'
-            getLineStr += '}},'
-        }
-        getLineStr = getLineStr.substring(0, getLineStr.length - 1);
-        getLineStr += ']}'
+    for (let i = 0; i < line.length; i++) {
+        getLineStr += '{"type":"Feature","properties":{},"geometry":{"type":"LineString","coordinates":[';
 
-        var line = JSON.parse(getLineStr)
+        // Fix the coordinate format by replacing '],[' with '],[' in line[i]
+        getLineStr += line[i].replace(/],\[/g, '],[');
 
-        L.geoJSON(line, {
-                onEachFeature: function(feature, layer) {
-                    layer.myTag = 'LineMarker'
-                    layer.addTo(map);
-                },
-                style: function(feature) {
-                    return {
-                        weight: 2,
-                        opacity: 1,
-                        color: 'yellow',
-                        fillOpacity: 0.7
-                    };
-                }
-            })
-            .addTo(map);
+        getLineStr += ']}},';
     }
+    getLineStr = getLineStr.substring(0, getLineStr.length - 1); // Remove last comma
+    getLineStr += ']}';
+
+    // Parse the corrected GeoJSON string
+    var lineGeoJSON = JSON.parse(getLineStr);
+
+    // Add the GeoJSON layer to the map
+    var geoLayer = L.geoJSON(lineGeoJSON, {
+        onEachFeature: function (feature, layer) {
+            layer.myTag = 'LineMarker';  // Add a tag to the line
+            drawArrowLine(layer);  // Call drawArrowLine with the layer directly
+            layer.addTo(map);
+        },
+        style: function (feature) {
+            return {
+                weight: 2,
+                opacity: 1,
+                color: 'yellow',
+                fillOpacity: 0.7
+            };
+        }
+    }).addTo(map);
+}
+
+// Updated function to add arrowheads without re-creating polylines
+function drawArrowLine(layer) {
+    // Apply arrowhead decorator to the existing polyline layer
+    var decorator = L.polylineDecorator(layer, {
+        patterns: [
+            {
+                offset:'10%',    // Start from the beginning of the line
+                repeat: 50,      // Repeat arrow every 50 pixels
+                symbol: L.Symbol.arrowHead({
+                    pixelSize: 10,  // Arrowhead size
+                    polygon: true,  // Full triangle arrowhead
+                    pathOptions: {
+                        stroke: true,
+                        color: '#3be13b', // Arrow color
+                        weight: 2,
+                        fillOpacity: 1,  // Ensure the triangle is fully filled
+                        fill: true  
+                    }
+                })
+            }
+        ]
+    }).addTo(map);
+
+    decorator.myTag = 'ArrowMarker';  // Add tag 'ArrowMarker' to the arrowhead
+}
 
 
     var removeMarkers = function() {
@@ -900,6 +917,9 @@
                 map.removeLayer(layer)
             }
             if (layer.myTag && layer.myTag === "LineMarker") {
+                map.removeLayer(layer)
+            }
+            if (layer.myTag && layer.myTag === "ArrowMarker") {
                 map.removeLayer(layer)
             }
         });
@@ -1033,7 +1053,6 @@
             success: function(result) {
                 var estate = JSON.parse(result);
 
-                console.log(estate)
                 drawEstatePlot(estate['est'], estate['plot'])
             }
         })
@@ -1522,18 +1541,19 @@
                 data.bjr_varian,
                 data.ha_panen_taksasi_shi,
                 data.ha_panen_realisasi_shi,
-                data.pokok_taksasi_shi,
-                data.pokok_realisasi_shi,
-                data.janjang_taksasi_shi,
-                data.janjang_realisasi_shi,
-                data.bjr_taksasi_shi,
-                data.bjr_realisasi_shi,
                 data.akp_taksasi_shi,
                 data.akp_realisasi_shi,
                 data.tonase_taksasi_shi,
                 data.tonase_realisasi_shi,
                 data.keb_hk_taksasi_shi,
                 data.keb_hk_realisasi_shi,
+                data.janjang_taksasi_shi,
+                data.janjang_realisasi_shi,
+                data.total_tonase_taksasi,
+                data.total_tonase_realisasi_shi,
+                data.bjr_taksasi_shi,
+                data.bjr_realisasi_shi,
+              
             ]);
 
             // Create table for the Regional data
@@ -1565,18 +1585,18 @@
                 data.bjr_varian,
                 data.ha_panen_taksasi_shi,
                 data.ha_panen_realisasi_shi,
-                data.pokok_taksasi_shi,
-                data.pokok_realisasi_shi,
-                data.janjang_taksasi_shi,
-                data.janjang_realisasi_shi,
-                data.bjr_taksasi_shi,
-                data.bjr_realisasi_shi,
                 data.akp_taksasi_shi,
                 data.akp_realisasi_shi,
                 data.tonase_taksasi_shi,
                 data.tonase_realisasi_shi,
                 data.keb_hk_taksasi_shi,
                 data.keb_hk_realisasi_shi,
+                data.janjang_taksasi_shi,
+                data.janjang_realisasi_shi,
+                data.tonase_taksasi_shi,
+                data.total_tonase_realisasi_shi,
+                data.bjr_taksasi_shi,
+                data.bjr_realisasi_shi,
             ]);
 
              createTable("Wilayah", mappedData);
@@ -1607,18 +1627,18 @@
                     data.bjr_varian,
                     data.ha_panen_taksasi_shi,
                     data.ha_panen_realisasi_shi,
-                    data.pokok_taksasi_shi,
-                    data.pokok_realisasi_shi,
-                    data.janjang_taksasi_shi,
-                    data.janjang_realisasi_shi,
-                    data.bjr_taksasi_shi,
-                    data.bjr_realisasi_shi,
                     data.akp_taksasi_shi,
                     data.akp_realisasi_shi,
                     data.tonase_taksasi_shi,
                     data.tonase_realisasi_shi,
                     data.keb_hk_taksasi_shi,
                     data.keb_hk_realisasi_shi,
+                    data.janjang_taksasi_shi,
+                    data.janjang_realisasi_shi,
+                    data.tonase_taksasi_shi,
+                    data.total_tonase_realisasi_shi,
+                    data.bjr_taksasi_shi,
+                    data.bjr_realisasi_shi,
             ]);
 
             createTable("Estate", mappedData);

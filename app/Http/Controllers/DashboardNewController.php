@@ -445,31 +445,77 @@ class DashboardNewController extends Controller
             $jum_bjr = 0;
             $pemanen = 0;
             $processedBlokYgSama = [];
+            $total_keb_pemanen_ha_per_hk = 0;
+            $jumlahBlokSama = 0;
+
+            $blockData = []; // To store total output and count for each block
             foreach ($value as $key2 => $value2) {
+                $blok = $value2->blok;
+                $currentOutput = $value2->output;
+                // Track block data
+                if (!isset($blockData[$blok])) {
+                    $blockData[$blok] = [
+                        'totalOutput' => 0,
+                        'count' => 0
+                    ];
+                }
+                $blockData[$blok]['totalOutput'] += $currentOutput;
+                $blockData[$blok]['count'] += 1;
+
                 if (!in_array($value2->blok, $processedBlokYgSama)) {
                     $luasTotal += $value2->luas;
                     $processedBlokYgSama[] = $value2->blok;
+                    $jum_bjr += $value2->bjr_sensus != 0 ? $value2->bjr_sensus : $value2->bjr;
+                    $jum_sph += $value2->sph;
+                    $jumlahBlokSama++;
                 }
-                $jum_sph += $value2->sph;
-                $jum_bjr += $value2->bjr;
+                // $jum_bjr += $value2->bjr_sensus != 0 ? $value2->bjr_sensus : $value2->bjr;
                 $jum_pokok += $value2->jumlah_pokok;
                 $jum_janjang += $value2->jumlah_janjang;
                 $pemanen += $value2->pemanen;
                 $jumlahBlok += 1;
             }
+            $finalOutput = 0;
+            foreach ($blockData as $blok => $data) {
+                if ($data['count'] > 1) {
+                    // Average output for blocks that occur more than once
+                    $averageOutput = $data['totalOutput'] / $data['count'];
+                    $finalOutput += $averageOutput;
+                } else {
+                    // Use total output for unique blocks
+                    $finalOutput += $data['totalOutput'];
+                }
+            }
 
-            $rerata_sph = round($jum_sph / $jumlahBlok);
-            $rerata_bjr = round($jum_bjr / $jumlahBlok);
+            $finalOutput = round($finalOutput / $jumlahBlokSama, 2);
+
+
+
+            $rerata_sph = round($jum_sph / $jumlahBlokSama, 2);
+            $rerata_bjr = round($jum_bjr / $jumlahBlokSama, 2);
             $akp = round(($jum_janjang / $jum_pokok) * 100, 2);
-            $tak =  round(($akp * $luasTotal * $rerata_bjr * $rerata_sph) / 100, 1);
+            $tak =  round(($akp * $luasTotal * $rerata_bjr * $rerata_sph) / 100, 2);
+
+
+            if ($luasTotal > 4.5) {
+                if ($finalOutput != 0) {
+                    $total_keb_pemanen_ha_per_hk = round($tak / $finalOutput, 2);
+                } else {
+                    $total_keb_pemanen_ha_per_hk = 0; // or any default value you prefer
+                }
+            } else {
+                $total_keb_pemanen_ha_per_hk = 1;
+            }
 
             $dataFinalEstate[$key]['luas'] =  $this->custom_number_format(round($luasTotal, 2));
             $dataFinalEstate[$key]['jumlahBlok'] =  $this->custom_number_format($jumlahBlok);
             $dataFinalEstate[$key]['ritase'] =  $this->custom_number_format(round($tak / 6500, 2));
             $dataFinalEstate[$key]['akp'] =  $this->custom_number_format($akp);
             $dataFinalEstate[$key]['taksasi'] =  $this->custom_number_format($tak);
-            $dataFinalEstate[$key]['keb_pemanen'] =  $this->custom_number_format($pemanen);
+            $dataFinalEstate[$key]['keb_pemanen'] =  $this->custom_number_format($total_keb_pemanen_ha_per_hk);
         }
+
+
 
         $result['data_estate'] = $dataFinalEstate;
 
@@ -744,6 +790,7 @@ class DashboardNewController extends Controller
         $dataFinal = $this->hiRealisasi($startDateSHI, $endDateSHI, $name_reg, $dateString, $listEstPerWil, $resultEstWithAfd, $dataRawTaksasi, $dataRawTaksasiSHI, $dataRawRealisasi, $dataRawRealisasiSHI);
 
 
+        // dd($dataFinal);
         echo json_encode($dataFinal);
     }
 
@@ -751,7 +798,6 @@ class DashboardNewController extends Controller
 
     private function hiRealisasi($startDateSHI, $endDateSHI, $name_reg, $dateString, $listEstPerWil, $resultEstWithAfd, $dataRawTaksasi, $dataRawTaksasiSHI, $dataRawRealisasi, $dataRawRealisasiSHI)
     {
-
 
 
         $hitungSHItaksasiDataExist = [];
@@ -797,12 +843,13 @@ class DashboardNewController extends Controller
                         $tempHarianBjr = round(($tempHarianBjr + $tempBjr) / 2, 2);
                     }
 
-                    $takHarian = round(($tempHarianLuas * $tempHarianBjr * $tempHarianSPH * $akpHarian) / 100, 2);
+
                     $tempHarianLuas += $sumLuas;
                     $tempHkHarian += $sumHK;
                     $tempHarianPokok += $tempPokokAfd;
                     $tempHarianJanjang += $tempJanjangAfd;
                     $akpHarian = ($tempHarianPokok != 0 && $tempHarianJanjang != 0) ? round(($tempHarianJanjang / $tempHarianPokok) * 100, 2) : '-';
+                    $takHarian = round(($tempHarianLuas * $tempHarianBjr * $tempHarianSPH * $akpHarian) / 100, 2);
                 }
                 $counter++;
             }
@@ -817,6 +864,7 @@ class DashboardNewController extends Controller
                 'sph' => $tempHarianSPH,
                 'keb_hk_taksasi' => $tempHkHarian,
             ];
+
 
 
             $tempHarianPokok = 0;
@@ -834,7 +882,8 @@ class DashboardNewController extends Controller
             $tempHarianTonase = 0;
             $tempHarianRestanHi = 0;
             $tempHarianTotalTonase = 0;
-            // dd($dataRawRealisasiSHI);
+
+
             foreach ($dataRawRealisasiSHI as $tanggal => $value) {
                 $tanggal = (new DateTime($tanggal))->format('Y-m-d');
 
@@ -886,6 +935,8 @@ class DashboardNewController extends Controller
 
                 $counter++;
             }
+
+
             $hitungSHIrealisasiDataExist[$tanggal][$est] = [
                 'ha_panen' => round($tempHarianLuas, 2),
                 'pokok' => $tempHarianPokok,
@@ -897,6 +948,8 @@ class DashboardNewController extends Controller
                 'total_tonase' => $tempHarianTotalTonase,
                 'hk' => $tempHkHarian,
             ];
+
+            // dd($dataRawRealisasiSHI, $hitungSHIrealisasiDataExist, $tempHarianTotalTonase);
         }
 
         $SHITaksasiRaw = 0;
@@ -1097,7 +1150,7 @@ class DashboardNewController extends Controller
                     'total_tonase_realisasi' => $total_tonase_est_realisasi,
                     'total_tonase_realisasi_shi' => isset($hitungSHIrealisasiDataExist[$dateString][$nama_est]) ? $hitungSHIrealisasiDataExist[$dateString][$nama_est]['total_tonase'] : '-',
                     'akp_taksasi_shi' => isset($hitungSHItaksasiDataExist[$dateString][$nama_est]) ? $hitungSHItaksasiDataExist[$dateString][$nama_est]['akp_taksasi'] : '-',
-                    'akp_realisasi_shi' => isset($hitungSHIrealisasiDataExist[$dateString][$nama_est]) ? $hitungSHIrealisasiDataExist[$dateString][$nama_est]['akp'] : '-',
+                    'akp_realisasi_shi' => isset($hitungSHIrealisasiDataExist[$dateString][$nama_est]) ? ceil($hitungSHIrealisasiDataExist[$dateString][$nama_est]['akp']) : '-',
                     'akp_taksasi' => number_format((float)$akp_taksasi_est, 2),
                     'akp_realisasi' => number_format((float)$akp_realisasi_est, 2),
                     'akp_varian' => $akp_est_varian,
@@ -1117,8 +1170,12 @@ class DashboardNewController extends Controller
         // $startDate->modify('+1 day');
         // }
 
+
+
         $dataWil = [];
         $listWil = [];
+        $sum_est = 0;
+        $sum_bjr_realisasi_est = 0;
         foreach ($listEstPerWil as $key => $value) {
             $listWil[] = $key;
             $sum_jjg = 0;
@@ -1148,6 +1205,8 @@ class DashboardNewController extends Controller
             $restan_kemarin_wil = 0;
             $total_tonase_realisasi_shi = 0;
             $restan_hi_realisasi_est_shi = 0;
+
+            $bjr_realisasi_est_shi = 0;
             $inc = 0;
             foreach ($value as $key2 => $value2) {
                 $nama_est = $value2['est'];
@@ -1180,18 +1239,20 @@ class DashboardNewController extends Controller
                     $sum_jjg += $item['janjang_taksasi'];
                     $sum_jjg_tak_shi += (int)$item['janjang_taksasi_shi'];
                     $ha_panen += $item['ha_panen_taksasi'];
-                    $ha_panen_taksasi_est_shi += (int)$item['ha_panen_taksasi_shi'];
+                    $ha_panen_taksasi_est_shi += $item['ha_panen_taksasi_shi'];
                     $ha_panen_realisasi_wil += $item['ha_panen_realisasi'];
                     $ha_panen_realisasi_wil_shi += (float)$item['ha_panen_realisasi_shi'];
-                    $bjr_taksasi_est_shi += (int)$item['bjr_taksasi_shi'];
-                    $sph_taksasi_est_shi += (int)$item['sph_taksasi_shi'];
+                    $bjr_taksasi_est_shi += $item['bjr_taksasi_shi'];
+                    $bjr_realisasi_est_shi += $item['bjr_realisasi_shi'];
+                    $sum_bjr_realisasi_est += $item['bjr_realisasi_shi'];
+                    $sph_taksasi_est_shi += $item['sph_taksasi_shi'];
                     $keb_hk_wil_tak += $item['keb_hk_taksasi'];
                     $keb_hk_wil_tak_shi += (int)$item['keb_hk_taksasi_shi'];
                     $keb_hk_wil_realisasi_shi += (int)$item['keb_hk_realisasi_shi'];
                     $pokok_realisasi_wil += $item['pokok_realisasi'];
-                    $pokok_realisasi_wil_shi += (int)$item['pokok_realisasi_shi'];
+                    $pokok_realisasi_wil_shi += $item['pokok_realisasi_shi'];
                     $janjang_realisasi_wil += $item['janjang_realisasi'];
-                    $janjang_realisasi_wil_shi += (int)$item['janjang_realisasi_shi'];
+                    $janjang_realisasi_wil_shi += $item['janjang_realisasi_shi'];
                     $tonase_realisasi_wil += $item['taksasi_realisasi'];
                     $tonase_realisasi_wil_shi += (float)$item['tonase_realisasi_shi'];
                     $total_tonase_realisasi_shi += (float)$item['total_tonase_realisasi_shi'];
@@ -1200,15 +1261,19 @@ class DashboardNewController extends Controller
                     $restan_kemarin_wil += $item['restan_kemarin'];
                     $restan_hi_realisasi_est_shi += (float)$item['restan_hi_realisasi_shi'];
                     $inc++;
+                    $sum_est++;
                 }
             }
 
 
             $ha_panen_taksasi_shi_wil = ($ha_panen_taksasi_est_shi != 0) ? round($ha_panen_taksasi_est_shi / $inc, 2) : '-';
+
+
             $bjr_taksasi_shi_wil = ($bjr_taksasi_est_shi != 0) ? round($bjr_taksasi_est_shi / $inc, 2) : '-';
             $akp_taksasi_shi_wil = ($sum_jjg_tak_shi != 0 && $sum_pkk_tak_shi != 0) ? round(($sum_jjg_tak_shi / $sum_pkk_tak_shi) * 100, 2) : '-';
             $sph_taksasi_shi_wil = ($sph_taksasi_est_shi != 0) ? round($sph_taksasi_est_shi / $inc, 2) : '-';
             $temp_taksasi_shi_wil = round(((float)$akp_taksasi_shi_wil * (float)$bjr_taksasi_shi_wil * (float)$ha_panen_taksasi_shi_wil * (float)$sph_taksasi_shi_wil) / 100, 2);
+
 
             $akp_wil = ($sum_pkk != 0 && $sum_jjg != 0) ? round($sum_jjg / $sum_pkk, 2) : '-';
             $sph_wil = ($sph != 0 && $sph != '-') ? round($sph / $inc_sph_bjr, 2) : '-';
@@ -1232,9 +1297,10 @@ class DashboardNewController extends Controller
             $bjr_wil_varian =  ((float)$bjr_wil_realisasi != 0 && (float)$bjr_wil != 0) ? round((float)$bjr_wil_realisasi / (float)$bjr_wil * 100, 2) : '-';
 
             $total_tonase_taksasi_wil = (float)$tonase_taksasi_wil + $restan_kemarin_wil;
-            $akp_realisasi_wil_shi = ($janjang_realisasi_wil_shi != 0 && $pokok_realisasi_wil_shi != 0) ?   round($janjang_realisasi_wil_shi / $pokok_realisasi_wil_shi, 2) : '-';
+            $akp_realisasi_wil_shi = ($janjang_realisasi_wil_shi != 0 && $pokok_realisasi_wil_shi != 0) ?   round($janjang_realisasi_wil_shi / $pokok_realisasi_wil_shi, 2) * 100 : '-';
             $total_tonase_realisasi_shi = $tonase_realisasi_wil_shi + $restan_hi_realisasi_est_shi;
-            $bjr_realisasi_wil_shi = $total_tonase_realisasi_shi != 0 && $sum_jjg_tak_shi != 0 ? round($total_tonase_realisasi_shi / $sum_jjg_tak_shi, 2) : '-';
+
+            $bjr_realisasi_wil_shi = $bjr_realisasi_est_shi != 0 && $inc != 0 ? round($bjr_realisasi_est_shi / $inc, 2) : '-';
 
             $dataWil[] = [
                 'Tanggal' => $dateString,
@@ -1265,7 +1331,7 @@ class DashboardNewController extends Controller
                 'restan_kemarin' => $restan_kemarin_wil,
                 'restan_hi' => $restan_hi_realisasi_wil,
                 'restan_hi_realisasi_shi' => $restan_hi_realisasi_est_shi,
-                'total_tonase_taksasi' => $total_tonase_taksasi_wil,
+                'total_tonase_taksasi' => $temp_taksasi_shi_wil,
                 'total_tonase_realisasi' => $total_tonase_wil_realisasi,
                 'total_tonase_realisasi_shi' => $total_tonase_realisasi_shi,
                 'akp_taksasi_shi' => $akp_taksasi_shi_wil,
@@ -1285,6 +1351,9 @@ class DashboardNewController extends Controller
                 'keb_hk_varian' => $keb_hk_wil_varian,
             ];
         }
+
+
+
 
         $dataReg = [];
 
@@ -1330,10 +1399,10 @@ class DashboardNewController extends Controller
             $sum_pkk += $value['pokok_taksasi'];
             $sum_pkk_tak_shi += (int)$value['pokok_taksasi_shi'];
             $sum_jjg_tak_shi += (int)$value['janjang_taksasi_shi'];
-            $ha_panen_taksasi_wil_shi += (int)$value['ha_panen_taksasi_shi'];
+            $ha_panen_taksasi_wil_shi += $value['ha_panen_taksasi_shi'];
             $ha_panen_realisasi_wil_shi += $value['ha_panen_realisasi_shi'];
-            $bjr_taksasi_wil_shi += (int)$value['bjr_taksasi_shi'];
-            $sph_taksasi_wil_shi += (int)$value['sph_taksasi_shi'];
+            $bjr_taksasi_wil_shi += $value['bjr_taksasi_shi'];
+            $sph_taksasi_wil_shi += $value['sph_taksasi_shi'];
             $keb_hk_wil_tak_shi += (int)$value['keb_hk_taksasi_shi'];
             $keb_hk_wil_realisasi_shi += $value['keb_hk_realisasi_shi'];
             $pokok_realisasi_wil_shi += $value['pokok_realisasi_shi'];
@@ -1379,9 +1448,9 @@ class DashboardNewController extends Controller
         $bjr_reg_varian =  ((float)$bjr_reg_realisasi != 0 && (float)$bjr_reg != 0) ? round((float)$bjr_reg_realisasi / (float)$bjr_reg * 100, 2) : '-';
 
         $total_tonase_taksasi_reg = (float)$tonase_taksasi_reg + $restan_kemarin_reg;
-        $akp_realisasi_reg_shi = ($janjang_realisasi_wil_shi != 0 && $pokok_realisasi_wil_shi != 0) ?   round($janjang_realisasi_wil_shi / $pokok_realisasi_wil_shi, 2) : '-';
+        $akp_realisasi_reg_shi = ($janjang_realisasi_wil_shi != 0 && $pokok_realisasi_wil_shi != 0) ?   round($janjang_realisasi_wil_shi / $pokok_realisasi_wil_shi, 2) * 100 : '-';
         $total_tonase_realisasi_wil_shi = $tonase_realisasi_wil_shi + $restan_hi_wil_realisasi_shi;
-        $bjr_realisasi_reg_shi = ($total_tonase_realisasi_wil_shi != 0 && $janjang_realisasi_wil_shi != 0) ?  round($total_tonase_realisasi_wil_shi / $janjang_realisasi_wil_shi, 2) : '-';
+        $bjr_realisasi_reg_shi = ($sum_bjr_realisasi_est != 0 && $sum_est != 0) ?  round($sum_bjr_realisasi_est / $sum_est, 2) : '-';
 
         $dataReg[] = [
             'Tanggal' => $dateString,
@@ -1417,6 +1486,7 @@ class DashboardNewController extends Controller
             'akp_varian' => $akp_reg_varian,
             'tonase_taksasi_shi' => $temp_taksasi_shi_reg,
             'tonase_realisasi_shi' => $tonase_realisasi_wil_shi,
+            'total_tonase_realisasi_shi' => $total_tonase_realisasi_wil_shi,
             'taksasi_tonase' => $tonase_taksasi_reg,
             'taksasi_realisasi' => $tonase_realisasi_reg,
             'taksasi_varian' => $tonase_reg_varian,
