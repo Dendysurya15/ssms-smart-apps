@@ -1239,13 +1239,13 @@ class DashboardNewController extends Controller
                     $sum_jjg += $item['janjang_taksasi'];
                     $sum_jjg_tak_shi += (int)$item['janjang_taksasi_shi'];
                     $ha_panen += $item['ha_panen_taksasi'];
-                    $ha_panen_taksasi_est_shi += $item['ha_panen_taksasi_shi'];
+                    $ha_panen_taksasi_est_shi += (float)$item['ha_panen_taksasi_shi'];
                     $ha_panen_realisasi_wil += $item['ha_panen_realisasi'];
                     $ha_panen_realisasi_wil_shi += (float)$item['ha_panen_realisasi_shi'];
-                    $bjr_taksasi_est_shi += $item['bjr_taksasi_shi'];
+                    $bjr_taksasi_est_shi += (float)$item['bjr_taksasi_shi'];
                     $bjr_realisasi_est_shi += $item['bjr_realisasi_shi'];
                     $sum_bjr_realisasi_est += $item['bjr_realisasi_shi'];
-                    $sph_taksasi_est_shi += $item['sph_taksasi_shi'];
+                    $sph_taksasi_est_shi += (float)$item['sph_taksasi_shi'];
                     $keb_hk_wil_tak += $item['keb_hk_taksasi'];
                     $keb_hk_wil_tak_shi += (int)$item['keb_hk_taksasi_shi'];
                     $keb_hk_wil_realisasi_shi += (int)$item['keb_hk_realisasi_shi'];
@@ -1268,12 +1268,10 @@ class DashboardNewController extends Controller
 
             $ha_panen_taksasi_shi_wil = ($ha_panen_taksasi_est_shi != 0) ? round($ha_panen_taksasi_est_shi / $inc, 2) : '-';
 
-
             $bjr_taksasi_shi_wil = ($bjr_taksasi_est_shi != 0) ? round($bjr_taksasi_est_shi / $inc, 2) : '-';
             $akp_taksasi_shi_wil = ($sum_jjg_tak_shi != 0 && $sum_pkk_tak_shi != 0) ? round(($sum_jjg_tak_shi / $sum_pkk_tak_shi) * 100, 2) : '-';
             $sph_taksasi_shi_wil = ($sph_taksasi_est_shi != 0) ? round($sph_taksasi_est_shi / $inc, 2) : '-';
             $temp_taksasi_shi_wil = round(((float)$akp_taksasi_shi_wil * (float)$bjr_taksasi_shi_wil * (float)$ha_panen_taksasi_shi_wil * (float)$sph_taksasi_shi_wil) / 100, 2);
-
 
             $akp_wil = ($sum_pkk != 0 && $sum_jjg != 0) ? round($sum_jjg / $sum_pkk, 2) : '-';
             $sph_wil = ($sph != 0 && $sph != '-') ? round($sph / $inc_sph_bjr, 2) : '-';
@@ -1331,7 +1329,7 @@ class DashboardNewController extends Controller
                 'restan_kemarin' => $restan_kemarin_wil,
                 'restan_hi' => $restan_hi_realisasi_wil,
                 'restan_hi_realisasi_shi' => $restan_hi_realisasi_est_shi,
-                'total_tonase_taksasi' => $temp_taksasi_shi_wil,
+                'total_tonase_taksasi' => $total_tonase_taksasi_wil,
                 'total_tonase_realisasi' => $total_tonase_wil_realisasi,
                 'total_tonase_realisasi_shi' => $total_tonase_realisasi_shi,
                 'akp_taksasi_shi' => $akp_taksasi_shi_wil,
@@ -1401,7 +1399,7 @@ class DashboardNewController extends Controller
             $sum_jjg_tak_shi += (int)$value['janjang_taksasi_shi'];
             $ha_panen_taksasi_wil_shi += $value['ha_panen_taksasi_shi'];
             $ha_panen_realisasi_wil_shi += $value['ha_panen_realisasi_shi'];
-            $bjr_taksasi_wil_shi += $value['bjr_taksasi_shi'];
+            $bjr_taksasi_wil_shi +=  (float)$value['bjr_taksasi_shi'];
             $sph_taksasi_wil_shi += $value['sph_taksasi_shi'];
             $keb_hk_wil_tak_shi += (int)$value['keb_hk_taksasi_shi'];
             $keb_hk_wil_realisasi_shi += $value['keb_hk_realisasi_shi'];
@@ -1477,7 +1475,7 @@ class DashboardNewController extends Controller
             'bjr_varian' => $bjr_reg_varian,
             'restan_kemarin' => $restan_kemarin_reg,
             'restan_hi' => $restan_hi_realisasi_reg,
-            'total_tonase_taksasi' => $total_tonase_taksasi_reg,
+            'total_tonase_taksasi' => $temp_taksasi_shi_wil,
             'total_tonase_realisasi' => $total_tonase_reg_realisasi,
             'akp_taksasi_shi' => $akp_taksasi_shi_reg,
             'akp_realisasi_shi' => $akp_realisasi_reg_shi,
