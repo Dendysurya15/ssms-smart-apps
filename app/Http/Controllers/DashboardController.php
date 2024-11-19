@@ -1623,6 +1623,342 @@ class DashboardController extends Controller
         return view('mon_pemupukan.dashboard');
     }
 
+    private function isPointInPolygon($point, $polygon)
+    {
+        $x = $point[0];
+        $y = $point[1];
+
+        $vertices = array_map(function ($vertex) {
+            return explode(',', $vertex);
+        }, explode('$', $polygon));
+
+        $numVertices = count($vertices);
+        $isInside = false;
+
+        for ($i = 0, $j = $numVertices - 1; $i < $numVertices; $j = $i++) {
+            $xi = $vertices[$i][0];
+            $yi = $vertices[$i][1];
+            $xj = $vertices[$j][0];
+            $yj = $vertices[$j][1];
+
+            $intersect = (($yi > $y) != ($yj > $y)) && ($x < ($xj - $xi) * ($y - $yi) / ($yj - $yi) + $xi);
+
+            if ($intersect) {
+                $isInside = !$isInside;
+            }
+        }
+        return $isInside;
+    }
+
+    public function generateMaps($est, $date)
+    {
+        $namaEstate = $est;
+        $datetime = $date;
+        $startDate = $datetime;
+        $endDate = date('Y-m-d', strtotime($datetime . ' +1 day'));
+
+        // Get taksasi data
+        $taksasiData = DB::connection('mysql2')->table('taksasi')
+            ->whereBetween('waktu_upload', [$startDate, $endDate])
+            ->where('lokasi_kerja', $namaEstate)
+            ->orderBy('afdeling')
+            ->orderBy('blok')
+            ->get();
+
+        // Process arrData
+        $arr = [];
+        $inc = 0;
+        foreach ($taksasiData as $value) {
+            $est = DB::connection('mysql2')->table('estate')
+                ->where('nama', $value->lokasi_kerja)
+                ->first()->est ?? $value->lokasi_kerja;
+
+            // Process coordinates and build arr array
+            // [Your existing coordinate processing logic here]
+        }
+
+        $arr = [];
+        $inc = 0;
+        foreach ($taksasiData as $value) {
+            $est = DB::connection('mysql2')->table('estate')
+                ->where('nama', $value->lokasi_kerja)
+                ->first()->est ?? $value->lokasi_kerja;
+
+            $check = explode(';', $value->br_kiri);
+
+            if (count($check) != 1) {
+                $lat_awal_exp = explode(';', $value->lat_awal);
+                $lon_awal_exp = explode(';', $value->lon_awal);
+                $lat_akhir_exp = explode(';', $value->lat_akhir);
+                $lon_akhir_exp = explode(';', $value->lon_akhir);
+                $name_exp = explode(';', $value->name);
+
+                for ($i = 0; $i < count($check); $i++) {
+                    if (array_key_exists($i, $name_exp)) {
+                        $arr[$inc]['name'] = $name_exp[$i];
+                    } else {
+                        $arr[$inc]['name'] = $value->name;
+                    }
+
+                    $arr[$inc]['afdeling'] = $value->afdeling;
+                    $arr[$inc]['lokasi_kerja'] = $est;
+                    $arr[$inc]['blok'] = $value->blok;
+
+                    if (!empty($lat_awal_exp[$i]) && !empty($lon_awal_exp[$i]) && !empty($lat_akhir_exp[$i]) && !empty($lon_akhir_exp[$i])) {
+                        $arr[$inc]['plot'] = '[' . $lon_awal_exp[$i] . ',' . $lat_awal_exp[$i] . '],[' . $lon_akhir_exp[$i] . ',' . $lat_akhir_exp[$i] . ']';
+                        $arr[$inc]['plotAwal'] = '[' . $lat_awal_exp[$i] . ',' . $lon_awal_exp[$i] . ']';
+                        $arr[$inc]['plotAkhir'] = '[' . $lat_akhir_exp[$i] . ',' . $lon_akhir_exp[$i] . ']';
+                        $arr[$inc]['latins'] = $lat_akhir_exp[$i] . ',' . $lon_akhir_exp[$i];
+                        $inc++;
+                    }
+                }
+            } else {
+                $arr[$inc]['name'] = $value->name;
+                $arr[$inc]['blok'] = $value->blok;
+
+                if (!empty($value->lat_awal) && !empty($value->lon_awal)) {
+                    if (strpos($value->lat_awal, ';') !== false && strpos($value->lon_awal, ';') !== false) {
+                        $lat_awals = explode(';', $value->lat_awal);
+                        $lon_awals = explode(';', $value->lon_awal);
+                        $lat_akhirs = explode(';', $value->lat_akhir);
+                        $lon_akhirs = explode(';', $value->lon_akhir);
+
+                        if (count($lat_awals) === count($lon_awals)) {
+                            $plotPairs = [];
+                            for ($i = 0; $i < count($lat_awals); $i++) {
+                                $plotPairs[] = '[' . $lon_awals[$i] . ',' . $lat_awals[$i] . ']';
+                            }
+
+                            $arr[$inc]['plot'] = implode(',', $plotPairs);
+                            $arr[$inc]['plotAwal'] = '[' . $lat_awals[0] . ',' . $lon_awals[0] . ']';
+                            $arr[$inc]['plotAkhir'] = '[' . $lat_awals[count($lat_awals) - 1] . ',' . $lon_awals[count($lon_awals) - 1] . ']';
+                            $arr[$inc]['afdeling'] = $value->afdeling;
+                            $arr[$inc]['latins'] = '[' . $lat_awals[count($lat_awals) - 1] . ',' . $lon_awals[count($lon_awals) - 1] . ']';
+                            $arr[$inc]['lokasi_kerja'] = $est;
+                            $inc++;
+                        } else {
+                            $arr[$inc]['plot'] = 'Invalid data; mismatched lat_awal and lon_awal coordinates';
+                            $arr[$inc]['plotAwal'] = 'Invalid data';
+                            $arr[$inc]['plotAkhir'] = 'Invalid data';
+                            $arr[$inc]['afdeling'] = 'Invalid data';
+                            $arr[$inc]['latins'] = 'Invalid data';
+                            $arr[$inc]['lokasi_kerja'] = 'Invalid data';
+                            $inc++;
+                        }
+                    } else {
+                        $arr[$inc]['plot'] = '[' . $value->lon_awal . ',' . $value->lat_awal . '],[' . $value->lon_akhir . ',' . $value->lat_akhir . ']';
+                        $arr[$inc]['plotAwal'] = '[' . $value->lat_awal . ',' . $value->lon_awal . ']';
+                        $arr[$inc]['plotAkhir'] = '[' . $value->lat_akhir . ',' . $value->lon_akhir . ']';
+                        $arr[$inc]['afdeling'] = $value->afdeling;
+                        $arr[$inc]['latins'] = $value->lat_akhir . ',' . $value->lon_akhir;
+                        $arr[$inc]['lokasi_kerja'] = $est;
+                        $inc++;
+                    }
+                }
+            }
+        }
+
+        // Build list arrays
+        $list_afd = [];
+        $list_estate = [];
+        foreach ($arr as $key => $value) {
+            if (!in_array($value['lokasi_kerja'], $list_estate)) {
+                $list_estate[] = $value['lokasi_kerja'];
+            }
+            if (!in_array($value['afdeling'], $list_afd)) {
+                $list_afd[] = $value['afdeling'];
+            }
+        }
+
+
+        // Build userTaksasi
+        $user = [];
+        foreach ($list_afd as $key2 => $data) {
+            foreach ($arr as $key => $value) {
+                if ($data == $value['afdeling']) {
+                    $user[$data][] = $value['name'];
+                }
+            }
+        }
+
+        $userTaksasi = [];
+        foreach ($user as $key => $value) {
+            $userTaksasi[$key] = array_values(array_unique($value));
+        }
+
+
+        // Build estate_plot
+        $estate_plot = [];
+        foreach ($list_estate as $key => $value) {
+            $estatePlotData = DB::connection('mysql2')
+                ->table('estate_plot')
+                ->join('estate', 'estate_plot.est', '=', 'estate.est')
+                ->where('estate_plot.est', $value)
+                ->get();
+
+            $plot = '';
+            foreach ($estatePlotData as $val3) {
+                $plot .= '[' . $val3->lon . ',' . $val3->lat . '],';
+                $estate = $val3->nama;
+                $estate_plot[$value]['number'][] = '[' . $val3->lat . ',' . $val3->lon . ']';
+            }
+            $estate_plot[$value]['est'] = $estate . ' Estate';
+            $estate_plot[$value]['plot'] = rtrim($plot, ',');
+        }
+
+
+        // Build blokLatLn using your existing logic
+        // Get estate and afdeling data
+        $blokPerEstate = [];
+        $arrAfd = [];
+        $listIdAfd = [];
+
+        foreach ($list_estate as $key => $val) {
+            $estateData = DB::connection('mysql2')->table('estate as e')
+                ->join('afdeling as a', 'e.id', '=', 'a.estate')
+                ->where('e.est', $val)
+                ->get();
+
+            foreach ($estateData as $value) {
+                $arrAfd[$val][$value->nama] = $value->id;
+                $listIdAfd[] = $value->id;
+            }
+
+            foreach ($arrAfd[$val] as $key2 => $data) {
+                $blokData = DB::connection('mysql2')->table('blok')
+                    ->where('afdeling', $data)
+                    ->get();
+
+                foreach ($blokData as $val3) {
+                    $blokPerEstate[$val][$key2][] = $val3->nama;
+                }
+            }
+        }
+
+        // Build arrData and list_blok
+        $arrData = [];
+        $list_blok = [];
+        foreach ($list_estate as $key => $value) {
+            foreach ($arr as $key2 => $val) {
+                if ($val['lokasi_kerja'] == $value) {
+                    $arrData[$value][] = $val;
+                    $list_blok[$value][] = $val['blok'];
+                }
+            }
+        }
+
+        // Get markers data
+        $data = DB::connection('mysql2')->table('taksasi')
+            ->whereDate('waktu_upload', $datetime)
+            ->where('lokasi_kerja', $namaEstate)
+            ->orderBy('waktu_upload', 'DESC')
+            ->get();
+
+        $markers = [];
+        foreach ($data as $row) {
+            $lat = floatval($row->lat_awal);
+            $lon = floatval($row->lon_awal);
+            $markers[] = [$lat, $lon];
+        }
+        $markers = array_values($markers);
+
+        // Get polygon data
+        $dataafd = DB::connection('mysql2')->table('blok')
+            ->select('blok.nama', 'blok.lat', 'blok.lon', 'blok.id')
+            ->join('afdeling', 'afdeling.id', '=', 'blok.afdeling')
+            ->join('estate', 'estate.id', '=', 'afdeling.estate')
+            ->where('estate.est', $namaEstate)
+            ->get();
+
+        $polygons = [];
+        $listBlok = [];
+        foreach ($dataafd as $value2) {
+            $nama = $value2->nama;
+            $latln = $value2->lat . ',' . $value2->lon;
+
+            if (!isset($polygons[$nama])) {
+                $polygons[$nama] = $latln;
+                $listBlok[] = $nama;
+            } else {
+                $polygons[$nama] .= '$' . $latln;
+            }
+        }
+
+        $polygons = array_values($polygons);
+        $finalResultBlok = [];
+
+        foreach ($polygons as $key => $polygon) {
+            foreach ($markers as $marker) {
+                if ($this->isPointInPolygon($marker, $polygon)) {
+                    $finalResultBlok[] = $listBlok[$key];
+                }
+            }
+        }
+
+        $finalResultBlok = array_unique($finalResultBlok);
+
+        // Get latin data
+        $datalatin = DB::connection('mysql2')->table('blok')
+            ->select('blok.nama', 'blok.lat', 'blok.lon', 'blok.id', 'afdeling.nama as namaafd')
+            ->join('afdeling', 'afdeling.id', '=', 'blok.afdeling')
+            ->join('estate', 'estate.id', '=', 'afdeling.estate')
+            ->where('estate.est', $namaEstate)
+            ->whereIn('blok.nama', $finalResultBlok)
+            ->get();
+
+        // Group data by nama
+        $groupedData = [];
+        foreach ($datalatin as $item) {
+            $nama = $item->nama;
+            if (!isset($groupedData[$nama])) {
+                $groupedData[$nama] = [];
+            }
+            $groupedData[$nama][] = $item;
+        }
+
+        // Build blokLatLnEw
+        $blokLatLnEw = [];
+        $inc = 0;
+        foreach ($groupedData as $key => $value) {
+            $latln = '';
+            $latln2 = '';
+            foreach ($value as $value2) {
+                $latln .= $value2->lat . ',' . $value2->lon . '$';
+                $latln2 .= '[' . $value2->lon . ',' . $value2->lat . '],';
+            }
+
+            $blokLatLnEw[$inc] = [
+                'blok' => $key,
+                'afd' => $value2->namaafd,
+                'estate' => $namaEstate,
+                'latln' => rtrim($latln, '$'),
+                'latinnew' => rtrim($latln2, ',')
+            ];
+            $inc++;
+        }
+
+        $blokLatLn = [];
+        foreach ($blokLatLnEw as $value) {
+            $blokLatLn[$namaEstate][] = [
+                'blok' => $value['blok'],
+                'estate' => $namaEstate,
+                'afdeling' => $value['afd'],
+                'latln' => $value['latinnew']
+            ];
+        }
+
+
+        return view('taksasi.generateMaps', [
+            'arrData' => json_encode($arrData),
+            'estate_plot' => json_encode($estate_plot),
+            'userTaksasi' => json_encode($userTaksasi),
+            'blokLatLn' => json_encode($blokLatLn),
+            'datetime' => json_encode($datetime)
+        ]);
+    }
+
+
+
 
     public function exportPdfTaksasi($est, $date,  $web = null)
     {

@@ -21,3 +21,4 @@ use Illuminate\Support\Facades\Route;
 // });
 
 Route::get('exportPdfTaksasi/{est}/{date}/{web?}', [DashboardController::class, 'exportPdfTaksasi'])->name('exportPdfTaksasi');
+Route::get('generateMaps/{est}/{date}', [DashboardController::class, 'generateMaps'])->name('generateMaps');
